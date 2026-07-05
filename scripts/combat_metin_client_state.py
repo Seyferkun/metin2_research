@@ -140,10 +140,60 @@ def apply_session_start_metin_choice(args, choice: dict | None) -> bool:
     return True
 
 
+def _is_selected_metin_target(game, metin_name: str | None) -> bool:
+    name = str(getattr(game, "target_name", None) or "")
+    if "metin" not in name.lower():
+        return False
+    if metin_name and metin_name.lower() not in name.lower() and str(metin_name).lower() != "metin":
+        return False
+    return bool(getattr(game, "target_vid", None) and getattr(game, "target_alive", None) is True)
+
+
+def choose_exact_target_evidence_from_game(game, metin_name: str | None) -> dict | None:
+    """Return trusted exact target evidence for a manually selected Metin.
+
+    The manual-select flow is only trusted when the client logger confirms a
+    live selected Metin by VID/name/alive state and exports target projection
+    data. A target name alone, visual-only detection, or a named-probe row that
+    lacks exact target projection is not enough to start combat.
+    """
+    if not _is_selected_metin_target(game, metin_name):
+        return None
+    project = getattr(game, "target_project_position", None)
+    pixel = getattr(game, "target_pixel_position", None)
+    if not isinstance(project, list) or len(project) < 2:
+        return None
+    if pixel is not None and (not isinstance(pixel, list) or len(pixel) < 2):
+        return None
+    return {
+        "metin_name": str(getattr(game, "target_name", None) or metin_name or "Metin"),
+        "metin_vid": int(getattr(game, "target_vid")),
+        "metin_x": int(float(project[0])),
+        "metin_y": int(float(project[1])),
+        "metin_coord_source": "target_selected_project_position",
+        "evidence_source": "manual_selected_target",
+        "target_pixel_position": pixel,
+        "target_project_position": project,
+        "target_liveness_source": getattr(game, "target_liveness_source", None),
+    }
+
+
+def apply_exact_target_evidence(args, evidence: dict | None) -> bool:
+    if not evidence:
+        return False
+    args.metin_name = evidence.get("metin_name") or args.metin_name
+    args.metin_vid = evidence.get("metin_vid")
+    args.metin_x = evidence.get("metin_x")
+    args.metin_y = evidence.get("metin_y")
+    args.metin_coord_source = evidence.get("metin_coord_source")
+    return True
+
+
 def choose_movement_key_toward_metin(action_args: dict | None, model: dict) -> str:
     action_args = action_args or {}
     current = action_args.get("current")
     target = action_args.get("target")
+
     if current and target and model:
         return choose_key_for_direction((int(current[0]), int(current[1])), (int(target[0]), int(target[1])), model)
     # Conservative fallback if no calibrated model is available. The caller still
@@ -618,6 +668,44 @@ def main() -> int:
                 time.sleep(0.5)
                 continue
             # Current JSON cannot read chat rewards; keep the hook for a future chat/log adapter.
+            if locked_metin_vid is None and args.metin_x is None and args.metin_y is None:
+                exact_evidence = choose_exact_target_evidence_from_game(game, locked_metin_name)
+                if exact_evidence:
+                    apply_exact_target_evidence(args, exact_evidence)
+                    locked_metin_vid = args.metin_vid
+                    locked_metin_name = args.metin_name
+                    emit(
+                        args.out,
+                        {
+                            "cycle": cycle,
+                            "dry_run": not args.live,
+                            "state": "EXACT_TARGET_LOCKED",
+                            "command": "lock_manual_selected_target",
+                            "reason": "manual selected Metin has trusted VID/alive/project-position evidence",
+                            "exact_target_evidence": exact_evidence,
+                            "run_id": run_id,
+                        },
+                    )
+                elif _is_selected_metin_target(game, locked_metin_name):
+                    emit(
+                        args.out,
+                        {
+                            "cycle": cycle,
+                            "dry_run": not args.live,
+                            "state": "NEED_EXACT_TARGET",
+                            "command": "stop_need_exact_target_projection",
+                            "reason": "selected Metin has VID/name/alive evidence but missing target project/pixel position; refresh the client logger or run same-elevation/admin capture before live combat",
+                            "target_vid": game.target_vid,
+                            "target_name": game.target_name,
+                            "target_alive": game.target_alive,
+                            "target_pixel_position": game.target_pixel_position,
+                            "target_project_position": game.target_project_position,
+                            "run_id": run_id,
+                        },
+                    )
+                    print("[state=NEED_EXACT_TARGET] [action=stop_need_exact_target_projection] [reason=selected Metin missing target projection evidence]", flush=True)
+                    append_state_once(states_visited, "NEED_EXACT_TARGET")
+                    return finish("aborted", "need_exact_target_projection", 2)
             snap = CombatSnapshot(
                 game=game,
                 metin_vid=locked_metin_vid,

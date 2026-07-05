@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from metin2_research.client_state.combat import CombatAction
-from scripts.combat_metin_client_state import DistanceTracker, NavMilestones, ProbeLossGrace, apply_session_start_metin_choice, choose_movement_key_toward_metin, choose_movement_step_toward_metin, choose_movement_steps_toward_metin, choose_session_start_metin, choose_unstuck_key, movement_stuck, format_structured_log_line, normalize_metin_coord, probe_best_key, read_game, run_live_command, run_session_start_scan, should_decay_after_divergence, should_stop
+from scripts.combat_metin_client_state import DistanceTracker, NavMilestones, ProbeLossGrace, apply_exact_target_evidence, apply_session_start_metin_choice, choose_exact_target_evidence_from_game, choose_movement_key_toward_metin, choose_movement_step_toward_metin, choose_movement_steps_toward_metin, choose_session_start_metin, choose_unstuck_key, movement_stuck, format_structured_log_line, normalize_metin_coord, probe_best_key, read_game, run_live_command, run_session_start_scan, should_decay_after_divergence, should_stop
 
 
 def test_read_game_prefers_fresh_json_state_when_tsv_missing(tmp_path):
@@ -185,6 +185,66 @@ def test_apply_session_start_metin_choice_overrides_stale_target_args():
     assert args.metin_x == 453
     assert args.metin_y == 623
     assert args.metin_coord_source == "live_memory_visible_text"
+
+
+def test_choose_exact_target_evidence_accepts_manual_selected_metin_with_project_position():
+    game = SimpleNamespace(
+        target_name="Metin da Batalha",
+        target_vid=2752330,
+        target_alive=True,
+        target_pixel_position=[641.5, 392.0],
+        target_project_position=[82213.0, 70769.0, 20366.0],
+        target_liveness_source="has_instance",
+        target_type=None,
+        target_race_num=8001,
+    )
+
+    evidence = choose_exact_target_evidence_from_game(game, "Metin")
+
+    assert evidence == {
+        "metin_name": "Metin da Batalha",
+        "metin_vid": 2752330,
+        "metin_x": 82213,
+        "metin_y": 70769,
+        "metin_coord_source": "target_selected_project_position",
+        "evidence_source": "manual_selected_target",
+        "target_pixel_position": [641.5, 392.0],
+        "target_project_position": [82213.0, 70769.0, 20366.0],
+        "target_liveness_source": "has_instance",
+    }
+
+
+def test_choose_exact_target_evidence_rejects_selected_metin_without_exact_position():
+    game = SimpleNamespace(
+        target_name="Metin da Batalha",
+        target_vid=2752330,
+        target_alive=True,
+        target_pixel_position=None,
+        target_project_position=None,
+        target_liveness_source="has_instance",
+        target_type=None,
+        target_race_num=8001,
+    )
+
+    assert choose_exact_target_evidence_from_game(game, "Metin") is None
+
+
+def test_apply_exact_target_evidence_locks_manual_selected_target():
+    args = SimpleNamespace(metin_name="Metin", metin_vid=None, metin_x=None, metin_y=None, metin_coord_source=None)
+    evidence = {
+        "metin_name": "Metin da Batalha",
+        "metin_vid": 2752330,
+        "metin_x": 82213,
+        "metin_y": 70769,
+        "metin_coord_source": "target_selected_project_position",
+    }
+
+    assert apply_exact_target_evidence(args, evidence) is True
+    assert args.metin_name == "Metin da Batalha"
+    assert args.metin_vid == 2752330
+    assert args.metin_x == 82213
+    assert args.metin_y == 70769
+    assert args.metin_coord_source == "target_selected_project_position"
 
 
 def test_choose_movement_key_toward_metin_uses_learned_navigation_model():
@@ -377,7 +437,7 @@ def test_combat_script_writes_structured_report_on_max_cycles(tmp_path):
                 "timestamp_ms": 1,
                 "map": "metin2_map_a1",
                 "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
-                "target": {"vid": 777, "name": "Metin da Batalha", "alive": True, "alive_source": "chr.HasInstance", "type": 2},
+                "target": {"vid": 777, "name": "Metin da Batalha", "alive": True, "alive_source": "chr.HasInstance", "type": 2, "pixel_position": [640.0, 390.0], "project_position": [10.0, 20.0, 30.0]},
                 "nearby_entities": [],
             }
         ),
@@ -413,6 +473,11 @@ def test_combat_script_writes_structured_report_on_max_cycles(tmp_path):
 
     assert result.returncode == 0, result.stderr
     report = json.loads(report_path.read_text(encoding="utf-8"))
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert events[0]["state"] == "EXACT_TARGET_LOCKED"
+    assert events[0]["exact_target_evidence"]["evidence_source"] == "manual_selected_target"
+    assert events[0]["exact_target_evidence"]["metin_vid"] == 777
+    assert events[1]["state"] == "ATTACK_METIN"
     assert report["run_id"] == run_id
     assert report["outcome"] == "max_cycles"
     assert report["metin_name"] == "Metin da Batalha"
