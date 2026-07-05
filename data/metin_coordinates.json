@@ -1,0 +1,86 @@
+[
+  {
+    "id": "yongan_metin_negra_290_203",
+    "map_name": "Yongan",
+    "metin_name": "Metin Negra",
+    "x": "290",
+    "y": "203",
+    "source_type": "user_visible_confirmation",
+    "source_path": "conversation",
+    "evidence": "User reported visible Metin Negra coordinate 290,203 while two Metins were on screen.",
+    "confidence": "0.98",
+    "notes": "User-confirmed coordinate; use to correlate visible label anchor with memory/entity structures."
+  },
+  {
+    "id": "yongan_metin_da_batalha_284_218",
+    "map_name": "Yongan",
+    "metin_name": "Metin da Batalha",
+    "x": "284",
+    "y": "218",
+    "source_type": "live_memory_patrol",
+    "source_path": "reports\\entity_anchor_visible_metins_c1_l4_d.json",
+    "evidence": "z R¡    ` ß ¸û -` ß       7F ¼ãÇ (kG    G ]¡     þ -¸Ó  `Ö    A   7F  áÇ   G    @ X¡    Cão Selvagem Feroz   °          M C¡B   Metin da Batalha(284, 218)      V N¡    8 '  Ö  ø '   þ   7F `êÇ   G    S I¡    8q  ¨;  8q      L        T7# T7#",
+    "confidence": "0.96",
+    "notes": "Recorded during Yongan patrol memory scan."
+  },
+  {
+    "id": "yongan_metin_da_batalha_453_623",
+    "map_name": "Yongan",
+    "metin_name": "Metin da Batalha",
+    "x": "453",
+    "y": "623",
+    "source_type": "memory_text_anchor_plus_user_confirmation",
+    "source_path": "reports/metin_unknown_453_623_entity_probe.json",
+    "evidence": "Memory scan found Metin da Batalha(453,623) after user reported Metin at 453,623.",
+    "confidence": "0.98",
+    "notes": "Coordinate text anchors observed at 0x0b73d584, 0x2a89b0f4, and 0x2faa60d0 in current session; addresses are not restart-stable."
+  },
+  {
+    "id": "yongan_metin_da_batalha_602_813",
+    "map_name": "Yongan",
+    "metin_name": "Metin da Batalha",
+    "x": "602",
+    "y": "813",
+    "source_type": "memory_text_anchor_plus_user_confirmation",
+    "source_path": "reports/metin_unknown_602_813_entity_probe.json",
+    "evidence": "Memory scan found Metin da Batalha(602,813) after user reported Metin at 602,813.",
+    "confidence": "0.98",
+    "notes": "Coordinate text anchors observed at 0x2a89b0c4 and 0x2a89b0f4 in current session; addresses are not restart-stable."
+  },
+  {
+    "id": "yongan_metin_da_batalha_848_662",
+    "map_name": "Yongan",
+    "metin_name": "Metin da Batalha",
+    "x": "848",
+    "y": "662",
+    "source_type": "memory_text_anchor_plus_user_confirmation",
+    "source_path": "reports/metin_unknown_848_662_entity_probe.json",
+    "evidence": "Memory scan found Metin da Batalha(848,662) after user reported Metin at 848,662.",
+    "confidence": "0.98",
+    "notes": "Coordinate text anchors observed at 0x2a89b094 and 0x2faa60d0 in current session; addresses are not restart-stable."
+  },
+  {
+    "id": "yongan_metin_do_combate_113_463",
+    "map_name": "Yongan",
+    "metin_name": "Metin do Combate",
+    "x": "113",
+    "y": "463",
+    "source_type": "memory_text_anchor_plus_user_confirmation",
+    "source_path": "reports/metin_unknown_113_463_entity_probe.json",
+    "evidence": "Memory scan found Metin do Combate(113,463) after user reported nearby Metin at 113,463.",
+    "confidence": "0.98",
+    "notes": "Coordinate text anchors observed at 0x0b73d584 and 0x2faa60d0 in current session; addresses are not restart-stable."
+  },
+  {
+    "id": "yongan_metin_do_combate_836_404",
+    "map_name": "Yongan",
+    "metin_name": "Metin do Combate",
+    "x": "836",
+    "y": "404",
+    "source_type": "memory_text_anchor_plus_user_confirmation",
+    "source_path": "reports/metin_unknown_836_404_entity_probe.json",
+    "evidence": "Memory scan found Metin do Combate(836,404) after user reported Metin at 836,404.",
+    "confidence": "0.98",
+    "notes": "Coordinate text anchors observed at 0x2a89b094 and 0x2faa60d0 in current session; addresses are not restart-stable."
+  }
+]

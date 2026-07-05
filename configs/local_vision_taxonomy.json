@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "purpose": "Local Metin2 perception taxonomy for replacing GPT-per-frame vision with detector/OCR/OpenCV structured state.",
+  "object_detection_classes": [
+    "metin_stone",
+    "wolf",
+    "boar",
+    "bear",
+    "other_mob",
+    "mob_name_label",
+    "player_name_label",
+    "target_hp_bar",
+    "selected_target_name",
+    "loot_drop",
+    "death_dialog",
+    "esc_menu",
+    "big_map",
+    "minimap",
+    "coordinate_tooltip",
+    "inventory",
+    "dungeon_overlay",
+    "task_icon"
+  ],
+  "ocr_regions": {
+    "minimap_coordinate_text": {
+      "region_source": "metin2_research.local_vision.minimap_area_for_size",
+      "examples": ["Yoshypt (607, 1025)"],
+      "required_output": ["player_name", "x", "y"]
+    },
+    "selected_target_name": {
+      "required_output": ["target_name"],
+      "validation_rule": "combat target is valid only if target_name contains Metin"
+    },
+    "mob_name_labels": {
+      "required_output": ["level", "name"],
+      "validation_rule": "reject Metin candidates overlapping known mob labels"
+    }
+  },
+  "feedback_assertions": {
+    "move_forward": "coordinate delta must be non-zero or minimap/player/world optical flow must change; otherwise diagnose stuck/focus/menu/key ignored",
+    "camera_turn": "world view must rotate while coordinate stays roughly stable",
+    "attack": "target HP must decrease, hit animation must appear, or target must disappear; otherwise abandon stale/wrong target",
+    "click_target": "selected target name/HP must appear and validate as Metin before trusting attacks"
+  },
+  "recommended_loop": [
+    "capture screenshot",
+    "run local detector/OCR/OpenCV into structured state JSON",
+    "apply deterministic feedback assertion for previous action",
+    "choose bounded next action",
+    "log screenshot/state/action/feedback for GPT review only on failures"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "map_name": "Yongan",
+  "bounds": [
+    0,
+    0,
+    500,
+    500
+  ],
+  "cell_size": 25,
+  "coverage": {
+    "visited_cells": 3,
+    "blocked_cells": 12,
+    "total_cells": 400,
+    "coverage_ratio": 0.0075,
+    "visited_cell_ids": [
+      [
+        10,
+        8
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        12,
+        8
+      ]
+    ],
+    "blocked_cell_ids": [
+      [
+        12,
+        8
+      ],
+      [
+        12,
+        9
+      ],
+      [
+        13,
+        7
+      ],
+      [
+        13,
+        8
+      ],
+      [
+        14,
+        8
+      ],
+      [
+        15,
+        9
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        16,
+        7
+      ],
+      [
+        16,
+        10
+      ],
+      [
+        17,
+        8
+      ],
+      [
+        17,
+        9
+      ],
+      [
+        17,
+        10
+      ]
+    ]
+  },
+  "known_metins": [
+    {
+      "metin_name": "Metin da Batalha",
+      "coord": [
+        284,
+        218
+      ],
+      "source_type": "live_memory_patrol",
+      "confidence": 0.96
+    }
+  ],
+  "navigation_model": {
+    "w": {
+      "samples": 200,
+      "mean_delta": [
+        1.125,
+        0.265
+      ]
+    },
+    "a": {
+      "samples": 117,
+      "mean_delta": [
+        -0.59,
+        -0.274
+      ]
+    },
+    "s": {
+      "samples": 103,
+      "mean_delta": [
+        -0.65,
+        -0.117
+      ]
+    },
+    "d": {
+      "samples": 59,
+      "mean_delta": [
+        0.203,
+        -0.39
+      ]
+    }
+  }
+}

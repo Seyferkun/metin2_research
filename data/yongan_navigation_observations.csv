@@ -1,0 +1,13 @@
+map_name,source_log,label,key,from_x,from_y,to_x,to_y,delta_x,delta_y,notes
+Yongan,reports\yongan_exploration_log.json,c1_l1_w,w,305,205,293,213,-12,8,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log.json,c1_l2_a,a,293,213,305,222,12,9,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log.json,c1_l3_s,s,305,222,309,207,4,-15,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log.json,c1_l4_d,d,309,207,297,199,-12,-8,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l1_w,w,297,199,273,215,-24,16,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l2_a,a,273,215,299,223,26,8,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l3_s,s,299,223,287,196,-12,-27,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l4_d,d,287,196,260,188,-27,-8,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l5_w,w,260,188,242,201,-18,13,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l6_d,d,242,201,241,179,-1,-22,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l7_s,s,241,179,261,190,20,11,Memory-read player coordinate after patrol leg.
+Yongan,reports\yongan_exploration_log_wide.json,c1_l8_a,a,261,190,261,211,0,21,Memory-read player coordinate after patrol leg.

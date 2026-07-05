@@ -1,0 +1,97 @@
+# Metin2 Research Bot — Central Configuration
+# All paths, thresholds, keybinds, and behavior tuning in one place.
+
+# ── Paths ──────────────────────────────────────────────────────────────
+model:
+  backend: onnx  # "onnx" or "yolov5"
+  # ONNX backend
+  onnx_weights: "reports/yolo_easy_retrain_runs/round2_hardneg_10ep_lowlr/weights/best.onnx"
+  # YOLOv5 fallback (PyTorch)
+  yolov5_dir: "C:/Users/blade/AppData/Local/Temp/metin2bot/yolov5"
+  yolov5_weights: "reports/yolo_easy_retrain_runs/round2_hardneg_10ep_lowlr/weights/best.pt"
+  trust_checkpoint: true
+  device: cpu           # cpu or cuda (ONNX uses CPUExecutionProvider by default)
+  input_size: [640, 640]  # YOLO input WxH
+
+# ── Detection thresholds ───────────────────────────────────────────────
+detection:
+  min_confidence: 0.25
+  attack_confidence: 0.60
+  investigate_confidence: 0.35
+  iou_threshold: 0.5
+  nms_iou: 0.45        # NMS overlap threshold
+
+# ── Game window ────────────────────────────────────────────────────────
+window:
+  query: "MT2Portugalia"
+  raise_window: true
+  capture_region: null  # null = use window bbox, or "x,y,width,height"
+
+# ── Behavior ───────────────────────────────────────────────────────────
+behavior:
+  # Distance model (estimated from box height at 640-wide input)
+  # A Metin at close range fills ~180-250px height; far = <30px
+  distance:
+    close_height: 160    # box height >= this = close enough to attack
+    medium_height: 70    # box height >= this = mid range, approach
+    far_height: 30       # box height >= this = far, investigate first
+  # Timing
+  potion_interval: 10.0  # seconds between HP potion taps
+  hold_attack_duration: 5.0  # seconds holding space per attack cycle
+  capture_interval: 1.0  # seconds between capture cycles
+  search_rotate_duration: 0.22  # seconds for Q/E tap
+  no_target_rotate_after: 5.0   # seconds before rotate when no target
+  stuck_threshold: 15.0  # seconds without coordinate change = stuck
+  heal_threshold: 35     # HP percent to trigger heal
+  verify_wait: 1.5       # seconds after click to verify state change
+  approach_click_wait: 3.0  # seconds after double-click to wait for movement
+
+# ── Overlay/UI rejection zones (relative 0-1) ──────────────────────────
+ui_zones:
+  minimap: [0.78, 0.0, 1.0, 0.36]
+  hotbar: [0.0, 0.82, 1.0, 1.0]
+  char_panel: [0.0, 0.20, 0.20, 1.0]
+  map_overlay: [0.62, 0.12, 0.80, 0.52]
+  edge_x: 0.06
+  edge_y: 0.06
+  min_box_width: 45
+  min_box_height: 60
+
+# ── Input keybinds (scancodes) ─────────────────────────────────────────
+keys:
+  potion: "1"
+  attack: "space"
+  move_forward: "w"
+  move_back: "s"
+  strafe_left: "a"
+  strafe_right: "d"
+  rotate_left: "q"
+  rotate_right: "e"
+  zoom_in: "r"
+  zoom_out: "f"
+  look_up: "t"
+  look_down: "g"
+  next_target: "tab"
+  pick_up: "z"
+  inventory: "i"
+  character: "c"
+  skills: "v"
+  missions: "m"
+  big_map: "M"  # uppercase = shift+key
+  escape: "esc"
+
+# ── Memory probe ───────────────────────────────────────────────────────
+memory_probe:
+  enabled: false  # requires known process offsets for this private server
+  # Example offsets for a hypothetical client build — ADJUST for your server
+  # offsets:
+  #   player_hp: 0x00ABCDEF
+  #   player_x: 0x00ABCDF0
+  #   player_y: 0x00ABCDF4
+
+# ── Output ─────────────────────────────────────────────────────────────
+output:
+  out_dir: "reports/bot_run"
+  save_screenshots: true
+  save_previews: true
+  log_level: info       # debug, info, warn, error

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "locations": [
+    {
+      "map_name": "Yongan",
+      "metin_name": "Metin da Batalha",
+      "x": 284,
+      "y": 218,
+      "reason": "User confirmed there is no Metin at this table coordinate in the current evidence; do not navigate here automatically.",
+      "source": "2026-07-02 stale named_table_yongan_3846_yongan_metin_da_batalha_284_218 investigation"
+    }
+  ]
+}

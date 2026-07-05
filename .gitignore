@@ -1,0 +1,82 @@
+# Python/cache/build artifacts
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.venv/
+build/
+dist/
+*.egg-info/
+
+# Secrets, credentials, cookies, and local environment
+.env
+.env.*
+*.env
+*credential*
+*credentials*
+*cookies*
+*.cookie
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Local editor/user state
+.vscode/
+.hermes/
+.idea/
+
+# Runtime/dashboard/live artifacts
+reports/*.tmp
+reports/dashboard_runs/
+reports/nearby_metins/
+reports/client_state_probe/
+reports/manual_target_test/
+reports/bot_run/
+reports/mt2portugalia_pack_extract*/
+reports/dashboard_handoff/
+reports/*.html
+reports/integrity_check_*.json
+reports/**/*.json
+reports/**/*.csv
+reports/**/*.txt
+reports/**/*.yaml
+reports/**/*.cache
+reports/**/events.out.tfevents.*
+*.log
+*.jsonl
+*.tsv
+hermes_state.json
+hermes_state.tsv
+
+# Captures/screenshots/videos generated during live runs
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.gif
+*.mp4
+*.avi
+
+# Local backup snapshots and copied game-client files
+backups/
+D:/
+pack/
+root/
+*.mcoz
+*.eix
+*.epk
+*.gr2
+*.dds
+
+# ML/model weights and generated datasets
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.weights
+runs/
+yolov5/
+node_modules/
+
+# Throwaway capture/output folders
+$out/

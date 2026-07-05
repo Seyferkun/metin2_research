@@ -1,0 +1,31 @@
+[project]
+name = "metin2-research"
+version = "0.1.0"
+description = "Safe Metin2 research-sandbox perception and policy harness"
+requires-python = ">=3.10"
+dependencies = [
+  "pillow",
+]
+
+[project.optional-dependencies]
+yolov5 = [
+  "torch",
+  "pandas",
+  "opencv-python",
+  "seaborn",
+]
+
+[project.scripts]
+metin2-report = "metin2_research.report:main"
+metin2-screenshot-state = "metin2_research.screenshot_state:main"
+metin2-detect = "metin2_research.detector:main"
+metin2-failure-analysis = "metin2_research.failure_analysis:main"
+metin2-review-manifest = "metin2_research.review_manifest:main"
+metin2-build-training-dataset = "metin2_research.training_dataset:main"
+metin2-predict = "metin2_research.predict:main"
+metin2-live-try = "metin2_research.live_try:main"
+metin2-actuator = "metin2_research.actuator:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

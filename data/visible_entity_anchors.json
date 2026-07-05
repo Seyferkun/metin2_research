@@ -1,0 +1,93 @@
+[
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin da Batalha",
+    "level": "15",
+    "map_x": "284",
+    "map_y": "218",
+    "label_address": "0x2df9c720",
+    "source": "reports/entity_label_records_batalha_2df9c720.json",
+    "world_fields": "17700.45,31575.36,-16226.81,17700.45,130.00",
+    "screen_evidence": "reports/entity_anchor_two_visible_screen.png",
+    "status": "visible_entity_anchor_plus_confirmed_coordinate"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin Negra",
+    "level": "25",
+    "map_x": "290",
+    "map_y": "203",
+    "label_address": "0x2e416908",
+    "source": "reports/metin_negra_after_coord_probe.json; reports/entity_label_records_negra_2e416908.json",
+    "world_fields": "raw label record found; alternate visible-label record at 0x2d9409a0 has f32 fields 11716.0,-115400.0,86400.0; coordinate_text_anchor=0x2faa60d0; pointer_ref=0x22f0828c likely UI/Python window state",
+    "screen_evidence": "reports/entity_anchor_two_visible_screen.png",
+    "status": "visible_entity_anchor_plus_user_confirmed_coordinate_plus_memory_text_anchor"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin do Combate",
+    "level": "",
+    "map_x": "113",
+    "map_y": "463",
+    "label_address": "",
+    "source": "reports/metin_unknown_113_463_entity_probe.json",
+    "world_fields": "coordinate_text_anchors=0x0b73d584,0x2faa60d0; pointer_ref=0x22f0828c likely UI/Python window state and reused from previous visible coordinate text",
+    "screen_evidence": "reports/metin_unknown_113_463_screen.png",
+    "status": "memory_text_anchor_plus_user_confirmed_coordinate_visible_label_not_yet_decoded"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin da Batalha",
+    "level": "",
+    "map_x": "602",
+    "map_y": "813",
+    "label_address": "",
+    "source": "reports/metin_unknown_602_813_entity_probe.json",
+    "world_fields": "coordinate_text_anchors=0x2a89b0c4,0x2a89b0f4; pointer_refs=none found",
+    "screen_evidence": "reports/metin_unknown_602_813_screen.png",
+    "status": "memory_text_anchor_plus_user_confirmed_coordinate_visible_label_not_yet_decoded"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin da Batalha",
+    "level": "",
+    "map_x": "453",
+    "map_y": "623",
+    "label_address": "",
+    "source": "reports/metin_unknown_453_623_entity_probe.json",
+    "world_fields": "coordinate_text_anchors=0x0b73d584,0x2a89b0f4,0x2faa60d0; pointer_ref=0x22f0828c likely UI/Python window state for reused coordinate text buffer",
+    "screen_evidence": "reports/metin_unknown_453_623_screen.png",
+    "status": "memory_text_anchor_plus_user_confirmed_coordinate_visible_label_not_yet_decoded"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin do Combate",
+    "level": "",
+    "map_x": "836",
+    "map_y": "404",
+    "label_address": "",
+    "source": "reports/metin_unknown_836_404_entity_probe.json",
+    "world_fields": "coordinate_text_anchors=0x2a89b094,0x2faa60d0; pointer_ref=0x22f0828c likely UI/Python window state for reused coordinate text buffer",
+    "screen_evidence": "reports/metin_unknown_836_404_screen.png",
+    "status": "memory_text_anchor_plus_user_confirmed_coordinate_visible_label_not_yet_decoded"
+  },
+  {
+    "map_name": "Yongan",
+    "entity_type": "metin",
+    "name": "Metin da Batalha",
+    "level": "",
+    "map_x": "848",
+    "map_y": "662",
+    "label_address": "",
+    "source": "reports/metin_unknown_848_662_entity_probe.json",
+    "world_fields": "coordinate_text_anchors=0x2a89b094,0x2faa60d0; pointer_ref=0x22f0828c likely UI/Python window state for reused coordinate text buffer",
+    "screen_evidence": "reports/metin_unknown_848_662_screen.png",
+    "status": "memory_text_anchor_plus_user_confirmed_coordinate_visible_label_not_yet_decoded"
+  }
+]

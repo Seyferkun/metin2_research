@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "updated_at": 1782948182.7003412,
+  "spawns": [
+    {
+      "id": "learned_yongan_metin_da_batalha_542_219",
+      "map_name": "Yongan",
+      "metin_name": "Metin da Batalha",
+      "x": 542,
+      "y": 219,
+      "confidence": 0.91,
+      "source_type": "learned_live_memory",
+      "observations": 1,
+      "first_seen_ts": 1782948182.7003412,
+      "last_seen_ts": 1782948182.7003412,
+      "last_evidence": "Live memory label text: Metin da Batalha(542, 219)",
+      "destroyed": false,
+      "destroyed_count": 0,
+      "last_destroyed_ts": null
+    }
+  ]
+}

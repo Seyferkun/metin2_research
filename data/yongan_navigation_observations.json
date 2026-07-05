@@ -1,0 +1,8003 @@
+{
+  "version": 1,
+  "navigation_observations": [
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log.json",
+      "label": "c1_l1_w",
+      "key": "w",
+      "from_x": 305,
+      "from_y": 205,
+      "to_x": 293,
+      "to_y": 213,
+      "delta_x": -12,
+      "delta_y": 8,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log.json",
+      "label": "c1_l2_a",
+      "key": "a",
+      "from_x": 293,
+      "from_y": 213,
+      "to_x": 305,
+      "to_y": 222,
+      "delta_x": 12,
+      "delta_y": 9,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log.json",
+      "label": "c1_l3_s",
+      "key": "s",
+      "from_x": 305,
+      "from_y": 222,
+      "to_x": 309,
+      "to_y": 207,
+      "delta_x": 4,
+      "delta_y": -15,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log.json",
+      "label": "c1_l4_d",
+      "key": "d",
+      "from_x": 309,
+      "from_y": 207,
+      "to_x": 297,
+      "to_y": 199,
+      "delta_x": -12,
+      "delta_y": -8,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l1_w",
+      "key": "w",
+      "from_x": 297,
+      "from_y": 199,
+      "to_x": 273,
+      "to_y": 215,
+      "delta_x": -24,
+      "delta_y": 16,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l2_a",
+      "key": "a",
+      "from_x": 273,
+      "from_y": 215,
+      "to_x": 299,
+      "to_y": 223,
+      "delta_x": 26,
+      "delta_y": 8,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l3_s",
+      "key": "s",
+      "from_x": 299,
+      "from_y": 223,
+      "to_x": 287,
+      "to_y": 196,
+      "delta_x": -12,
+      "delta_y": -27,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l4_d",
+      "key": "d",
+      "from_x": 287,
+      "from_y": 196,
+      "to_x": 260,
+      "to_y": 188,
+      "delta_x": -27,
+      "delta_y": -8,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l5_w",
+      "key": "w",
+      "from_x": 260,
+      "from_y": 188,
+      "to_x": 242,
+      "to_y": 201,
+      "delta_x": -18,
+      "delta_y": 13,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l6_d",
+      "key": "d",
+      "from_x": 242,
+      "from_y": 201,
+      "to_x": 241,
+      "to_y": 179,
+      "delta_x": -1,
+      "delta_y": -22,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l7_s",
+      "key": "s",
+      "from_x": 241,
+      "from_y": 179,
+      "to_x": 261,
+      "to_y": 190,
+      "delta_x": 20,
+      "delta_y": 11,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_exploration_log_wide.json",
+      "label": "c1_l8_a",
+      "key": "a",
+      "from_x": 261,
+      "from_y": 190,
+      "to_x": 261,
+      "to_y": 211,
+      "delta_x": 0,
+      "delta_y": 21,
+      "notes": "Memory-read player coordinate after patrol leg."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_smoke.json",
+      "label": "smart_001_s",
+      "key": "s",
+      "from_x": 306,
+      "from_y": 204,
+      "to_x": 313,
+      "to_y": 199,
+      "delta_x": 7,
+      "delta_y": -5,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_smoke.json",
+      "label": "smart_002_s",
+      "key": "s",
+      "from_x": 313,
+      "from_y": 199,
+      "to_x": 321,
+      "to_y": 194,
+      "delta_x": 8,
+      "delta_y": -5,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_smoke.json",
+      "label": "smart_003_s",
+      "key": "s",
+      "from_x": 321,
+      "from_y": 194,
+      "to_x": 328,
+      "to_y": 190,
+      "delta_x": 7,
+      "delta_y": -4,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_001_d",
+      "key": "d",
+      "from_x": 329,
+      "from_y": 191,
+      "to_x": 323,
+      "to_y": 181,
+      "delta_x": -6,
+      "delta_y": -10,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_002_d",
+      "key": "d",
+      "from_x": 323,
+      "from_y": 181,
+      "to_x": 324,
+      "to_y": 170,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": [
+        312,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_003_s",
+      "key": "s",
+      "from_x": 324,
+      "from_y": 170,
+      "to_x": 334,
+      "to_y": 173,
+      "delta_x": 10,
+      "delta_y": 3,
+      "target": [
+        337,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_004_s",
+      "key": "s",
+      "from_x": 334,
+      "from_y": 173,
+      "to_x": 345,
+      "to_y": 176,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_005_a",
+      "key": "a",
+      "from_x": 345,
+      "from_y": 176,
+      "to_x": 345,
+      "to_y": 187,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_006_s",
+      "key": "s",
+      "from_x": 345,
+      "from_y": 187,
+      "to_x": 355,
+      "to_y": 184,
+      "delta_x": 10,
+      "delta_y": -3,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_007_s",
+      "key": "s",
+      "from_x": 355,
+      "from_y": 184,
+      "to_x": 366,
+      "to_y": 181,
+      "delta_x": 11,
+      "delta_y": -3,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_008_d",
+      "key": "d",
+      "from_x": 366,
+      "from_y": 181,
+      "to_x": 366,
+      "to_y": 170,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_009_s",
+      "key": "s",
+      "from_x": 366,
+      "from_y": 170,
+      "to_x": 377,
+      "to_y": 173,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_010_a",
+      "key": "a",
+      "from_x": 377,
+      "from_y": 173,
+      "to_x": 377,
+      "to_y": 184,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_011_a",
+      "key": "a",
+      "from_x": 377,
+      "from_y": 184,
+      "to_x": 383,
+      "to_y": 193,
+      "delta_x": 6,
+      "delta_y": 9,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_012_a",
+      "key": "a",
+      "from_x": 383,
+      "from_y": 193,
+      "to_x": 393,
+      "to_y": 198,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_013_w",
+      "key": "w",
+      "from_x": 393,
+      "from_y": 198,
+      "to_x": 391,
+      "to_y": 209,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_014_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 209,
+      "to_x": 393,
+      "to_y": 198,
+      "delta_x": 2,
+      "delta_y": -11,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_015_s",
+      "key": "s",
+      "from_x": 393,
+      "from_y": 198,
+      "to_x": 394,
+      "to_y": 187,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_016_s",
+      "key": "s",
+      "from_x": 394,
+      "from_y": 187,
+      "to_x": 396,
+      "to_y": 176,
+      "delta_x": 2,
+      "delta_y": -11,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_017_a",
+      "key": "a",
+      "from_x": 396,
+      "from_y": 176,
+      "to_x": 407,
+      "to_y": 175,
+      "delta_x": 11,
+      "delta_y": -1,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_018_s",
+      "key": "s",
+      "from_x": 407,
+      "from_y": 175,
+      "to_x": 403,
+      "to_y": 165,
+      "delta_x": -4,
+      "delta_y": -10,
+      "target": [
+        412,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_019_s",
+      "key": "s",
+      "from_x": 403,
+      "from_y": 165,
+      "to_x": 399,
+      "to_y": 155,
+      "delta_x": -4,
+      "delta_y": -10,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_020_d",
+      "key": "d",
+      "from_x": 399,
+      "from_y": 155,
+      "to_x": 388,
+      "to_y": 156,
+      "delta_x": -11,
+      "delta_y": 1,
+      "target": [
+        387,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_021_d",
+      "key": "d",
+      "from_x": 388,
+      "from_y": 156,
+      "to_x": 378,
+      "to_y": 152,
+      "delta_x": -10,
+      "delta_y": -4,
+      "target": [
+        387,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_022_s",
+      "key": "s",
+      "from_x": 378,
+      "from_y": 152,
+      "to_x": 385,
+      "to_y": 143,
+      "delta_x": 7,
+      "delta_y": -9,
+      "target": [
+        387,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_023_d",
+      "key": "d",
+      "from_x": 385,
+      "from_y": 143,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": -4,
+      "delta_y": -5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_024_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_025_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_026_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_027_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_028_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_029_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_030_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_031_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_032_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 381,
+      "to_y": 138,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_033_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 138,
+      "to_x": 385,
+      "to_y": 138,
+      "delta_x": 4,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_034_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 138,
+      "to_x": 385,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": -2,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_035_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 136,
+      "to_x": 385,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_036_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 136,
+      "to_x": 385,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_037_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 136,
+      "to_x": 385,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_038_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 136,
+      "to_x": 385,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_039_d",
+      "key": "d",
+      "from_x": 385,
+      "from_y": 136,
+      "to_x": 395,
+      "to_y": 141,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_040_s",
+      "key": "s",
+      "from_x": 395,
+      "from_y": 141,
+      "to_x": 388,
+      "to_y": 149,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_041_s",
+      "key": "s",
+      "from_x": 388,
+      "from_y": 149,
+      "to_x": 380,
+      "to_y": 157,
+      "delta_x": -8,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_042_d",
+      "key": "d",
+      "from_x": 380,
+      "from_y": 157,
+      "to_x": 386,
+      "to_y": 167,
+      "delta_x": 6,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_043_d",
+      "key": "d",
+      "from_x": 386,
+      "from_y": 167,
+      "to_x": 387,
+      "to_y": 177,
+      "delta_x": 1,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_044_w",
+      "key": "w",
+      "from_x": 387,
+      "from_y": 177,
+      "to_x": 398,
+      "to_y": 180,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_045_a",
+      "key": "a",
+      "from_x": 398,
+      "from_y": 180,
+      "to_x": 397,
+      "to_y": 169,
+      "delta_x": -1,
+      "delta_y": -11,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_046_s",
+      "key": "s",
+      "from_x": 397,
+      "from_y": 169,
+      "to_x": 387,
+      "to_y": 172,
+      "delta_x": -10,
+      "delta_y": 3,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_047_d",
+      "key": "d",
+      "from_x": 387,
+      "from_y": 172,
+      "to_x": 387,
+      "to_y": 183,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_048_w",
+      "key": "w",
+      "from_x": 387,
+      "from_y": 183,
+      "to_x": 398,
+      "to_y": 186,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_049_a",
+      "key": "a",
+      "from_x": 398,
+      "from_y": 186,
+      "to_x": 397,
+      "to_y": 179,
+      "delta_x": -1,
+      "delta_y": -7,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_050_a",
+      "key": "a",
+      "from_x": 397,
+      "from_y": 179,
+      "to_x": 391,
+      "to_y": 169,
+      "delta_x": -6,
+      "delta_y": -10,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_051_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 169,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 9,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_052_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 169,
+      "delta_x": 7,
+      "delta_y": -9,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_053_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 169,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 9,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_054_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 170,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_055_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 170,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_056_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 170,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_057_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 170,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_058_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 170,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_059_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 170,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_060_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 170,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_061_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 170,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_062_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 391,
+      "to_y": 170,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_063_s",
+      "key": "s",
+      "from_x": 391,
+      "from_y": 170,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_064_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_065_d",
+      "key": "d",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_066_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_067_d",
+      "key": "d",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_068_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_069_d",
+      "key": "d",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_070_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_071_d",
+      "key": "d",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_072_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_073_d",
+      "key": "d",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 384,
+      "to_y": 178,
+      "delta_x": 10,
+      "delta_y": 5,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_074_a",
+      "key": "a",
+      "from_x": 384,
+      "from_y": 178,
+      "to_x": 374,
+      "to_y": 173,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_075_s",
+      "key": "s",
+      "from_x": 374,
+      "from_y": 173,
+      "to_x": 371,
+      "to_y": 183,
+      "delta_x": -3,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_076_a",
+      "key": "a",
+      "from_x": 371,
+      "from_y": 183,
+      "to_x": 360,
+      "to_y": 184,
+      "delta_x": -11,
+      "delta_y": 1,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_077_a",
+      "key": "a",
+      "from_x": 360,
+      "from_y": 184,
+      "to_x": 351,
+      "to_y": 191,
+      "delta_x": -9,
+      "delta_y": 7,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_078_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 191,
+      "to_x": 348,
+      "to_y": 202,
+      "delta_x": -3,
+      "delta_y": 11,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_079_w",
+      "key": "w",
+      "from_x": 348,
+      "from_y": 202,
+      "to_x": 337,
+      "to_y": 201,
+      "delta_x": -11,
+      "delta_y": -1,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_080_a",
+      "key": "a",
+      "from_x": 337,
+      "from_y": 201,
+      "to_x": 339,
+      "to_y": 212,
+      "delta_x": 2,
+      "delta_y": 11,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_081_s",
+      "key": "s",
+      "from_x": 339,
+      "from_y": 212,
+      "to_x": 349,
+      "to_y": 207,
+      "delta_x": 10,
+      "delta_y": -5,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_082_s",
+      "key": "s",
+      "from_x": 349,
+      "from_y": 207,
+      "to_x": 358,
+      "to_y": 201,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_083_a",
+      "key": "a",
+      "from_x": 358,
+      "from_y": 201,
+      "to_x": 366,
+      "to_y": 210,
+      "delta_x": 8,
+      "delta_y": 9,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_084_a",
+      "key": "a",
+      "from_x": 366,
+      "from_y": 210,
+      "to_x": 376,
+      "to_y": 213,
+      "delta_x": 10,
+      "delta_y": 3,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_085_a",
+      "key": "a",
+      "from_x": 376,
+      "from_y": 213,
+      "to_x": 387,
+      "to_y": 209,
+      "delta_x": 11,
+      "delta_y": -4,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_086_s",
+      "key": "s",
+      "from_x": 387,
+      "from_y": 209,
+      "to_x": 381,
+      "to_y": 200,
+      "delta_x": -6,
+      "delta_y": -9,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_087_a",
+      "key": "a",
+      "from_x": 381,
+      "from_y": 200,
+      "to_x": 388,
+      "to_y": 192,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_088_a",
+      "key": "a",
+      "from_x": 388,
+      "from_y": 192,
+      "to_x": 389,
+      "to_y": 181,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_089_a",
+      "key": "a",
+      "from_x": 389,
+      "from_y": 181,
+      "to_x": 384,
+      "to_y": 171,
+      "delta_x": -5,
+      "delta_y": -10,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_090_d",
+      "key": "d",
+      "from_x": 384,
+      "from_y": 171,
+      "to_x": 389,
+      "to_y": 181,
+      "delta_x": 5,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_091_a",
+      "key": "a",
+      "from_x": 389,
+      "from_y": 181,
+      "to_x": 385,
+      "to_y": 171,
+      "delta_x": -4,
+      "delta_y": -10,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_092_s",
+      "key": "s",
+      "from_x": 385,
+      "from_y": 171,
+      "to_x": 376,
+      "to_y": 178,
+      "delta_x": -9,
+      "delta_y": 7,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_093_s",
+      "key": "s",
+      "from_x": 376,
+      "from_y": 178,
+      "to_x": 368,
+      "to_y": 185,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_094_s",
+      "key": "s",
+      "from_x": 368,
+      "from_y": 185,
+      "to_x": 360,
+      "to_y": 192,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_095_a",
+      "key": "a",
+      "from_x": 360,
+      "from_y": 192,
+      "to_x": 351,
+      "to_y": 186,
+      "delta_x": -9,
+      "delta_y": -6,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_096_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 186,
+      "to_x": 340,
+      "to_y": 186,
+      "delta_x": -11,
+      "delta_y": 0,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_097_a",
+      "key": "a",
+      "from_x": 340,
+      "from_y": 186,
+      "to_x": 330,
+      "to_y": 191,
+      "delta_x": -10,
+      "delta_y": 5,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_098_a",
+      "key": "a",
+      "from_x": 330,
+      "from_y": 191,
+      "to_x": 324,
+      "to_y": 200,
+      "delta_x": -6,
+      "delta_y": 9,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_099_a",
+      "key": "a",
+      "from_x": 324,
+      "from_y": 200,
+      "to_x": 325,
+      "to_y": 211,
+      "delta_x": 1,
+      "delta_y": 11,
+      "target": [
+        287,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_100_a",
+      "key": "a",
+      "from_x": 325,
+      "from_y": 211,
+      "to_x": 331,
+      "to_y": 220,
+      "delta_x": 6,
+      "delta_y": 9,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_101_a",
+      "key": "a",
+      "from_x": 331,
+      "from_y": 220,
+      "to_x": 340,
+      "to_y": 225,
+      "delta_x": 9,
+      "delta_y": 5,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_102_a",
+      "key": "a",
+      "from_x": 340,
+      "from_y": 225,
+      "to_x": 351,
+      "to_y": 224,
+      "delta_x": 11,
+      "delta_y": -1,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_103_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 224,
+      "to_x": 360,
+      "to_y": 218,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_104_a",
+      "key": "a",
+      "from_x": 360,
+      "from_y": 218,
+      "to_x": 365,
+      "to_y": 208,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_105_a",
+      "key": "a",
+      "from_x": 365,
+      "from_y": 208,
+      "to_x": 364,
+      "to_y": 197,
+      "delta_x": -1,
+      "delta_y": -11,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_106_a",
+      "key": "a",
+      "from_x": 364,
+      "from_y": 197,
+      "to_x": 357,
+      "to_y": 189,
+      "delta_x": -7,
+      "delta_y": -8,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_107_a",
+      "key": "a",
+      "from_x": 357,
+      "from_y": 189,
+      "to_x": 347,
+      "to_y": 185,
+      "delta_x": -10,
+      "delta_y": -4,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_108_s",
+      "key": "s",
+      "from_x": 347,
+      "from_y": 185,
+      "to_x": 346,
+      "to_y": 196,
+      "delta_x": -1,
+      "delta_y": 11,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_109_a",
+      "key": "a",
+      "from_x": 346,
+      "from_y": 196,
+      "to_x": 335,
+      "to_y": 199,
+      "delta_x": -11,
+      "delta_y": 3,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_110_a",
+      "key": "a",
+      "from_x": 335,
+      "from_y": 199,
+      "to_x": 328,
+      "to_y": 206,
+      "delta_x": -7,
+      "delta_y": 7,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_111_a",
+      "key": "a",
+      "from_x": 328,
+      "from_y": 206,
+      "to_x": 326,
+      "to_y": 217,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_112_a",
+      "key": "a",
+      "from_x": 326,
+      "from_y": 217,
+      "to_x": 330,
+      "to_y": 227,
+      "delta_x": 4,
+      "delta_y": 10,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_113_a",
+      "key": "a",
+      "from_x": 330,
+      "from_y": 227,
+      "to_x": 330,
+      "to_y": 228,
+      "delta_x": 0,
+      "delta_y": 1,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_114_a",
+      "key": "a",
+      "from_x": 330,
+      "from_y": 228,
+      "to_x": 333,
+      "to_y": 228,
+      "delta_x": 3,
+      "delta_y": 0,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_115_a",
+      "key": "a",
+      "from_x": 333,
+      "from_y": 228,
+      "to_x": 343,
+      "to_y": 223,
+      "delta_x": 10,
+      "delta_y": -5,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_116_a",
+      "key": "a",
+      "from_x": 343,
+      "from_y": 223,
+      "to_x": 349,
+      "to_y": 214,
+      "delta_x": 6,
+      "delta_y": -9,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_117_a",
+      "key": "a",
+      "from_x": 349,
+      "from_y": 214,
+      "to_x": 350,
+      "to_y": 203,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_118_a",
+      "key": "a",
+      "from_x": 350,
+      "from_y": 203,
+      "to_x": 344,
+      "to_y": 194,
+      "delta_x": -6,
+      "delta_y": -9,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_119_w",
+      "key": "w",
+      "from_x": 344,
+      "from_y": 194,
+      "to_x": 352,
+      "to_y": 186,
+      "delta_x": 8,
+      "delta_y": -8,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_120_d",
+      "key": "d",
+      "from_x": 352,
+      "from_y": 186,
+      "to_x": 358,
+      "to_y": 195,
+      "delta_x": 6,
+      "delta_y": 9,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_121_d",
+      "key": "d",
+      "from_x": 358,
+      "from_y": 195,
+      "to_x": 357,
+      "to_y": 206,
+      "delta_x": -1,
+      "delta_y": 11,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_122_d",
+      "key": "d",
+      "from_x": 357,
+      "from_y": 206,
+      "to_x": 351,
+      "to_y": 216,
+      "delta_x": -6,
+      "delta_y": 10,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_123_d",
+      "key": "d",
+      "from_x": 351,
+      "from_y": 216,
+      "to_x": 342,
+      "to_y": 221,
+      "delta_x": -9,
+      "delta_y": 5,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_124_d",
+      "key": "d",
+      "from_x": 342,
+      "from_y": 221,
+      "to_x": 331,
+      "to_y": 220,
+      "delta_x": -11,
+      "delta_y": -1,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_125_d",
+      "key": "d",
+      "from_x": 331,
+      "from_y": 220,
+      "to_x": 322,
+      "to_y": 214,
+      "delta_x": -9,
+      "delta_y": -6,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_126_d",
+      "key": "d",
+      "from_x": 322,
+      "from_y": 214,
+      "to_x": 320,
+      "to_y": 210,
+      "delta_x": -2,
+      "delta_y": -4,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_127_d",
+      "key": "d",
+      "from_x": 320,
+      "from_y": 210,
+      "to_x": 322,
+      "to_y": 200,
+      "delta_x": 2,
+      "delta_y": -10,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_128_d",
+      "key": "d",
+      "from_x": 322,
+      "from_y": 200,
+      "to_x": 330,
+      "to_y": 192,
+      "delta_x": 8,
+      "delta_y": -8,
+      "target": [
+        287,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_129_d",
+      "key": "d",
+      "from_x": 330,
+      "from_y": 192,
+      "to_x": 341,
+      "to_y": 189,
+      "delta_x": 11,
+      "delta_y": -3,
+      "target": [
+        287,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_130_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 189,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": -1,
+      "delta_y": -4,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_131_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_132_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_133_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_134_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_135_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_136_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_137_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_138_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_139_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_140_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_141_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_142_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_143_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_144_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_145_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 185,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_146_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 185,
+      "to_x": 340,
+      "to_y": 178,
+      "delta_x": 0,
+      "delta_y": -7,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_147_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 178,
+      "to_x": 340,
+      "to_y": 178,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_148_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 178,
+      "to_x": 340,
+      "to_y": 174,
+      "delta_x": 0,
+      "delta_y": -4,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_149_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 174,
+      "to_x": 340,
+      "to_y": 163,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_150_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 163,
+      "to_x": 340,
+      "to_y": 152,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_151_w",
+      "key": "w",
+      "from_x": 340,
+      "from_y": 152,
+      "to_x": 341,
+      "to_y": 141,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": [
+        337,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_152_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 141,
+      "to_x": 341,
+      "to_y": 130,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_153_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 130,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": -10,
+      "target": [
+        337,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_154_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_155_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_156_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_157_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_158_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 341,
+      "to_y": 120,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_159_w",
+      "key": "w",
+      "from_x": 341,
+      "from_y": 120,
+      "to_x": 364,
+      "to_y": 189,
+      "delta_x": 23,
+      "delta_y": 69,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_160_a",
+      "key": "a",
+      "from_x": 364,
+      "from_y": 189,
+      "to_x": 338,
+      "to_y": 122,
+      "delta_x": -26,
+      "delta_y": -67,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_161_w",
+      "key": "w",
+      "from_x": 338,
+      "from_y": 122,
+      "to_x": 333,
+      "to_y": 112,
+      "delta_x": -5,
+      "delta_y": -10,
+      "target": [
+        362,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_162_a",
+      "key": "a",
+      "from_x": 333,
+      "from_y": 112,
+      "to_x": 325,
+      "to_y": 120,
+      "delta_x": -8,
+      "delta_y": 8,
+      "target": [
+        312,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_163_a",
+      "key": "a",
+      "from_x": 325,
+      "from_y": 120,
+      "to_x": 322,
+      "to_y": 130,
+      "delta_x": -3,
+      "delta_y": 10,
+      "target": [
+        312,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_164_a",
+      "key": "a",
+      "from_x": 322,
+      "from_y": 130,
+      "to_x": 325,
+      "to_y": 138,
+      "delta_x": 3,
+      "delta_y": 8,
+      "target": [
+        312,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_165_a",
+      "key": "a",
+      "from_x": 325,
+      "from_y": 138,
+      "to_x": 333,
+      "to_y": 146,
+      "delta_x": 8,
+      "delta_y": 8,
+      "target": [
+        312,
+        112
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_166_w",
+      "key": "w",
+      "from_x": 333,
+      "from_y": 146,
+      "to_x": 328,
+      "to_y": 156,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_167_w",
+      "key": "w",
+      "from_x": 328,
+      "from_y": 156,
+      "to_x": 322,
+      "to_y": 166,
+      "delta_x": -6,
+      "delta_y": 10,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_168_a",
+      "key": "a",
+      "from_x": 322,
+      "from_y": 166,
+      "to_x": 333,
+      "to_y": 169,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        287,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_169_s",
+      "key": "s",
+      "from_x": 333,
+      "from_y": 169,
+      "to_x": 333,
+      "to_y": 158,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_170_s",
+      "key": "s",
+      "from_x": 333,
+      "from_y": 158,
+      "to_x": 332,
+      "to_y": 147,
+      "delta_x": -1,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_171_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 147,
+      "to_x": 332,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_172_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 136,
+      "to_x": 332,
+      "to_y": 147,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_173_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 147,
+      "to_x": 332,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_174_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 136,
+      "to_x": 332,
+      "to_y": 147,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_175_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 147,
+      "to_x": 332,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_176_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 136,
+      "to_x": 332,
+      "to_y": 147,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_177_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 147,
+      "to_x": 332,
+      "to_y": 136,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_178_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 136,
+      "to_x": 332,
+      "to_y": 147,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_179_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 147,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -12,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_180_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_181_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_182_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_183_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_184_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_185_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_186_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_187_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_188_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_189_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_190_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_191_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_192_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_193_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_194_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 146,
+      "delta_x": 0,
+      "delta_y": 11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_195_s",
+      "key": "s",
+      "from_x": 332,
+      "from_y": 146,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_196_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_197_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_198_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_199_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_long.json",
+      "label": "smart_200_w",
+      "key": "w",
+      "from_x": 332,
+      "from_y": 135,
+      "to_x": 332,
+      "to_y": 135,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_001_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 195,
+      "to_x": 399,
+      "to_y": 198,
+      "delta_x": 10,
+      "delta_y": 3,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_002_s",
+      "key": "s",
+      "from_x": 399,
+      "from_y": 198,
+      "to_x": 389,
+      "to_y": 195,
+      "delta_x": -10,
+      "delta_y": -3,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_003_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 195,
+      "to_x": 399,
+      "to_y": 198,
+      "delta_x": 10,
+      "delta_y": 3,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_004_s",
+      "key": "s",
+      "from_x": 399,
+      "from_y": 198,
+      "to_x": 389,
+      "to_y": 195,
+      "delta_x": -10,
+      "delta_y": -3,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_005_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 195,
+      "to_x": 400,
+      "to_y": 198,
+      "delta_x": 11,
+      "delta_y": 3,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_006_w",
+      "key": "w",
+      "from_x": 400,
+      "from_y": 198,
+      "to_x": 410,
+      "to_y": 200,
+      "delta_x": 10,
+      "delta_y": 2,
+      "target": [
+        412,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_007_a",
+      "key": "a",
+      "from_x": 410,
+      "from_y": 200,
+      "to_x": 410,
+      "to_y": 189,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_008_s",
+      "key": "s",
+      "from_x": 410,
+      "from_y": 189,
+      "to_x": 399,
+      "to_y": 193,
+      "delta_x": -11,
+      "delta_y": 4,
+      "target": [
+        412,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_009_w",
+      "key": "w",
+      "from_x": 399,
+      "from_y": 193,
+      "to_x": 410,
+      "to_y": 189,
+      "delta_x": 11,
+      "delta_y": -4,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_010_s",
+      "key": "s",
+      "from_x": 410,
+      "from_y": 189,
+      "to_x": 399,
+      "to_y": 193,
+      "delta_x": -11,
+      "delta_y": 4,
+      "target": [
+        412,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_011_w",
+      "key": "w",
+      "from_x": 399,
+      "from_y": 193,
+      "to_x": 410,
+      "to_y": 189,
+      "delta_x": 11,
+      "delta_y": -4,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_012_s",
+      "key": "s",
+      "from_x": 410,
+      "from_y": 189,
+      "to_x": 399,
+      "to_y": 193,
+      "delta_x": -11,
+      "delta_y": 4,
+      "target": [
+        412,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_013_a",
+      "key": "a",
+      "from_x": 399,
+      "from_y": 193,
+      "to_x": 393,
+      "to_y": 184,
+      "delta_x": -6,
+      "delta_y": -9,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_014_s",
+      "key": "s",
+      "from_x": 393,
+      "from_y": 184,
+      "to_x": 386,
+      "to_y": 192,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_015_w",
+      "key": "w",
+      "from_x": 386,
+      "from_y": 192,
+      "to_x": 394,
+      "to_y": 185,
+      "delta_x": 8,
+      "delta_y": -7,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_016_s",
+      "key": "s",
+      "from_x": 394,
+      "from_y": 185,
+      "to_x": 387,
+      "to_y": 193,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_017_w",
+      "key": "w",
+      "from_x": 387,
+      "from_y": 193,
+      "to_x": 394,
+      "to_y": 185,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_018_s",
+      "key": "s",
+      "from_x": 394,
+      "from_y": 185,
+      "to_x": 387,
+      "to_y": 193,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_019_w",
+      "key": "w",
+      "from_x": 387,
+      "from_y": 193,
+      "to_x": 394,
+      "to_y": 185,
+      "delta_x": 7,
+      "delta_y": -8,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_020_s",
+      "key": "s",
+      "from_x": 394,
+      "from_y": 185,
+      "to_x": 387,
+      "to_y": 193,
+      "delta_x": -7,
+      "delta_y": 8,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_021_a",
+      "key": "a",
+      "from_x": 387,
+      "from_y": 193,
+      "to_x": 377,
+      "to_y": 188,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_022_s",
+      "key": "s",
+      "from_x": 377,
+      "from_y": 188,
+      "to_x": 375,
+      "to_y": 199,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_023_s",
+      "key": "s",
+      "from_x": 375,
+      "from_y": 199,
+      "to_x": 373,
+      "to_y": 210,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_024_w",
+      "key": "w",
+      "from_x": 373,
+      "from_y": 210,
+      "to_x": 375,
+      "to_y": 199,
+      "delta_x": 2,
+      "delta_y": -11,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_025_s",
+      "key": "s",
+      "from_x": 375,
+      "from_y": 199,
+      "to_x": 373,
+      "to_y": 210,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_026_w",
+      "key": "w",
+      "from_x": 373,
+      "from_y": 210,
+      "to_x": 375,
+      "to_y": 199,
+      "delta_x": 2,
+      "delta_y": -11,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_027_s",
+      "key": "s",
+      "from_x": 375,
+      "from_y": 199,
+      "to_x": 373,
+      "to_y": 210,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_028_a",
+      "key": "a",
+      "from_x": 373,
+      "from_y": 210,
+      "to_x": 362,
+      "to_y": 210,
+      "delta_x": -11,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_029_s",
+      "key": "s",
+      "from_x": 362,
+      "from_y": 210,
+      "to_x": 365,
+      "to_y": 221,
+      "delta_x": 3,
+      "delta_y": 11,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_030_w",
+      "key": "w",
+      "from_x": 365,
+      "from_y": 221,
+      "to_x": 362,
+      "to_y": 210,
+      "delta_x": -3,
+      "delta_y": -11,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_031_s",
+      "key": "s",
+      "from_x": 362,
+      "from_y": 210,
+      "to_x": 365,
+      "to_y": 221,
+      "delta_x": 3,
+      "delta_y": 11,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_032_w",
+      "key": "w",
+      "from_x": 365,
+      "from_y": 221,
+      "to_x": 362,
+      "to_y": 210,
+      "delta_x": -3,
+      "delta_y": -11,
+      "target": [
+        362,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_033_s",
+      "key": "s",
+      "from_x": 362,
+      "from_y": 210,
+      "to_x": 365,
+      "to_y": 221,
+      "delta_x": 3,
+      "delta_y": 11,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_034_a",
+      "key": "a",
+      "from_x": 365,
+      "from_y": 221,
+      "to_x": 356,
+      "to_y": 227,
+      "delta_x": -9,
+      "delta_y": 6,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_035_s",
+      "key": "s",
+      "from_x": 356,
+      "from_y": 227,
+      "to_x": 364,
+      "to_y": 233,
+      "delta_x": 8,
+      "delta_y": 6,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_036_w",
+      "key": "w",
+      "from_x": 364,
+      "from_y": 233,
+      "to_x": 355,
+      "to_y": 226,
+      "delta_x": -9,
+      "delta_y": -7,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_037_s",
+      "key": "s",
+      "from_x": 355,
+      "from_y": 226,
+      "to_x": 364,
+      "to_y": 233,
+      "delta_x": 9,
+      "delta_y": 7,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_038_w",
+      "key": "w",
+      "from_x": 364,
+      "from_y": 233,
+      "to_x": 355,
+      "to_y": 226,
+      "delta_x": -9,
+      "delta_y": -7,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_039_a",
+      "key": "a",
+      "from_x": 355,
+      "from_y": 226,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": -3,
+      "delta_y": 6,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_040_a",
+      "key": "a",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_041_a",
+      "key": "a",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_042_a",
+      "key": "a",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_043_w",
+      "key": "w",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_044_w",
+      "key": "w",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_045_d",
+      "key": "d",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_046_w",
+      "key": "w",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_047_a",
+      "key": "a",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_048_w",
+      "key": "w",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_049_s",
+      "key": "s",
+      "from_x": 352,
+      "from_y": 232,
+      "to_x": 352,
+      "to_y": 221,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_050_w",
+      "key": "w",
+      "from_x": 352,
+      "from_y": 221,
+      "to_x": 351,
+      "to_y": 231,
+      "delta_x": -1,
+      "delta_y": 10,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_051_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 231,
+      "to_x": 361,
+      "to_y": 229,
+      "delta_x": 10,
+      "delta_y": -2,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_052_w",
+      "key": "w",
+      "from_x": 361,
+      "from_y": 229,
+      "to_x": 363,
+      "to_y": 233,
+      "delta_x": 2,
+      "delta_y": 4,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_053_w",
+      "key": "w",
+      "from_x": 363,
+      "from_y": 233,
+      "to_x": 363,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_054_w",
+      "key": "w",
+      "from_x": 363,
+      "from_y": 233,
+      "to_x": 363,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_055_w",
+      "key": "w",
+      "from_x": 363,
+      "from_y": 233,
+      "to_x": 363,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_056_a",
+      "key": "a",
+      "from_x": 363,
+      "from_y": 233,
+      "to_x": 371,
+      "to_y": 226,
+      "delta_x": 8,
+      "delta_y": -7,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_057_w",
+      "key": "w",
+      "from_x": 371,
+      "from_y": 226,
+      "to_x": 380,
+      "to_y": 232,
+      "delta_x": 9,
+      "delta_y": 6,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_058_w",
+      "key": "w",
+      "from_x": 380,
+      "from_y": 232,
+      "to_x": 381,
+      "to_y": 232,
+      "delta_x": 1,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_059_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 232,
+      "to_x": 381,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_060_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 232,
+      "to_x": 381,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_061_w",
+      "key": "w",
+      "from_x": 381,
+      "from_y": 232,
+      "to_x": 381,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_062_a",
+      "key": "a",
+      "from_x": 381,
+      "from_y": 232,
+      "to_x": 384,
+      "to_y": 221,
+      "delta_x": 3,
+      "delta_y": -11,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_063_w",
+      "key": "w",
+      "from_x": 384,
+      "from_y": 221,
+      "to_x": 395,
+      "to_y": 221,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": [
+        412,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_064_w",
+      "key": "w",
+      "from_x": 395,
+      "from_y": 221,
+      "to_x": 397,
+      "to_y": 220,
+      "delta_x": 2,
+      "delta_y": -1,
+      "target": [
+        412,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_065_w",
+      "key": "w",
+      "from_x": 397,
+      "from_y": 220,
+      "to_x": 397,
+      "to_y": 220,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_066_w",
+      "key": "w",
+      "from_x": 397,
+      "from_y": 220,
+      "to_x": 397,
+      "to_y": 220,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_067_w",
+      "key": "w",
+      "from_x": 397,
+      "from_y": 220,
+      "to_x": 397,
+      "to_y": 220,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_068_a",
+      "key": "a",
+      "from_x": 397,
+      "from_y": 220,
+      "to_x": 394,
+      "to_y": 210,
+      "delta_x": -3,
+      "delta_y": -10,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_069_w",
+      "key": "w",
+      "from_x": 394,
+      "from_y": 210,
+      "to_x": 403,
+      "to_y": 204,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_070_w",
+      "key": "w",
+      "from_x": 403,
+      "from_y": 204,
+      "to_x": 412,
+      "to_y": 198,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_071_w",
+      "key": "w",
+      "from_x": 412,
+      "from_y": 198,
+      "to_x": 421,
+      "to_y": 191,
+      "delta_x": 9,
+      "delta_y": -7,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_072_w",
+      "key": "w",
+      "from_x": 421,
+      "from_y": 191,
+      "to_x": 430,
+      "to_y": 185,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_073_a",
+      "key": "a",
+      "from_x": 430,
+      "from_y": 185,
+      "to_x": 422,
+      "to_y": 178,
+      "delta_x": -8,
+      "delta_y": -7,
+      "target": [
+        437,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_074_w",
+      "key": "w",
+      "from_x": 422,
+      "from_y": 178,
+      "to_x": 427,
+      "to_y": 168,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": [
+        437,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_075_a",
+      "key": "a",
+      "from_x": 427,
+      "from_y": 168,
+      "to_x": 416,
+      "to_y": 166,
+      "delta_x": -11,
+      "delta_y": -2,
+      "target": [
+        437,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_076_a",
+      "key": "a",
+      "from_x": 416,
+      "from_y": 166,
+      "to_x": 406,
+      "to_y": 170,
+      "delta_x": -10,
+      "delta_y": 4,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_077_a",
+      "key": "a",
+      "from_x": 406,
+      "from_y": 170,
+      "to_x": 399,
+      "to_y": 179,
+      "delta_x": -7,
+      "delta_y": 9,
+      "target": [
+        412,
+        137
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_078_a",
+      "key": "a",
+      "from_x": 399,
+      "from_y": 179,
+      "to_x": 397,
+      "to_y": 189,
+      "delta_x": -2,
+      "delta_y": 10,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_079_a",
+      "key": "a",
+      "from_x": 397,
+      "from_y": 189,
+      "to_x": 402,
+      "to_y": 197,
+      "delta_x": 5,
+      "delta_y": 8,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_080_w",
+      "key": "w",
+      "from_x": 402,
+      "from_y": 197,
+      "to_x": 394,
+      "to_y": 204,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_081_w",
+      "key": "w",
+      "from_x": 394,
+      "from_y": 204,
+      "to_x": 385,
+      "to_y": 211,
+      "delta_x": -9,
+      "delta_y": 7,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_082_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 211,
+      "to_x": 377,
+      "to_y": 218,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_083_s",
+      "key": "s",
+      "from_x": 377,
+      "from_y": 218,
+      "to_x": 385,
+      "to_y": 211,
+      "delta_x": 8,
+      "delta_y": -7,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_084_w",
+      "key": "w",
+      "from_x": 385,
+      "from_y": 211,
+      "to_x": 377,
+      "to_y": 218,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_085_a",
+      "key": "a",
+      "from_x": 377,
+      "from_y": 218,
+      "to_x": 386,
+      "to_y": 224,
+      "delta_x": 9,
+      "delta_y": 6,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_086_w",
+      "key": "w",
+      "from_x": 386,
+      "from_y": 224,
+      "to_x": 383,
+      "to_y": 232,
+      "delta_x": -3,
+      "delta_y": 8,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_087_w",
+      "key": "w",
+      "from_x": 383,
+      "from_y": 232,
+      "to_x": 383,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_088_w",
+      "key": "w",
+      "from_x": 383,
+      "from_y": 232,
+      "to_x": 383,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_089_w",
+      "key": "w",
+      "from_x": 383,
+      "from_y": 232,
+      "to_x": 383,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_090_a",
+      "key": "a",
+      "from_x": 383,
+      "from_y": 232,
+      "to_x": 388,
+      "to_y": 231,
+      "delta_x": 5,
+      "delta_y": -1,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_091_w",
+      "key": "w",
+      "from_x": 388,
+      "from_y": 231,
+      "to_x": 389,
+      "to_y": 233,
+      "delta_x": 1,
+      "delta_y": 2,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_092_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 233,
+      "to_x": 389,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_093_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 233,
+      "to_x": 389,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_094_w",
+      "key": "w",
+      "from_x": 389,
+      "from_y": 233,
+      "to_x": 389,
+      "to_y": 233,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_095_a",
+      "key": "a",
+      "from_x": 389,
+      "from_y": 233,
+      "to_x": 398,
+      "to_y": 228,
+      "delta_x": 9,
+      "delta_y": -5,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_096_w",
+      "key": "w",
+      "from_x": 398,
+      "from_y": 228,
+      "to_x": 406,
+      "to_y": 236,
+      "delta_x": 8,
+      "delta_y": 8,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_097_w",
+      "key": "w",
+      "from_x": 406,
+      "from_y": 236,
+      "to_x": 413,
+      "to_y": 244,
+      "delta_x": 7,
+      "delta_y": 8,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_098_w",
+      "key": "w",
+      "from_x": 413,
+      "from_y": 244,
+      "to_x": 418,
+      "to_y": 248,
+      "delta_x": 5,
+      "delta_y": 4,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_099_w",
+      "key": "w",
+      "from_x": 418,
+      "from_y": 248,
+      "to_x": 418,
+      "to_y": 248,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_100_w",
+      "key": "w",
+      "from_x": 418,
+      "from_y": 248,
+      "to_x": 418,
+      "to_y": 248,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_101_w",
+      "key": "w",
+      "from_x": 418,
+      "from_y": 248,
+      "to_x": 418,
+      "to_y": 248,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_102_a",
+      "key": "a",
+      "from_x": 418,
+      "from_y": 248,
+      "to_x": 423,
+      "to_y": 238,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_103_s",
+      "key": "s",
+      "from_x": 423,
+      "from_y": 238,
+      "to_x": 412,
+      "to_y": 236,
+      "delta_x": -11,
+      "delta_y": -2,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_104_w",
+      "key": "w",
+      "from_x": 412,
+      "from_y": 236,
+      "to_x": 423,
+      "to_y": 238,
+      "delta_x": 11,
+      "delta_y": 2,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_105_s",
+      "key": "s",
+      "from_x": 423,
+      "from_y": 238,
+      "to_x": 412,
+      "to_y": 236,
+      "delta_x": -11,
+      "delta_y": -2,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_106_w",
+      "key": "w",
+      "from_x": 412,
+      "from_y": 236,
+      "to_x": 423,
+      "to_y": 238,
+      "delta_x": 11,
+      "delta_y": 2,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_107_a",
+      "key": "a",
+      "from_x": 423,
+      "from_y": 238,
+      "to_x": 422,
+      "to_y": 228,
+      "delta_x": -1,
+      "delta_y": -10,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_108_w",
+      "key": "w",
+      "from_x": 422,
+      "from_y": 228,
+      "to_x": 433,
+      "to_y": 224,
+      "delta_x": 11,
+      "delta_y": -4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_109_w",
+      "key": "w",
+      "from_x": 433,
+      "from_y": 224,
+      "to_x": 443,
+      "to_y": 220,
+      "delta_x": 10,
+      "delta_y": -4,
+      "target": [
+        462,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_110_w",
+      "key": "w",
+      "from_x": 443,
+      "from_y": 220,
+      "to_x": 453,
+      "to_y": 216,
+      "delta_x": 10,
+      "delta_y": -4,
+      "target": [
+        462,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_111_w",
+      "key": "w",
+      "from_x": 453,
+      "from_y": 216,
+      "to_x": 457,
+      "to_y": 216,
+      "delta_x": 4,
+      "delta_y": 0,
+      "target": [
+        462,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_112_w",
+      "key": "w",
+      "from_x": 457,
+      "from_y": 216,
+      "to_x": 457,
+      "to_y": 216,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        462,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_113_w",
+      "key": "w",
+      "from_x": 457,
+      "from_y": 216,
+      "to_x": 457,
+      "to_y": 216,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        462,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_114_w",
+      "key": "w",
+      "from_x": 457,
+      "from_y": 216,
+      "to_x": 457,
+      "to_y": 216,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        462,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_115_a",
+      "key": "a",
+      "from_x": 457,
+      "from_y": 216,
+      "to_x": 456,
+      "to_y": 215,
+      "delta_x": -1,
+      "delta_y": -1,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_116_a",
+      "key": "a",
+      "from_x": 456,
+      "from_y": 215,
+      "to_x": 455,
+      "to_y": 215,
+      "delta_x": -1,
+      "delta_y": 0,
+      "target": [
+        462,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_117_a",
+      "key": "a",
+      "from_x": 455,
+      "from_y": 215,
+      "to_x": 444,
+      "to_y": 217,
+      "delta_x": -11,
+      "delta_y": 2,
+      "target": [
+        462,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_118_a",
+      "key": "a",
+      "from_x": 444,
+      "from_y": 217,
+      "to_x": 436,
+      "to_y": 224,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        462,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_119_w",
+      "key": "w",
+      "from_x": 436,
+      "from_y": 224,
+      "to_x": 426,
+      "to_y": 219,
+      "delta_x": -10,
+      "delta_y": -5,
+      "target": [
+        462,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_antistall_try1.json",
+      "label": "smart_120_w",
+      "key": "w",
+      "from_x": 426,
+      "from_y": 219,
+      "to_x": 417,
+      "to_y": 214,
+      "delta_x": -9,
+      "delta_y": -5,
+      "target": [
+        462,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_001_w",
+      "key": "w",
+      "from_x": 417,
+      "from_y": 214,
+      "to_x": 407,
+      "to_y": 208,
+      "delta_x": -10,
+      "delta_y": -6,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_002_s",
+      "key": "s",
+      "from_x": 407,
+      "from_y": 208,
+      "to_x": 417,
+      "to_y": 214,
+      "delta_x": 10,
+      "delta_y": 6,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_003_w",
+      "key": "w",
+      "from_x": 417,
+      "from_y": 214,
+      "to_x": 407,
+      "to_y": 208,
+      "delta_x": -10,
+      "delta_y": -6,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_004_s",
+      "key": "s",
+      "from_x": 407,
+      "from_y": 208,
+      "to_x": 417,
+      "to_y": 214,
+      "delta_x": 10,
+      "delta_y": 6,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_005_w",
+      "key": "w",
+      "from_x": 417,
+      "from_y": 214,
+      "to_x": 407,
+      "to_y": 208,
+      "delta_x": -10,
+      "delta_y": -6,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_006_a",
+      "key": "a",
+      "from_x": 407,
+      "from_y": 208,
+      "to_x": 405,
+      "to_y": 219,
+      "delta_x": -2,
+      "delta_y": 11,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_007_a",
+      "key": "a",
+      "from_x": 405,
+      "from_y": 219,
+      "to_x": 408,
+      "to_y": 229,
+      "delta_x": 3,
+      "delta_y": 10,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_008_a",
+      "key": "a",
+      "from_x": 408,
+      "from_y": 229,
+      "to_x": 416,
+      "to_y": 237,
+      "delta_x": 8,
+      "delta_y": 8,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_009_w",
+      "key": "w",
+      "from_x": 416,
+      "from_y": 237,
+      "to_x": 411,
+      "to_y": 247,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_010_w",
+      "key": "w",
+      "from_x": 411,
+      "from_y": 247,
+      "to_x": 410,
+      "to_y": 247,
+      "delta_x": -1,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_011_w",
+      "key": "w",
+      "from_x": 410,
+      "from_y": 247,
+      "to_x": 410,
+      "to_y": 247,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_012_w",
+      "key": "w",
+      "from_x": 410,
+      "from_y": 247,
+      "to_x": 410,
+      "to_y": 247,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_013_w",
+      "key": "w",
+      "from_x": 410,
+      "from_y": 247,
+      "to_x": 410,
+      "to_y": 247,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        412,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_014_a",
+      "key": "a",
+      "from_x": 410,
+      "from_y": 247,
+      "to_x": 411,
+      "to_y": 247,
+      "delta_x": 1,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_015_s",
+      "key": "s",
+      "from_x": 411,
+      "from_y": 247,
+      "to_x": 411,
+      "to_y": 236,
+      "delta_x": 0,
+      "delta_y": -11,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_016_s",
+      "key": "s",
+      "from_x": 411,
+      "from_y": 236,
+      "to_x": 410,
+      "to_y": 229,
+      "delta_x": -1,
+      "delta_y": -7,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_017_a",
+      "key": "a",
+      "from_x": 410,
+      "from_y": 229,
+      "to_x": 420,
+      "to_y": 226,
+      "delta_x": 10,
+      "delta_y": -3,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_018_w",
+      "key": "w",
+      "from_x": 420,
+      "from_y": 226,
+      "to_x": 420,
+      "to_y": 227,
+      "delta_x": 0,
+      "delta_y": 1,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_019_w",
+      "key": "w",
+      "from_x": 420,
+      "from_y": 227,
+      "to_x": 420,
+      "to_y": 227,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_020_w",
+      "key": "w",
+      "from_x": 420,
+      "from_y": 227,
+      "to_x": 420,
+      "to_y": 227,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_021_w",
+      "key": "w",
+      "from_x": 420,
+      "from_y": 227,
+      "to_x": 420,
+      "to_y": 227,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_022_a",
+      "key": "a",
+      "from_x": 420,
+      "from_y": 227,
+      "to_x": 421,
+      "to_y": 224,
+      "delta_x": 1,
+      "delta_y": -3,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_023_w",
+      "key": "w",
+      "from_x": 421,
+      "from_y": 224,
+      "to_x": 432,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_024_s",
+      "key": "s",
+      "from_x": 432,
+      "from_y": 228,
+      "to_x": 432,
+      "to_y": 228,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_025_s",
+      "key": "s",
+      "from_x": 432,
+      "from_y": 228,
+      "to_x": 421,
+      "to_y": 224,
+      "delta_x": -11,
+      "delta_y": -4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_026_w",
+      "key": "w",
+      "from_x": 421,
+      "from_y": 224,
+      "to_x": 432,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_027_s",
+      "key": "s",
+      "from_x": 432,
+      "from_y": 228,
+      "to_x": 421,
+      "to_y": 224,
+      "delta_x": -11,
+      "delta_y": -4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_028_w",
+      "key": "w",
+      "from_x": 421,
+      "from_y": 224,
+      "to_x": 432,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_029_s",
+      "key": "s",
+      "from_x": 432,
+      "from_y": 228,
+      "to_x": 421,
+      "to_y": 224,
+      "delta_x": -11,
+      "delta_y": -4,
+      "target": [
+        437,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_030_a",
+      "key": "a",
+      "from_x": 421,
+      "from_y": 224,
+      "to_x": 422,
+      "to_y": 213,
+      "delta_x": 1,
+      "delta_y": -11,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_031_s",
+      "key": "s",
+      "from_x": 422,
+      "from_y": 213,
+      "to_x": 411,
+      "to_y": 215,
+      "delta_x": -11,
+      "delta_y": 2,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_032_s",
+      "key": "s",
+      "from_x": 411,
+      "from_y": 215,
+      "to_x": 401,
+      "to_y": 217,
+      "delta_x": -10,
+      "delta_y": 2,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_033_s",
+      "key": "s",
+      "from_x": 401,
+      "from_y": 217,
+      "to_x": 390,
+      "to_y": 220,
+      "delta_x": -11,
+      "delta_y": 3,
+      "target": [
+        387,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_034_w",
+      "key": "w",
+      "from_x": 390,
+      "from_y": 220,
+      "to_x": 401,
+      "to_y": 217,
+      "delta_x": 11,
+      "delta_y": -3,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_035_s",
+      "key": "s",
+      "from_x": 401,
+      "from_y": 217,
+      "to_x": 390,
+      "to_y": 220,
+      "delta_x": -11,
+      "delta_y": 3,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_036_w",
+      "key": "w",
+      "from_x": 390,
+      "from_y": 220,
+      "to_x": 401,
+      "to_y": 217,
+      "delta_x": 11,
+      "delta_y": -3,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_037_s",
+      "key": "s",
+      "from_x": 401,
+      "from_y": 217,
+      "to_x": 390,
+      "to_y": 220,
+      "delta_x": -11,
+      "delta_y": 3,
+      "target": [
+        387,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_038_a",
+      "key": "a",
+      "from_x": 390,
+      "from_y": 220,
+      "to_x": 385,
+      "to_y": 210,
+      "delta_x": -5,
+      "delta_y": -10,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_039_s",
+      "key": "s",
+      "from_x": 385,
+      "from_y": 210,
+      "to_x": 377,
+      "to_y": 218,
+      "delta_x": -8,
+      "delta_y": 8,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_040_s",
+      "key": "s",
+      "from_x": 377,
+      "from_y": 218,
+      "to_x": 369,
+      "to_y": 225,
+      "delta_x": -8,
+      "delta_y": 7,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_041_s",
+      "key": "s",
+      "from_x": 369,
+      "from_y": 225,
+      "to_x": 361,
+      "to_y": 233,
+      "delta_x": -8,
+      "delta_y": 8,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_042_a",
+      "key": "a",
+      "from_x": 361,
+      "from_y": 233,
+      "to_x": 354,
+      "to_y": 229,
+      "delta_x": -7,
+      "delta_y": -4,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_043_a",
+      "key": "a",
+      "from_x": 354,
+      "from_y": 229,
+      "to_x": 345,
+      "to_y": 230,
+      "delta_x": -9,
+      "delta_y": 1,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_044_s",
+      "key": "s",
+      "from_x": 345,
+      "from_y": 230,
+      "to_x": 345,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_045_s",
+      "key": "s",
+      "from_x": 345,
+      "from_y": 230,
+      "to_x": 345,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_046_s",
+      "key": "s",
+      "from_x": 345,
+      "from_y": 230,
+      "to_x": 345,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        337,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_047_d",
+      "key": "d",
+      "from_x": 345,
+      "from_y": 230,
+      "to_x": 356,
+      "to_y": 230,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_048_a",
+      "key": "a",
+      "from_x": 356,
+      "from_y": 230,
+      "to_x": 345,
+      "to_y": 230,
+      "delta_x": -11,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_049_w",
+      "key": "w",
+      "from_x": 345,
+      "from_y": 230,
+      "to_x": 342,
+      "to_y": 219,
+      "delta_x": -3,
+      "delta_y": -11,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_050_w",
+      "key": "w",
+      "from_x": 342,
+      "from_y": 219,
+      "to_x": 339,
+      "to_y": 209,
+      "delta_x": -3,
+      "delta_y": -10,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_051_a",
+      "key": "a",
+      "from_x": 339,
+      "from_y": 209,
+      "to_x": 330,
+      "to_y": 215,
+      "delta_x": -9,
+      "delta_y": 6,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_052_s",
+      "key": "s",
+      "from_x": 330,
+      "from_y": 215,
+      "to_x": 338,
+      "to_y": 222,
+      "delta_x": 8,
+      "delta_y": 7,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_053_w",
+      "key": "w",
+      "from_x": 338,
+      "from_y": 222,
+      "to_x": 329,
+      "to_y": 216,
+      "delta_x": -9,
+      "delta_y": -6,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_054_s",
+      "key": "s",
+      "from_x": 329,
+      "from_y": 216,
+      "to_x": 339,
+      "to_y": 222,
+      "delta_x": 10,
+      "delta_y": 6,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_055_w",
+      "key": "w",
+      "from_x": 339,
+      "from_y": 222,
+      "to_x": 329,
+      "to_y": 216,
+      "delta_x": -10,
+      "delta_y": -6,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_056_s",
+      "key": "s",
+      "from_x": 329,
+      "from_y": 216,
+      "to_x": 339,
+      "to_y": 222,
+      "delta_x": 10,
+      "delta_y": 6,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_057_w",
+      "key": "w",
+      "from_x": 339,
+      "from_y": 222,
+      "to_x": 329,
+      "to_y": 216,
+      "delta_x": -10,
+      "delta_y": -6,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_058_s",
+      "key": "s",
+      "from_x": 329,
+      "from_y": 216,
+      "to_x": 339,
+      "to_y": 222,
+      "delta_x": 10,
+      "delta_y": 6,
+      "target": [
+        312,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_059_a",
+      "key": "a",
+      "from_x": 339,
+      "from_y": 222,
+      "to_x": 336,
+      "to_y": 228,
+      "delta_x": -3,
+      "delta_y": 6,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_060_s",
+      "key": "s",
+      "from_x": 336,
+      "from_y": 228,
+      "to_x": 347,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_061_w",
+      "key": "w",
+      "from_x": 347,
+      "from_y": 228,
+      "to_x": 336,
+      "to_y": 228,
+      "delta_x": -11,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_062_s",
+      "key": "s",
+      "from_x": 336,
+      "from_y": 228,
+      "to_x": 347,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_063_w",
+      "key": "w",
+      "from_x": 347,
+      "from_y": 228,
+      "to_x": 336,
+      "to_y": 228,
+      "delta_x": -11,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_064_s",
+      "key": "s",
+      "from_x": 336,
+      "from_y": 228,
+      "to_x": 347,
+      "to_y": 228,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": [
+        312,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_065_a",
+      "key": "a",
+      "from_x": 347,
+      "from_y": 228,
+      "to_x": 347,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 2,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_066_w",
+      "key": "w",
+      "from_x": 347,
+      "from_y": 230,
+      "to_x": 347,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_067_w",
+      "key": "w",
+      "from_x": 347,
+      "from_y": 230,
+      "to_x": 347,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_068_w",
+      "key": "w",
+      "from_x": 347,
+      "from_y": 230,
+      "to_x": 347,
+      "to_y": 230,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        362,
+        212
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_069_d",
+      "key": "d",
+      "from_x": 347,
+      "from_y": 230,
+      "to_x": 344,
+      "to_y": 220,
+      "delta_x": -3,
+      "delta_y": -10,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_070_a",
+      "key": "a",
+      "from_x": 344,
+      "from_y": 220,
+      "to_x": 347,
+      "to_y": 230,
+      "delta_x": 3,
+      "delta_y": 10,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_071_s",
+      "key": "s",
+      "from_x": 347,
+      "from_y": 230,
+      "to_x": 356,
+      "to_y": 224,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": [
+        337,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_072_d",
+      "key": "d",
+      "from_x": 356,
+      "from_y": 224,
+      "to_x": 353,
+      "to_y": 213,
+      "delta_x": -3,
+      "delta_y": -11,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_073_d",
+      "key": "d",
+      "from_x": 353,
+      "from_y": 213,
+      "to_x": 356,
+      "to_y": 203,
+      "delta_x": 3,
+      "delta_y": -10,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_074_d",
+      "key": "d",
+      "from_x": 356,
+      "from_y": 203,
+      "to_x": 364,
+      "to_y": 195,
+      "delta_x": 8,
+      "delta_y": -8,
+      "target": [
+        362,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_075_w",
+      "key": "w",
+      "from_x": 364,
+      "from_y": 195,
+      "to_x": 359,
+      "to_y": 185,
+      "delta_x": -5,
+      "delta_y": -10,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_076_a",
+      "key": "a",
+      "from_x": 359,
+      "from_y": 185,
+      "to_x": 351,
+      "to_y": 193,
+      "delta_x": -8,
+      "delta_y": 8,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_077_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 193,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": -3,
+      "delta_y": 11,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_078_d",
+      "key": "d",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 351,
+      "to_y": 193,
+      "delta_x": 3,
+      "delta_y": -11,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_079_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 193,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": -3,
+      "delta_y": 11,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_080_d",
+      "key": "d",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 351,
+      "to_y": 193,
+      "delta_x": 3,
+      "delta_y": -11,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_081_a",
+      "key": "a",
+      "from_x": 351,
+      "from_y": 193,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": -3,
+      "delta_y": 11,
+      "target": [
+        337,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_082_w",
+      "key": "w",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 337,
+      "to_y": 203,
+      "delta_x": -11,
+      "delta_y": -1,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_083_s",
+      "key": "s",
+      "from_x": 337,
+      "from_y": 203,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": 11,
+      "delta_y": 1,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_084_a",
+      "key": "a",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 350,
+      "to_y": 214,
+      "delta_x": 2,
+      "delta_y": 10,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_085_d",
+      "key": "d",
+      "from_x": 350,
+      "from_y": 214,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": -2,
+      "delta_y": -10,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_086_a",
+      "key": "a",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 350,
+      "to_y": 214,
+      "delta_x": 2,
+      "delta_y": 10,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_087_d",
+      "key": "d",
+      "from_x": 350,
+      "from_y": 214,
+      "to_x": 348,
+      "to_y": 204,
+      "delta_x": -2,
+      "delta_y": -10,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_088_s",
+      "key": "s",
+      "from_x": 348,
+      "from_y": 204,
+      "to_x": 359,
+      "to_y": 204,
+      "delta_x": 11,
+      "delta_y": 0,
+      "target": [
+        312,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_089_d",
+      "key": "d",
+      "from_x": 359,
+      "from_y": 204,
+      "to_x": 362,
+      "to_y": 194,
+      "delta_x": 3,
+      "delta_y": -10,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_090_d",
+      "key": "d",
+      "from_x": 362,
+      "from_y": 194,
+      "to_x": 371,
+      "to_y": 187,
+      "delta_x": 9,
+      "delta_y": -7,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_091_w",
+      "key": "w",
+      "from_x": 371,
+      "from_y": 187,
+      "to_x": 366,
+      "to_y": 177,
+      "delta_x": -5,
+      "delta_y": -10,
+      "target": [
+        387,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_092_d",
+      "key": "d",
+      "from_x": 366,
+      "from_y": 177,
+      "to_x": 377,
+      "to_y": 175,
+      "delta_x": 11,
+      "delta_y": -2,
+      "target": [
+        362,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_093_d",
+      "key": "d",
+      "from_x": 377,
+      "from_y": 175,
+      "to_x": 387,
+      "to_y": 179,
+      "delta_x": 10,
+      "delta_y": 4,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_094_d",
+      "key": "d",
+      "from_x": 387,
+      "from_y": 179,
+      "to_x": 394,
+      "to_y": 187,
+      "delta_x": 7,
+      "delta_y": 8,
+      "target": [
+        387,
+        162
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_095_d",
+      "key": "d",
+      "from_x": 394,
+      "from_y": 187,
+      "to_x": 395,
+      "to_y": 198,
+      "delta_x": 1,
+      "delta_y": 11,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_096_d",
+      "key": "d",
+      "from_x": 395,
+      "from_y": 198,
+      "to_x": 390,
+      "to_y": 208,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_097_d",
+      "key": "d",
+      "from_x": 390,
+      "from_y": 208,
+      "to_x": 381,
+      "to_y": 213,
+      "delta_x": -9,
+      "delta_y": 5,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_098_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 213,
+      "to_x": 370,
+      "to_y": 214,
+      "delta_x": -11,
+      "delta_y": 1,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_099_a",
+      "key": "a",
+      "from_x": 370,
+      "from_y": 214,
+      "to_x": 381,
+      "to_y": 213,
+      "delta_x": 11,
+      "delta_y": -1,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_100_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 213,
+      "to_x": 370,
+      "to_y": 214,
+      "delta_x": -11,
+      "delta_y": 1,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_101_a",
+      "key": "a",
+      "from_x": 370,
+      "from_y": 214,
+      "to_x": 381,
+      "to_y": 213,
+      "delta_x": 11,
+      "delta_y": -1,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_102_d",
+      "key": "d",
+      "from_x": 381,
+      "from_y": 213,
+      "to_x": 370,
+      "to_y": 214,
+      "delta_x": -11,
+      "delta_y": 1,
+      "target": [
+        412,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_103_w",
+      "key": "w",
+      "from_x": 370,
+      "from_y": 214,
+      "to_x": 369,
+      "to_y": 219,
+      "delta_x": -1,
+      "delta_y": 5,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_104_a",
+      "key": "a",
+      "from_x": 369,
+      "from_y": 219,
+      "to_x": 375,
+      "to_y": 219,
+      "delta_x": 6,
+      "delta_y": 0,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_105_w",
+      "key": "w",
+      "from_x": 375,
+      "from_y": 219,
+      "to_x": 378,
+      "to_y": 229,
+      "delta_x": 3,
+      "delta_y": 10,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_106_w",
+      "key": "w",
+      "from_x": 378,
+      "from_y": 229,
+      "to_x": 379,
+      "to_y": 232,
+      "delta_x": 1,
+      "delta_y": 3,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_107_w",
+      "key": "w",
+      "from_x": 379,
+      "from_y": 232,
+      "to_x": 379,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_108_w",
+      "key": "w",
+      "from_x": 379,
+      "from_y": 232,
+      "to_x": 379,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_109_w",
+      "key": "w",
+      "from_x": 379,
+      "from_y": 232,
+      "to_x": 379,
+      "to_y": 232,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        387,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_110_a",
+      "key": "a",
+      "from_x": 379,
+      "from_y": 232,
+      "to_x": 388,
+      "to_y": 226,
+      "delta_x": 9,
+      "delta_y": -6,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_111_a",
+      "key": "a",
+      "from_x": 388,
+      "from_y": 226,
+      "to_x": 393,
+      "to_y": 216,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_112_d",
+      "key": "d",
+      "from_x": 393,
+      "from_y": 216,
+      "to_x": 388,
+      "to_y": 226,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_113_a",
+      "key": "a",
+      "from_x": 388,
+      "from_y": 226,
+      "to_x": 393,
+      "to_y": 216,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_114_d",
+      "key": "d",
+      "from_x": 393,
+      "from_y": 216,
+      "to_x": 388,
+      "to_y": 226,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_115_a",
+      "key": "a",
+      "from_x": 388,
+      "from_y": 226,
+      "to_x": 392,
+      "to_y": 216,
+      "delta_x": 4,
+      "delta_y": -10,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_116_w",
+      "key": "w",
+      "from_x": 392,
+      "from_y": 216,
+      "to_x": 403,
+      "to_y": 217,
+      "delta_x": 11,
+      "delta_y": 1,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_117_d",
+      "key": "d",
+      "from_x": 403,
+      "from_y": 217,
+      "to_x": 399,
+      "to_y": 227,
+      "delta_x": -4,
+      "delta_y": 10,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_118_s",
+      "key": "s",
+      "from_x": 399,
+      "from_y": 227,
+      "to_x": 391,
+      "to_y": 220,
+      "delta_x": -8,
+      "delta_y": -7,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_119_a",
+      "key": "a",
+      "from_x": 391,
+      "from_y": 220,
+      "to_x": 395,
+      "to_y": 210,
+      "delta_x": 4,
+      "delta_y": -10,
+      "target": [
+        362,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_120_w",
+      "key": "w",
+      "from_x": 395,
+      "from_y": 210,
+      "to_x": 406,
+      "to_y": 212,
+      "delta_x": 11,
+      "delta_y": 2,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_121_w",
+      "key": "w",
+      "from_x": 406,
+      "from_y": 212,
+      "to_x": 417,
+      "to_y": 213,
+      "delta_x": 11,
+      "delta_y": 1,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_122_d",
+      "key": "d",
+      "from_x": 417,
+      "from_y": 213,
+      "to_x": 412,
+      "to_y": 223,
+      "delta_x": -5,
+      "delta_y": 10,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_123_w",
+      "key": "w",
+      "from_x": 412,
+      "from_y": 223,
+      "to_x": 418,
+      "to_y": 228,
+      "delta_x": 6,
+      "delta_y": 5,
+      "target": [
+        437,
+        187
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_124_w",
+      "key": "w",
+      "from_x": 418,
+      "from_y": 228,
+      "to_x": 418,
+      "to_y": 228,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_125_w",
+      "key": "w",
+      "from_x": 418,
+      "from_y": 228,
+      "to_x": 426,
+      "to_y": 235,
+      "delta_x": 8,
+      "delta_y": 7,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_126_w",
+      "key": "w",
+      "from_x": 426,
+      "from_y": 235,
+      "to_x": 434,
+      "to_y": 243,
+      "delta_x": 8,
+      "delta_y": 8,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_127_w",
+      "key": "w",
+      "from_x": 434,
+      "from_y": 243,
+      "to_x": 441,
+      "to_y": 249,
+      "delta_x": 7,
+      "delta_y": 6,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_128_w",
+      "key": "w",
+      "from_x": 441,
+      "from_y": 249,
+      "to_x": 441,
+      "to_y": 249,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_129_w",
+      "key": "w",
+      "from_x": 441,
+      "from_y": 249,
+      "to_x": 441,
+      "to_y": 249,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_130_w",
+      "key": "w",
+      "from_x": 441,
+      "from_y": 249,
+      "to_x": 441,
+      "to_y": 249,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        437,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_131_a",
+      "key": "a",
+      "from_x": 441,
+      "from_y": 249,
+      "to_x": 446,
+      "to_y": 239,
+      "delta_x": 5,
+      "delta_y": -10,
+      "target": null,
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_132_w",
+      "key": "w",
+      "from_x": 446,
+      "from_y": 239,
+      "to_x": 451,
+      "to_y": 239,
+      "delta_x": 5,
+      "delta_y": 0,
+      "target": [
+        462,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_133_w",
+      "key": "w",
+      "from_x": 451,
+      "from_y": 239,
+      "to_x": 451,
+      "to_y": 239,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        462,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_134_w",
+      "key": "w",
+      "from_x": 451,
+      "from_y": 239,
+      "to_x": 451,
+      "to_y": 239,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        462,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_135_w",
+      "key": "w",
+      "from_x": 451,
+      "from_y": 239,
+      "to_x": 461,
+      "to_y": 240,
+      "delta_x": 10,
+      "delta_y": 1,
+      "target": [
+        462,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_136_w",
+      "key": "w",
+      "from_x": 461,
+      "from_y": 240,
+      "to_x": 472,
+      "to_y": 242,
+      "delta_x": 11,
+      "delta_y": 2,
+      "target": [
+        462,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_137_w",
+      "key": "w",
+      "from_x": 472,
+      "from_y": 242,
+      "to_x": 483,
+      "to_y": 244,
+      "delta_x": 11,
+      "delta_y": 2,
+      "target": [
+        487,
+        237
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_138_w",
+      "key": "w",
+      "from_x": 483,
+      "from_y": 244,
+      "to_x": 492,
+      "to_y": 246,
+      "delta_x": 9,
+      "delta_y": 2,
+      "target": [
+        487,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_139_w",
+      "key": "w",
+      "from_x": 492,
+      "from_y": 246,
+      "to_x": 492,
+      "to_y": 246,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        487,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\yongan_smart_exploration_persist_blocked_try2.json",
+      "label": "smart_140_w",
+      "key": "w",
+      "from_x": 492,
+      "from_y": 246,
+      "to_x": 492,
+      "to_y": 246,
+      "delta_x": 0,
+      "delta_y": 0,
+      "target": [
+        487,
+        262
+      ],
+      "notes": "Autonomous smart exploration memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\entity_anchor_visible_metins.json",
+      "label": "c1_l1_w",
+      "key": "w",
+      "from_x": 286,
+      "from_y": 224,
+      "to_x": 294,
+      "to_y": 201,
+      "delta_x": 8,
+      "delta_y": -23,
+      "notes": "Fixed patrol memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\entity_anchor_visible_metins.json",
+      "label": "c1_l2_a",
+      "key": "a",
+      "from_x": 294,
+      "from_y": 201,
+      "to_x": 271,
+      "to_y": 201,
+      "delta_x": -23,
+      "delta_y": 0,
+      "notes": "Fixed patrol memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\entity_anchor_visible_metins.json",
+      "label": "c1_l3_s",
+      "key": "s",
+      "from_x": 271,
+      "from_y": 201,
+      "to_x": 279,
+      "to_y": 223,
+      "delta_x": 8,
+      "delta_y": 22,
+      "notes": "Fixed patrol memory-feedback step."
+    },
+    {
+      "map_name": "Yongan",
+      "source_log": "reports\\entity_anchor_visible_metins.json",
+      "label": "c1_l4_d",
+      "key": "d",
+      "from_x": 279,
+      "from_y": 223,
+      "to_x": 303,
+      "to_y": 223,
+      "delta_x": 24,
+      "delta_y": 0,
+      "notes": "Fixed patrol memory-feedback step."
+    }
+  ]
+}

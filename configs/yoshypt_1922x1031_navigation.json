@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "reference_size": [1922, 1031],
+  "ui_regions": {
+    "target_bar": [0.36, 0.045, 0.64, 0.105],
+    "target_bar_close": [0.612, 0.060, 0.628, 0.088],
+    "minimap": [0.895, 0.020, 0.998, 0.230],
+    "hotbar": [0.420, 0.950, 0.710, 0.998],
+    "task_panel": [0.040, 0.760, 0.140, 0.950],
+    "map_close": [0.755, 0.130, 0.770, 0.165],
+    "dungeon_overlay_close": [0.635, 0.165, 0.648, 0.195],
+    "death_dialog": [0.030, 0.090, 0.170, 0.220]
+  },
+  "patrol_points": {
+    "center_lane": [0.50, 0.54],
+    "north_left": [0.32, 0.34],
+    "north_right": [0.67, 0.34],
+    "west_mid": [0.25, 0.55],
+    "east_mid": [0.75, 0.55],
+    "south_left": [0.34, 0.72],
+    "south_right": [0.66, 0.72]
+  },
+  "search": {
+    "rotate_pattern": ["e", "e", "e", "e", "e", "e", "q", "q"],
+    "rotate_seconds": 0.40,
+    "approach_wait": 2.2,
+    "patrol_after_search_turns": 24
+  }
+}
