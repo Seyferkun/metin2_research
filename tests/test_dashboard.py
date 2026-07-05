@@ -203,6 +203,8 @@ def test_registry_exposes_safe_tunable_options():
     move_options = {o["name"]: o for o in scripts["move_to_metin_client_state"]["options"]}
     assert combat_options["max_cycles"]["flag"] == "--max-cycles"
     assert combat_options["burst_seconds"]["type"] == "float"
+    assert combat_options["allow_selected_vid_without_exact_coords"]["flag"] == "--allow-selected-vid-without-exact-coords"
+    assert combat_options["allow_selected_vid_without_exact_coords"]["type"] == "bool"
     assert learn_options["cycles"]["flag"] == "--cycles"
     assert login_options["username"]["flag"] == "--username"
     assert login_options["enter_game_count"]["type"] == "int"

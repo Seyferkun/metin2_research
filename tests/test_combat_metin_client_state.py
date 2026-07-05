@@ -490,6 +490,52 @@ def test_combat_script_writes_structured_report_on_max_cycles(tmp_path):
     assert report["duration_seconds"] >= 0
 
 
+def test_combat_script_allows_explicit_selected_vid_without_projection_when_flagged(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "timestamp_ms": 1,
+                "map": "metin2_map_a1",
+                "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+                "target": {"vid": 777, "name": "Metin da Batalha", "alive": True, "alive_source": "chr.HasInstance", "type": 2},
+                "nearby_entities": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    out_path = tmp_path / "combat.jsonl"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/combat_metin_client_state.py",
+            "--json-state",
+            str(state_path),
+            "--max-cycles",
+            "1",
+            "--out",
+            str(out_path),
+            "--metin-name",
+            "Metin da Batalha",
+            "--allow-selected-vid-without-exact-coords",
+        ],
+        cwd=".",
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=20,
+    )
+
+    assert result.returncode == 0, result.stderr
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert events[0]["state"] == "TRACKED_VID_ATTACK_WITHOUT_EXACT_COORDS"
+    assert events[0]["target_vid"] == 777
+    assert events[0]["movement_allowed"] is False
+    assert events[1]["state"] == "ATTACK_METIN"
+    assert "selected tracked Metin" in events[1]["reason"]
+
+
 def test_combat_script_navigation_event_logs_online_model_summary(tmp_path):
     state_path = tmp_path / "hermes_state.json"
     state_path.write_text(

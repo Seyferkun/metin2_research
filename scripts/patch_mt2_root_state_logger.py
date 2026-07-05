@@ -50,15 +50,15 @@ LOGGER_BLOCK = """\
 						except: rn=-1
 						try:
 							chr.SelectInstance(vid)
-							px,py=chr.GetPixelPosition()
+							_pp=chr.GetPixelPosition(); px=_pp[0]; py=_pp[1]
 							pix='['+str(px)+','+str(py)+']'
 						except: pix=""
 						try:
 							try:
-								qx,qy,qz=chr.GetProjectPosition(vid)
+								_pr=chr.GetProjectPosition(vid); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
 							except:
 								chr.SelectInstance(vid)
-								qx,qy,qz=chr.GetProjectPosition()
+								_pr=chr.GetProjectPosition(); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
 							proj='['+str(qx)+','+str(qy)+','+str(qz)+']'
 						except: proj=""
 				except: vid=0
@@ -77,7 +77,7 @@ LOGGER_BLOCK = """\
 							npix=""
 							try:
 								chr.SelectInstance(nv)
-								px,py=chr.GetPixelPosition()
+								_np2=chr.GetPixelPosition(); px=_np2[0]; py=_np2[1]
 								npix='['+str(px)+','+str(py)+']'
 							except: npix=""
 							_ni='{"name":"'+mn+'","vid":'+str(nv)+',"alive":'+('true' if na else 'false')+',"type":'+str(nt)

@@ -580,6 +580,11 @@ def main() -> int:
     ap.add_argument("--session-start-scan", action=argparse.BooleanOptionalAction, default=True, help="Before combat, run read-only find_nearby_metins --source hybrid and use the first trusted exact-coordinate result if any")
     ap.add_argument("--session-start-scan-radius", type=float, default=600.0)
     ap.add_argument("--session-start-scan-limit", type=int, default=8)
+    ap.add_argument(
+        "--allow-selected-vid-without-exact-coords",
+        action="store_true",
+        help="Operator-approved fallback: allow Space-only attack when selected target is a live Metin VID but exact target projection is missing. Movement/navigation still requires exact coordinates.",
+    )
     args = ap.parse_args()
 
     args.out.write_text("", encoding="utf-8")
@@ -687,25 +692,49 @@ def main() -> int:
                         },
                     )
                 elif _is_selected_metin_target(game, locked_metin_name):
-                    emit(
-                        args.out,
-                        {
-                            "cycle": cycle,
-                            "dry_run": not args.live,
-                            "state": "NEED_EXACT_TARGET",
-                            "command": "stop_need_exact_target_projection",
-                            "reason": "selected Metin has VID/name/alive evidence but missing target project/pixel position; refresh the client logger or run same-elevation/admin capture before live combat",
-                            "target_vid": game.target_vid,
-                            "target_name": game.target_name,
-                            "target_alive": game.target_alive,
-                            "target_pixel_position": game.target_pixel_position,
-                            "target_project_position": game.target_project_position,
-                            "run_id": run_id,
-                        },
-                    )
-                    print("[state=NEED_EXACT_TARGET] [action=stop_need_exact_target_projection] [reason=selected Metin missing target projection evidence]", flush=True)
-                    append_state_once(states_visited, "NEED_EXACT_TARGET")
-                    return finish("aborted", "need_exact_target_projection", 2)
+                    if args.allow_selected_vid_without_exact_coords:
+                        locked_metin_vid = game.target_vid
+                        locked_metin_name = game.target_name or locked_metin_name
+                        args.metin_vid = game.target_vid
+                        args.metin_name = locked_metin_name
+                        emit(
+                            args.out,
+                            {
+                                "cycle": cycle,
+                                "dry_run": not args.live,
+                                "state": "TRACKED_VID_ATTACK_WITHOUT_EXACT_COORDS",
+                                "command": "lock_selected_vid_for_space_only_attack",
+                                "reason": "operator-approved fallback: selected Metin VID/name/alive is trusted for Space-only attack; exact target projection is still missing, so movement remains blocked",
+                                "target_vid": game.target_vid,
+                                "target_name": game.target_name,
+                                "target_alive": game.target_alive,
+                                "target_pixel_position": game.target_pixel_position,
+                                "target_project_position": game.target_project_position,
+                                "movement_allowed": False,
+                                "run_id": run_id,
+                            },
+                        )
+                    else:
+                        emit(
+                            args.out,
+                            {
+                                "cycle": cycle,
+                                "dry_run": not args.live,
+                                "state": "NEED_EXACT_TARGET",
+                                "command": "stop_need_exact_target_projection",
+                                "reason": "selected Metin has VID/name/alive evidence but missing target project/pixel position; refresh the client logger or run same-elevation/admin capture before live combat",
+                                "target_vid": game.target_vid,
+                                "target_name": game.target_name,
+                                "target_alive": game.target_alive,
+                                "target_pixel_position": game.target_pixel_position,
+                                "target_project_position": game.target_project_position,
+                                "run_id": run_id,
+                            },
+                        )
+                        print("[state=NEED_EXACT_TARGET] [action=stop_need_exact_target_projection] [reason=selected Metin missing target projection evidence]", flush=True)
+                        append_state_once(states_visited, "NEED_EXACT_TARGET")
+                        return finish("aborted", "need_exact_target_projection", 2)
+
             snap = CombatSnapshot(
                 game=game,
                 metin_vid=locked_metin_vid,

@@ -137,6 +137,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("metin_x", "--metin-x", "int", None, "known Metin x coord"),
             OptionSpec("metin_y", "--metin-y", "int", None, "known Metin y coord"),
             OptionSpec("metin_coord_source", "--metin-coord-source", "str", None, "coordinate source: live_memory_visible_text or table"),
+            OptionSpec("allow_selected_vid_without_exact_coords", "--allow-selected-vid-without-exact-coords", "bool", False, "operator-approved Space-only fallback for selected VID when exact projection is missing"),
         ),
     ),
     "find_nearby_metins": ScriptSpec(
