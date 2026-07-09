@@ -81,7 +81,7 @@ def parse_json_state(data: dict[str, Any]) -> ClientState:
         quickslots=_list_of_dicts(data.get("quickslots")),
         player_flags={
             key: player[key]
-            for key in ("is_dead", "is_stunned", "is_moving", "facing_deg")
+            for key in ("is_dead", "is_stunned", "is_moving", "facing_deg", "mounted")
             if key in player
         },
         api_probe=api_probe,

@@ -32,13 +32,26 @@ LOGGER_BLOCK = """\
 				try: x,y,z=player.GetMainCharacterPosition()
 				except: pass
 				hp=player.GetStatus(player.HP); mhp=player.GetStatus(player.MAX_HP); sp=player.GetStatus(player.SP); msp=player.GetStatus(player.MAX_SP)
+				mounted=0
+				try: mounted=1 if player.IsMountingHorse() else 0
+				except: mounted=0
 				m=""; pn=""; vid=0; tn=""; ta=-1; tt=-1; rn=-1; pix=""; proj=""; nprobe=""; nearby=[]; ep="not_called"; cp=""
+				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""
 				try: m=background.GetCurrentMapName()
 				except: pass
 				try: pn=player.GetName()
 				except: pass
 				try:
-					vid=player.GetTargetVID()
+					try: ptv=player.GetTargetVID()
+					except: ptv=0
+					vid=ptv
+					try:
+						if hasattr(self,"targetBoard") and self.targetBoard:
+							tba=1
+							try: tbv=self.targetBoard.GetTargetVID()
+							except: tbe="target_board_error"
+					except: tbe="target_board_error"
+					if (not vid) and tbv: vid=tbv
 					if vid:
 						try: ta=1 if chr.HasInstance(vid) else 0
 						except: ta=-1
@@ -49,10 +62,19 @@ LOGGER_BLOCK = """\
 						try: rn=nonplayer.GetRaceNumByVID(vid)
 						except: rn=-1
 						try:
-							chr.SelectInstance(vid)
-							_pp=chr.GetPixelPosition(); px=_pp[0]; py=_pp[1]
+							if hasattr(self,"_hermes_target_hp_vid") and self._hermes_target_hp_vid==vid:
+								thp=self._hermes_target_hp_now; tmhp=self._hermes_target_hp_max
+								if tmhp and tmhp>0: thpp=str((float(thp)*100.0)/float(tmhp))
+						except: pass
+						try:
+							try:
+								_pp=chr.GetPixelPosition(vid); px=_pp[0]; py=_pp[1]
+							except:
+								chr.SelectInstance(vid)
+								_pp=chr.GetPixelPosition(); px=_pp[0]; py=_pp[1]
 							pix='['+str(px)+','+str(py)+']'
-						except: pix=""
+						except:
+							pix=""; pixe="pixel_error"
 						try:
 							try:
 								_pr=chr.GetProjectPosition(vid); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
@@ -60,7 +82,8 @@ LOGGER_BLOCK = """\
 								chr.SelectInstance(vid)
 								_pr=chr.GetProjectPosition(); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
 							proj='['+str(qx)+','+str(qy)+','+str(qz)+']'
-						except: proj=""
+						except:
+							proj=""; proje="project_error"
 				except: vid=0
 				try:
 					_np=[]
@@ -104,7 +127,7 @@ LOGGER_BLOCK = """\
 							nearby.append('{"vid":'+str(ev)+',"name":"'+str(en)+'"}')
 				except: ep="fail"
 				try:
-					out='{"timestamp_ms":'+str(now)+',"map":"'+str(m)+'","player":{"name":"'+str(pn)+'","x":'+str(x)+',"y":'+str(y)+',"z":'+str(z)+',"hp":'+str(hp)+',"max_hp":'+str(mhp)+',"sp":'+str(sp)+',"max_sp":'+str(msp)+'},'
+					out='{"timestamp_ms":'+str(now)+',"map":"'+str(m)+'","player":{"name":"'+str(pn)+'","x":'+str(x)+',"y":'+str(y)+',"z":'+str(z)+',"hp":'+str(hp)+',"max_hp":'+str(mhp)+',"sp":'+str(sp)+',"max_sp":'+str(msp)+',"mounted":'+('true' if mounted else 'false')+'},'
 					if vid:
 						out+='"target":{"vid":'+str(vid)+',"name":"'+str(tn)+'"'
 						if ta!=-1: out+=',"alive":'+('true' if ta else 'false')+',"alive_source":"chr.HasInstance"'
@@ -112,9 +135,102 @@ LOGGER_BLOCK = """\
 						if rn!=-1: out+=',"race_num":'+str(rn)
 						if pix: out+=',"pixel_position":'+pix
 						if proj: out+=',"project_position":'+proj
+						out+=',"player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
+						if tbe: out+=',"target_board_error":"'+str(tbe)+'"'
+						if pixe: out+=',"target_pixel_position_error":"'+str(pixe)+'"'
+						if proje: out+=',"target_project_position_error":"'+str(proje)+'"'
+						if thp!=-1: out+=',"hp":'+str(thp)+',"target_hp_now":'+str(thp)
+						if tmhp!=-1: out+=',"max_hp":'+str(tmhp)+',"target_hp_max":'+str(tmhp)
+						if thpp: out+=',"hp_pct":'+str(thpp)+',"target_hp_pct":'+str(thpp)
 						out+='},'
 					else: out+='"target":null,'
 					out+='"nearby_entities":['+','.join(nearby)+'],"named_metin_probe":['+str(nprobe)+'],"entity_probe":"'+str(ep)+'","chr_probe":"'+str(cp)+'","buffs":[],"skills":[],"quickslots":[]}'
+					_hf=old_open("hermes_state.json","w"); _hf.write(out); _hf.close()
+				except: pass
+				try:
+					line="%d\t%s\t%.0f\t%.0f\t%.0f\t%d\t%d\t%d\t%d\t%d\t%s\t%s\\n"%(now,str(m),x,y,z,hp,mhp,sp,msp,vid,str(pn),str(tn))
+					f=old_open("hermes_state.tsv","a"); f.write(line); f.close()
+				except: pass
+		except: pass
+		# HERMES_STATE_LOGGER_END
+"""
+
+
+COMPACT_LOGGER_BLOCK = """\
+		# HERMES_STATE_LOGGER_BEGIN
+		try:
+			now=app.GetGlobalTime()
+			if not hasattr(self,"_hermes_state_next"): self._hermes_state_next=0
+			if now>=self._hermes_state_next:
+				self._hermes_state_next=now+200
+				x=y=z=0; m=""; pn=""; vid=0; tn=""; ta=-1; tt=-1; rn=-1; pix=""; proj=""
+				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""
+				try: x,y,z=player.GetMainCharacterPosition()
+				except: pass
+				try: hp=player.GetStatus(player.HP); mhp=player.GetStatus(player.MAX_HP); sp=player.GetStatus(player.SP); msp=player.GetStatus(player.MAX_SP)
+				except: hp=mhp=sp=msp=0
+				mounted=0
+				try: mounted=1 if player.IsMountingHorse() else 0
+				except: mounted=0
+				try: m=background.GetCurrentMapName()
+				except: pass
+				try: pn=player.GetName()
+				except: pass
+				try:
+					try: ptv=player.GetTargetVID()
+					except: ptv=0
+					vid=ptv
+					try:
+						if hasattr(self,"targetBoard") and self.targetBoard:
+							tba=1
+							try: tbv=self.targetBoard.GetTargetVID()
+							except: tbe="target_board_error"
+					except: tbe="target_board_error"
+					if (not vid) and tbv: vid=tbv
+					if vid:
+						try: ta=1 if chr.HasInstance(vid) else 0
+						except: ta=-1
+						try: tt=chr.GetInstanceType(vid)
+						except: tt=-1
+						try: tn=chr.GetNameByVID2AD(vid)
+						except: tn=""
+						try: rn=nonplayer.GetRaceNumByVID(vid)
+						except: rn=-1
+						try:
+							if hasattr(self,"_hermes_target_hp_vid") and self._hermes_target_hp_vid==vid:
+								thp=self._hermes_target_hp_now; tmhp=self._hermes_target_hp_max
+								if tmhp and tmhp>0: thpp=str((float(thp)*100.0)/float(tmhp))
+						except: pass
+						try:
+							try: _pp=chr.GetPixelPosition(vid); px=_pp[0]; py=_pp[1]
+							except: chr.SelectInstance(vid); _pp=chr.GetPixelPosition(); px=_pp[0]; py=_pp[1]
+							pix='['+str(px)+','+str(py)+']'
+						except: pix=""; pixe="pixel_error"
+						try:
+							try: _pr=chr.GetProjectPosition(vid); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
+							except: chr.SelectInstance(vid); _pr=chr.GetProjectPosition(); qx=_pr[0]; qy=_pr[1]; qz=_pr[2]
+							proj='['+str(qx)+','+str(qy)+','+str(qz)+']'
+						except: proj=""; proje="project_error"
+				except: vid=0
+				try:
+					out='{"timestamp_ms":'+str(now)+',"map":"'+str(m)+'","player":{"name":"'+str(pn)+'","x":'+str(x)+',"y":'+str(y)+',"z":'+str(z)+',"hp":'+str(hp)+',"max_hp":'+str(mhp)+',"sp":'+str(sp)+',"max_sp":'+str(msp)+',"mounted":'+('true' if mounted else 'false')+'},'
+					if vid:
+						out+='"target":{"vid":'+str(vid)+',"name":"'+str(tn)+'"'
+						if ta!=-1: out+=',"alive":'+('true' if ta else 'false')+',"alive_source":"chr.HasInstance"'
+						if tt!=-1: out+=',"type":'+str(tt)
+						if rn!=-1: out+=',"race_num":'+str(rn)
+						if pix: out+=',"pixel_position":'+pix
+						if proj: out+=',"project_position":'+proj
+						out+=',"player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
+						if tbe: out+=',"target_board_error":"'+str(tbe)+'"'
+						if pixe: out+=',"target_pixel_position_error":"'+str(pixe)+'"'
+						if proje: out+=',"target_project_position_error":"'+str(proje)+'"'
+						if thp!=-1: out+=',"hp":'+str(thp)+',"target_hp_now":'+str(thp)
+						if tmhp!=-1: out+=',"max_hp":'+str(tmhp)+',"target_hp_max":'+str(tmhp)
+						if thpp: out+=',"hp_pct":'+str(thpp)+',"target_hp_pct":'+str(thpp)
+						out+='},'
+					else: out+='"target":null,'
+					out+='"nearby_entities":[],"named_metin_probe":[],"entity_probe":"compact","chr_probe":"compact","buffs":[],"skills":[],"quickslots":[]}'
 					_hf=old_open("hermes_state.json","w"); _hf.write(out); _hf.close()
 				except: pass
 				try:
@@ -183,12 +299,13 @@ def strip_comment_only_lines(src: bytes) -> bytes:
     return b"".join(out)
 
 
-def patch_source(src: bytes, strip_comments: bool = False) -> bytes:
+def patch_source(src: bytes, strip_comments: bool = False, *, compact: bool = False) -> bytes:
     # Patch as bytes to preserve the client's original mixed/legacy encoding exactly.
     if strip_comments:
         src = strip_comment_only_lines(src)
     newline = b"\r\n" if b"\r\n" in src else b"\n"
-    block = LOGGER_BLOCK.encode("ascii").replace(b"\n", newline)
+    logger = COMPACT_LOGGER_BLOCK if compact else LOGGER_BLOCK
+    block = logger.encode("ascii").replace(b"\n", newline)
     marker = MARKER.encode("ascii")
     end_marker = b"# HERMES_STATE_LOGGER_END"
 
@@ -218,6 +335,25 @@ def patch_source(src: bytes, strip_comments: bool = False) -> bytes:
             return patched
         return patched[:idx] + patched[resume:]
 
+    def inject_target_hp_cache(source: bytes) -> bytes:
+        marker_hp = b"self._hermes_target_hp_vid=vid"
+        if marker_hp in source:
+            return source
+        hp_call = b"\t\tself.targetBoard.SetHP(hpNow, hpMax)"
+        idx = source.find(hp_call)
+        if idx < 0:
+            return source
+        line_end = source.find(newline, idx)
+        line_end = len(source) if line_end < 0 else line_end + len(newline)
+        hp_block = (
+            b"\t\ttry:" + newline
+            + b"\t\t\tself._hermes_target_hp_vid=vid" + newline
+            + b"\t\t\tself._hermes_target_hp_now=hpNow" + newline
+            + b"\t\t\tself._hermes_target_hp_max=hpMax" + newline
+            + b"\t\texcept: pass" + newline
+        )
+        return source[:line_end] + hp_block + source[line_end:]
+
     if marker in src:
         begin = src.find(marker)
         line_begin = src.rfind(newline, 0, begin) + len(newline)
@@ -231,8 +367,8 @@ def patch_source(src: bytes, strip_comments: bool = False) -> bytes:
         else:
             print("Replacing existing Hermes TSV logger with TSV+JSON logger.")
         patched = src[:line_begin] + block + src[line_end:]
-        return remove_legacy_body_after_logger(patched, line_begin)
-    return insert_block_after_update_game(src)
+        return inject_target_hp_cache(remove_legacy_body_after_logger(patched, line_begin))
+    return inject_target_hp_cache(insert_block_after_update_game(src))
 
 
 def pad_python_to_size(src: bytes, target_size: int) -> bytes:
@@ -280,23 +416,28 @@ def patch_pack(root_pack: Path, dry_run: bool = False) -> Path | None:
     if not chunks:
         raise RuntimeError("No MCOZ chunks found in root pack")
     chunk_index, (off, enc_size, comp_size, raw_size), src = find_game_chunk(blob, chunks)
-    patched = patch_source(src)
-    comp = lzokay.compress(patched)
-
-    if 4 + len(comp) > enc_size:
-        print(
-            f"Initial patch too large ({4 + len(comp)} > {enc_size}); "
-            "retrying after removing comment-only lines from game.py."
-        )
-        patched = patch_source(src, strip_comments=True)
-        if len(patched) < raw_size:
-            patched = pad_python_to_size(patched, raw_size)
+    attempts = [
+        ("full logger", False, False),
+        ("full logger + stripped comments", True, False),
+        ("compact pack logger", False, True),
+        ("compact pack logger + stripped comments", True, True),
+    ]
+    patched = src
+    comp = b""
+    chosen = ""
+    for label, strip_comments, compact in attempts:
+        patched = patch_source(src, strip_comments=strip_comments, compact=compact)
         comp = lzokay.compress(patched)
-    if 4 + len(comp) > enc_size:
+        print(f"try {label}: raw {raw_size}->{len(patched)}, comp {comp_size}->{len(comp)}, enc need {4 + len(comp)}/{enc_size}")
+        if 4 + len(comp) <= enc_size:
+            chosen = label
+            break
+    else:
         raise RuntimeError(
-            f"Patched compressed payload too large for in-place patch: {4 + len(comp)} > {enc_size}. "
+            f"Patched compressed payload too large for in-place patch after compact fallback: {4 + len(comp)} > {enc_size}. "
             f"Original comp_size={comp_size}, raw_size={raw_size}, new_comp_size={len(comp)}, new_raw_size={len(patched)}"
         )
+    print(f"selected patch mode: {chosen}")
     inner = b"MCOZ" + comp + (b"\x00" * (enc_size - 4 - len(comp)))
     new_enc = crypt_payload(inner, encrypt=True)
     assert len(new_enc) == enc_size

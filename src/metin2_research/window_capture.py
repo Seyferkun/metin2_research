@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
+from PIL import Image, ImageGrab
 
 @dataclass(frozen=True)
 class WindowInfo:
@@ -64,6 +64,10 @@ def _window_rect(hwnd: int) -> tuple[int, int, int, int] | None:
         if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
             return None
     bbox = (int(rect.left), int(rect.top), int(rect.right), int(rect.bottom))
+    if any(abs(v) > 10000 for v in bbox):
+        fallback = wintypes.RECT()
+        if user32.GetWindowRect(hwnd, ctypes.byref(fallback)):
+            bbox = (int(fallback.left), int(fallback.top), int(fallback.right), int(fallback.bottom))
     if bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
         return None
     return bbox
@@ -97,7 +101,7 @@ def list_windows() -> list[WindowInfo]:
     EnumWindowsProc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
     def callback(hwnd: int, _lparam: int) -> bool:
-        if not user32.IsWindowVisible(hwnd):
+        if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
             return True
         title = _window_text(hwnd).strip()
         bbox = _window_rect(hwnd)
@@ -138,6 +142,18 @@ def find_window(query: str) -> WindowInfo:
     return matches[0]
 
 
+def foreground_window_hwnd() -> int:
+    _ensure_windows()
+    return int(ctypes.windll.user32.GetForegroundWindow())
+
+
+def is_foreground_window(window: WindowInfo) -> bool:
+    try:
+        return foreground_window_hwnd() == int(window.hwnd)
+    except Exception:
+        return False
+
+
 def activate_window(window: WindowInfo) -> None:
     """Restore and foreground a window before a screen-region capture."""
     _ensure_windows()
@@ -148,7 +164,48 @@ def activate_window(window: WindowInfo) -> None:
     user32.SetForegroundWindow(hwnd)
 
 
-def capture_window_image(window: WindowInfo, output_path: str | Path) -> Path:
+def is_plausible_game_window(window: WindowInfo, *, min_width: int = 640, min_height: int = 480, max_abs_origin: int = 10000) -> bool:
+    """Reject stale/offscreen hwnd geometry that would poison mouse-relative learning."""
+    left, top, right, bottom = window.bbox
+    return (
+        window.width >= min_width
+        and window.height >= min_height
+        and abs(left) <= max_abs_origin
+        and abs(top) <= max_abs_origin
+        and abs(right) <= max_abs_origin
+        and abs(bottom) <= max_abs_origin
+    )
+
+
+def capture_window_screen_image(window: WindowInfo, output_path: str | Path) -> Path:
+    """Capture the visible desktop region for DirectX game windows.
+
+    PrintWindow often returns only title-bar/chrome for MT2Portugalia's DirectX
+    surface. For manual training recordings the game window is visible, so a
+    desktop crop is the reliable learning image.
+    """
+    if not is_plausible_game_window(window):
+        raise RuntimeError(f"implausible window geometry for screen crop: {window.bbox}")
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    image = ImageGrab.grab(bbox=window.bbox).convert("RGB")
+    image.save(output)
+    return output
+
+
+def capture_window_image(window: WindowInfo, output_path: str | Path, *, backend: str = "screen") -> Path:
+    """Capture a specific window.
+
+    backend='screen' is the default for DirectX game training because it captures
+    the actual visible game surface. backend='printwindow' keeps the old HWND
+    path for hidden/overlapped diagnostic captures.
+    """
+    if backend == "screen":
+        return capture_window_screen_image(window, output_path)
+    return capture_window_printwindow_image(window, output_path)
+
+
+def capture_window_printwindow_image(window: WindowInfo, output_path: str | Path) -> Path:
     """Capture a specific window HWND using Win32 PrintWindow, avoiding overlapping windows when supported."""
     _ensure_windows()
     user32 = ctypes.windll.user32

@@ -7,15 +7,24 @@ from ctypes import wintypes
 # SendInput keyboard flags. Scan-code input is more reliable with DirectX games
 # than legacy keybd_event virtual-key injection.
 INPUT_KEYBOARD = 1
+INPUT_MOUSE = 0
 KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_SCANCODE = 0x0008
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
 
 SCANCODES = {
     "1": 0x02,
     "f1": 0x3B,
+    "f2": 0x3C,
+    "f3": 0x3D,
+    "f4": 0x3E,
     "space": 0x39,
     "esc": 0x01,
+    "escape": 0x01,
     "tab": 0x0F,
+    "ctrl": 0x1D,
+    "lctrl": 0x1D,
     "q": 0x10,
     "w": 0x11,
     "e": 0x12,
@@ -25,8 +34,11 @@ SCANCODES = {
     "s": 0x1F,
     "d": 0x20,
     "f": 0x21,
+    "i": 0x17,
+    "c": 0x2E,
     "g": 0x22,
     "z": 0x2C,
+    "x": 0x2D,
     "m": 0x32,
 }
 
@@ -37,7 +49,7 @@ class KEYBDINPUT(ctypes.Structure):
         ("wScan", wintypes.WORD),
         ("dwFlags", wintypes.DWORD),
         ("time", wintypes.DWORD),
-        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+        ("dwExtraInfo", wintypes.WPARAM),
     ]
 
 
@@ -48,7 +60,7 @@ class MOUSEINPUT(ctypes.Structure):
         ("mouseData", wintypes.DWORD),
         ("dwFlags", wintypes.DWORD),
         ("time", wintypes.DWORD),
-        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+        ("dwExtraInfo", wintypes.WPARAM),
     ]
 
 
@@ -76,7 +88,7 @@ def _send_input(inp: INPUT) -> None:
 
 def _keyboard_input(scancode: int, *, keyup: bool = False) -> INPUT:
     flags = KEYEVENTF_SCANCODE | (KEYEVENTF_KEYUP if keyup else 0)
-    return INPUT(type=INPUT_KEYBOARD, union=INPUT_UNION(ki=KEYBDINPUT(0, scancode, flags, 0, None)))
+    return INPUT(type=INPUT_KEYBOARD, union=INPUT_UNION(ki=KEYBDINPUT(0, scancode, flags, 0, 0)))
 
 
 def key_down(key: str) -> None:
@@ -91,6 +103,26 @@ def tap_key(key: str, hold: float = 0.06) -> None:
     key_down(key)
     time.sleep(hold)
     key_up(key)
+
+
+def tap_chord(keys: list[str] | tuple[str, ...], hold: float = 0.06) -> None:
+    keys = [str(key).lower() for key in keys]
+    for key in keys:
+        key_down(key)
+    time.sleep(hold)
+    for key in reversed(keys):
+        key_up(key)
+
+
+def click_at(x: int, y: int, hold: float = 0.03) -> None:
+    user32 = ctypes.windll.user32
+    if not user32.SetCursorPos(int(x), int(y)):
+        raise ctypes.WinError()
+    down = INPUT(type=INPUT_MOUSE, union=INPUT_UNION(mi=MOUSEINPUT(0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, 0)))
+    up = INPUT(type=INPUT_MOUSE, union=INPUT_UNION(mi=MOUSEINPUT(0, 0, 0, MOUSEEVENTF_LEFTUP, 0, 0)))
+    _send_input(down)
+    time.sleep(hold)
+    _send_input(up)
 
 
 def hold_key(key: str, duration: float) -> None:

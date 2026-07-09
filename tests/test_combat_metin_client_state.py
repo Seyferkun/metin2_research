@@ -1,13 +1,15 @@
 import json
 import subprocess
 import sys
+from pathlib import Path
 
 from types import SimpleNamespace
 
 import pytest
 
+import scripts.combat_metin_client_state as cmcs
 from metin2_research.client_state.combat import CombatAction
-from scripts.combat_metin_client_state import DistanceTracker, NavMilestones, ProbeLossGrace, apply_exact_target_evidence, apply_session_start_metin_choice, choose_exact_target_evidence_from_game, choose_movement_key_toward_metin, choose_movement_step_toward_metin, choose_movement_steps_toward_metin, choose_session_start_metin, choose_unstuck_key, movement_stuck, format_structured_log_line, normalize_metin_coord, probe_best_key, read_game, run_live_command, run_session_start_scan, should_decay_after_divergence, should_stop
+from scripts.combat_metin_client_state import DistanceTracker, NavMilestones, ProbeLossGrace, apply_exact_target_evidence, apply_session_start_metin_choice, attack_nearby_destroy_detected, channel_click_screen_point, choose_camera_sweep_key_from_vectors, choose_exact_target_evidence_from_game, choose_movement_key_toward_metin, choose_movement_step_toward_metin, choose_movement_steps_toward_metin, choose_session_start_metin, choose_unstuck_key, movement_stuck, format_structured_log_line, normalize_metin_coord, parse_channel_click_points, probe_best_key, read_game, run_channel_rotation_sequence, run_live_command, run_pickup_spam_sequence, run_session_start_scan, should_decay_after_divergence, should_stop, load_buff_config, load_combat_config, choose_nearby_mob_attack, choose_mouse_target_action, buff_config_from_cli, due_buff_actions, press_buff_key_via_key_macro, mounted_state_from_game
 
 
 def test_read_game_prefers_fresh_json_state_when_tsv_missing(tmp_path):
@@ -60,6 +62,37 @@ def test_should_stop_detects_stop_file(tmp_path):
     stop_file.touch()
     assert should_stop(stop_file) is True
 
+
+
+def test_combat_and_buff_configs_validate_defaults_and_flags(tmp_path):
+    combat_path = tmp_path / "combat.json"
+    buff_path = tmp_path / "buffs.json"
+    combat_path.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    buff_path.write_text(json.dumps({"buffs": [{"key": "f2", "enabled": True, "interval_seconds": 42, "pre_cast_seconds": 4}]}), encoding="utf-8")
+
+    assert load_combat_config(combat_path)["attack_nearby_mobs"] is True
+    buffs = load_buff_config(buff_path)
+    assert buffs["buffs"][0]["key"] == "f2"
+    assert buffs["buffs"][0]["interval_seconds"] == 42.0
+    assert load_combat_config(tmp_path / "missing.json")["attack_nearby_mobs"] is False
+
+
+def test_choose_nearby_mob_attack_is_conservative_and_config_gated():
+    game = SimpleNamespace(
+        target_name="Wild Dog",
+        target_vid=10,
+        target_alive=True,
+        nearby_entities=[],
+    )
+
+    assert choose_nearby_mob_attack(game, enabled=False) is None
+    action = choose_nearby_mob_attack(game, enabled=True)
+    assert action.state == "ATTACK_NEARBY_MOBS"
+    assert action.command == "attack_target"
+    assert action.args["mob"]["name"] == "Wild Dog"
+
+    unselected = SimpleNamespace(target_name=None, target_vid=None, target_alive=None, nearby_entities=[{"vid": 10, "name": "Wild Dog", "kind": "mob", "hostile": True, "distance": 180}])
+    assert choose_nearby_mob_attack(unselected, enabled=True) is None
 
 def test_normalize_metin_coord_converts_display_coords_to_raw_client_units():
     assert normalize_metin_coord(846, 442) == [84600, 44200]
@@ -642,6 +675,300 @@ def test_return_to_last_metin_coord_without_args_space_probes_instead_of_noop(mo
     assert calls == [("down", "space"), ("sleep", 0.8), ("up", "space")]
 
 
+
+
+def test_choose_mouse_target_action_clicks_visible_metin_or_mob_when_enabled_without_target():
+    game = SimpleNamespace(target_name=None, target_vid=0, target_alive=None, nearby_entities=[
+        {"vid": 10, "name": "Wild Dog", "kind": "mob", "hostile": True, "distance": 180, "pixel_position": [510, 330]},
+        {"vid": 20, "name": "Metin da Batalha", "kind": "metin", "distance": 240, "pixel_position": [640, 360]},
+    ])
+
+    assert choose_mouse_target_action(game, enabled=False) is None
+    action = choose_mouse_target_action(game, enabled=True)
+    assert action.state == "ACQUIRE_TARGET"
+    assert action.command == "mouse_target_entity"
+    assert action.args["pixel_position"] == [640, 360]
+    assert action.args["entity"]["name"] == "Metin da Batalha"
+
+
+def test_combat_script_dry_run_mouse_targets_when_visible_entity_has_pixel_position(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "map": "metin2_map_a1",
+        "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+        "target": {"vid": 0, "name": "", "alive": None},
+        "nearby_entities": [{"vid": 888, "name": "Wild Dog", "kind": "mob", "hostile": True, "distance": 120, "pixel_position": [510, 330]}],
+        "buffs": [],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config))
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--max-cycles", "1",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=".", env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert events[0]["state"] == "ACQUIRE_TARGET"
+    assert events[0]["command"] == "mouse_target_entity"
+    assert events[0]["args"]["pixel_position"] == [510, 330]
+
+
+def test_attack_nearby_mobs_monitors_selected_metin_auto_attack_without_exact_coords(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "map": "metin2_map_a1",
+        "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+        "target": {"vid": 777, "name": "Metin da Batalha", "alive": True},
+        "nearby_entities": [],
+        "buffs": [],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config))
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--max-cycles", "1",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=".", env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert any(event["state"] == "AUTO_ATTACKING_TARGET" and event["command"] == "hold_space" for event in events)
+    assert not any(event["state"] == "NEED_EXACT_TARGET" for event in events)
+
+
+
+def test_search_for_target_prefers_visual_metin_click_over_blind_probe(monkeypatch):
+    calls = []
+    fake_window = SimpleNamespace(bbox=(100, 200, 900, 800), width=800, height=600)
+    monkeypatch.setattr(cmcs, "find_window", lambda query: fake_window)
+    monkeypatch.setattr(cmcs, "detect_visible_metin_click_point", lambda window, args: (333, 444, {"detection": {"confidence": 0.9}}))
+    monkeypatch.setattr(cmcs, "tap_key", lambda key, hold=0.0: calls.append(("tap", key, hold)))
+    monkeypatch.setattr(cmcs, "hold_key", lambda key, hold=0.0: calls.append(("hold", key, hold)))
+    monkeypatch.setattr(cmcs, "click_at", lambda x, y: calls.append(("click", x, y)))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    action = CombatAction("SEARCH_FOR_TARGET", "search_for_target", "test", args={"cycle": 0})
+    args = SimpleNamespace(visual_target_clicks=True, allow_blind_target_clicks=True, target_search_move_seconds=0.25, burst_seconds=0.8)
+
+    run_live_command(action, args, {})
+
+    assert ("tap", "tab", 0.06) in calls
+    assert ("click", 333, 444) in calls
+    assert not any(call[0] == "hold" and call[1] == "w" for call in calls)
+
+
+def test_search_for_target_visual_click_failure_continues_to_patrol(monkeypatch):
+    calls = []
+    fake_window = SimpleNamespace(bbox=(100, 200, 900, 800), width=800, height=600)
+    monkeypatch.setattr(cmcs, "find_window", lambda query: fake_window)
+    monkeypatch.setattr(cmcs, "detect_visible_metin_click_point", lambda window, args: (333, 444, {"detection": {"confidence": 0.9}}))
+    monkeypatch.setattr(cmcs, "tap_key", lambda key, hold=0.0: calls.append(("tap", key, hold)))
+    monkeypatch.setattr(cmcs, "hold_key", lambda key, hold=0.0: calls.append(("hold", key, hold)))
+    monkeypatch.setattr(cmcs, "click_at", lambda x, y: (_ for _ in ()).throw(OSError("SetCursorPos failed")))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    action = CombatAction("SEARCH_FOR_TARGET", "search_for_target", "test", args={"cycle": 0})
+    args = SimpleNamespace(visual_target_clicks=True, allow_blind_target_clicks=False, target_search_move_seconds=0.25, burst_seconds=0.8)
+
+    run_live_command(action, args, {})
+
+    assert ("tap", "tab", 0.06) in calls
+    assert ("hold", "w", 0.25) in calls
+    assert any(call[0] == "hold" and call[1] in {"q", "e"} for call in calls)
+    assert "visual_click_error" in action.args
+
+
+def test_search_for_target_live_uses_operator_approved_blind_clicks(monkeypatch):
+    calls = []
+    fake_window = SimpleNamespace(bbox=(100, 200, 900, 800), width=800, height=600)
+    monkeypatch.setattr(cmcs, "find_window", lambda query: fake_window)
+    monkeypatch.setattr(cmcs, "tap_key", lambda key, hold=0.0: calls.append(("tap", key, hold)))
+    monkeypatch.setattr(cmcs, "hold_key", lambda key, hold=0.0: calls.append(("hold", key, hold)))
+    monkeypatch.setattr(cmcs, "click_at", lambda x, y: calls.append(("click", x, y)))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    action = CombatAction("SEARCH_FOR_TARGET", "search_for_target", "test", args={"cycle": 0})
+    args = SimpleNamespace(allow_blind_target_clicks=True, target_search_move_seconds=0.25, burst_seconds=0.8)
+
+    run_live_command(action, args, {})
+
+    assert ("tap", "tab", 0.06) in calls
+    assert ("click", 500, 488) in calls
+    assert ("hold", "w", 0.25) in calls
+    assert any(call[0] == "hold" and call[1] in {"q", "e"} for call in calls)
+
+def test_attack_nearby_mobs_searches_for_targets_instead_of_aborting_without_metin(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "map": "metin2_map_a1",
+        "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+        "target": {"vid": 0, "name": "", "alive": None},
+        "nearby_entities": [],
+        "buffs": [],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config))
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--max-cycles", "2",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=".", env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert any(event["state"] == "SEARCH_FOR_TARGET" and event["command"] == "search_for_target" for event in events)
+    assert not any(event["state"] == "NEED_METIN_TARGET" for event in events)
+
+
+
+
+
+
+def test_choose_camera_sweep_key_uses_minimap_target_relative_to_facing():
+    center = (50.0, 50.0)
+    # Facing up; target is screen-right/clockwise, so rotate E.
+    key, evidence = choose_camera_sweep_key_from_vectors((50, 35), (75, 50), center=center, fallback_key="q")
+    assert key == "e"
+    assert evidence["reason"] == "rotate_toward_minimap_target"
+    # Facing up; target is screen-left/counter-clockwise, so rotate Q.
+    key, evidence = choose_camera_sweep_key_from_vectors((50, 35), (25, 50), center=center, fallback_key="e")
+    assert key == "q"
+    assert evidence["source"] == "minimap"
+
+
+def test_choose_camera_sweep_key_falls_back_without_minimap_target():
+    key, evidence = choose_camera_sweep_key_from_vectors((50, 35), None, center=(50, 50), fallback_key="e")
+    assert key == "e"
+    assert evidence["reason"] == "no_minimap_target_dot"
+
+
+def test_channel_click_points_parse_relative_and_absolute():
+    assert parse_channel_click_points("0.4,0.3;640,420") == [(0.4, 0.3), (640.0, 420.0)]
+    window = SimpleNamespace(bbox=(100, 200, 900, 800), width=800, height=600)
+    assert channel_click_screen_point(window, (0.5, 0.25)) == (500, 350)
+    assert channel_click_screen_point(window, (640.0, 420.0)) == (640, 420)
+
+
+def test_channel_rotation_sequence_spams_z_presses_x_and_left_clicks(monkeypatch):
+    calls = []
+    window = SimpleNamespace(bbox=(100, 200, 900, 800), width=800, height=600)
+    monkeypatch.setattr(cmcs, "tap_key", lambda key, hold=0.0: calls.append(("tap", key, hold)))
+    monkeypatch.setattr(cmcs, "find_window", lambda query: calls.append(("find", query)) or window)
+    monkeypatch.setattr(cmcs, "activate_window", lambda found: calls.append(("activate", found is window)))
+    monkeypatch.setattr(cmcs, "click_at", lambda x, y: calls.append(("click", x, y)))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda seconds: calls.append(("sleep", round(float(seconds), 2))))
+    args = SimpleNamespace(
+        channel_click_points="0.50,0.25;0.60,0.25",
+        pickup_spam_count=3,
+        pickup_spam_interval=0.01,
+        channel_menu_delay_seconds=0.05,
+        channel_switch_wait_seconds=0.0,
+        window_query="MT2Portugalia",
+    )
+
+    result = run_channel_rotation_sequence(args, channel_index=1)
+
+    assert [call for call in calls if call[:2] == ("tap", "z")] == [("tap", "z", 0.03)] * 3
+    assert ("tap", "x", 0.06) in calls
+    assert ("click", 580, 350) in calls
+    assert result["channel_index"] == 1
+    assert result["pickup_count"] == 3
+
+
+def test_pickup_spam_sequence_only_presses_z(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cmcs, "tap_key", lambda key, hold=0.0: calls.append(("tap", key, hold)))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda seconds: calls.append(("sleep", round(float(seconds), 2))))
+    args = SimpleNamespace(pickup_spam_count=4, pickup_spam_interval=0.02)
+
+    result = run_pickup_spam_sequence(args)
+
+    assert result == {"pickup_count": 4}
+    assert [call for call in calls if call[:2] == ("tap", "z")] == [("tap", "z", 0.03)] * 4
+    assert not any(call[:2] == ("tap", "x") for call in calls)
+
+
+def test_attack_nearby_destroy_detected_requires_sustained_attack_and_probe_absence():
+    gone = SimpleNamespace(target_vid=None, named_metin_probe=[])
+    still_selected = SimpleNamespace(target_vid=171151, named_metin_probe=[])
+    still_probed = SimpleNamespace(target_vid=None, named_metin_probe=[{"vid": 171151, "alive": True}])
+
+    assert attack_nearby_destroy_detected(gone, locked_metin_vid=171151, locked_target_alive_cycles=4)
+    assert not attack_nearby_destroy_detected(gone, locked_metin_vid=171151, locked_target_alive_cycles=3)
+    assert not attack_nearby_destroy_detected(gone, locked_metin_vid=None, locked_target_alive_cycles=10)
+    assert not attack_nearby_destroy_detected(still_selected, locked_metin_vid=171151, locked_target_alive_cycles=10)
+    assert not attack_nearby_destroy_detected(still_probed, locked_metin_vid=171151, locked_target_alive_cycles=10)
+
+
+def test_cli_buff_config_builds_independent_f1_f2_schedules():
+    cfg = buff_config_from_cli("f1,f2", "109,301", pre_cast_seconds=3)
+    assert cfg == {
+        "use_buff_config": True,
+        "buffs": [
+            {"key": "f1", "enabled": True, "interval_seconds": 109.0, "pre_cast_seconds": 3.0},
+            {"key": "f2", "enabled": True, "interval_seconds": 301.0, "pre_cast_seconds": 3.0},
+        ],
+    }
+    due = due_buff_actions(cfg, {"f1": 100.0, "f2": 100.0}, now=206.0)
+    assert [item["key"] for item in due] == ["f1"]
+    due = due_buff_actions(cfg, {"f1": 100.0, "f2": 100.0}, now=398.0)
+    assert [item["key"] for item in due] == ["f1", "f2"]
+
+
+def test_attack_nearby_does_not_press_configured_buffs_without_explicit_opt_in(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "map": "metin2_map_a1",
+        "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+        "target": {"vid": 0, "name": "", "alive": None},
+        "nearby_entities": [],
+        "buffs": [],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    buff_config = tmp_path / "buffs.json"
+    buff_config.write_text(json.dumps({
+        "use_buff_config": True,
+        "buffs": [{"key": "f1", "enabled": True, "interval_seconds": 109, "pre_cast_seconds": 3}],
+    }), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config), METIN2_BUFF_CONFIG=str(buff_config))
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--max-cycles", "4",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=".", env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert [event["state"] for event in events].count("BUFF_DUE") == 0
+    assert any(event["state"] == "SEARCH_FOR_TARGET" for event in events)
+
 def test_combat_script_help_runs_from_project_root_without_pythonpath():
     import subprocess
     import sys
@@ -673,3 +1000,328 @@ def test_probe_script_help_runs_from_project_root_without_pythonpath():
     )
     assert result.returncode == 0, result.stderr
     assert "--json-state" in result.stdout
+
+
+def test_combat_script_dry_run_attack_nearby_mobs_logs_decision_without_live_input(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "map": "metin2_map_a1",
+        "player": {"name": "Yoshypt", "x": 10, "y": 20, "z": 30, "hp": 222, "max_hp": 222, "sp": 80, "max_sp": 80},
+        "target": {"vid": 888, "name": "Wild Dog", "alive": True, "type": 0},
+        "nearby_entities": [{"vid": 888, "name": "Wild Dog", "kind": "mob", "hostile": True, "distance": 120}],
+        "buffs": [{"key": "f1", "active": True}],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config))
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--max-cycles", "1",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=".", env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    events = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert events[0]["state"] == "AUTO_ATTACKING_TARGET"
+    assert events[0]["dry_run"] is True
+    assert events[0]["command"] == "hold_space"
+    assert "LIVE_INPUT" not in out_path.read_text(encoding="utf-8")
+
+
+def test_focus_live_window_activates_configured_target_window(monkeypatch):
+    from scripts import combat_metin_client_state as script
+    calls = []
+    window = SimpleNamespace(title="MT2Portugalia")
+    monkeypatch.setattr(script, "find_window", lambda query: calls.append(("find", query)) or window)
+    monkeypatch.setattr(script, "activate_window", lambda found: calls.append(("activate", found.title)))
+
+    script.focus_live_window(SimpleNamespace(window_query="MT2Portugalia"))
+
+    assert calls == [("find", "MT2Portugalia"), ("activate", "MT2Portugalia")]
+
+
+def test_live_selected_mob_focuses_game_before_sending_space(monkeypatch):
+    from scripts import combat_metin_client_state as script
+    calls = []
+    monkeypatch.setattr(script, "key_down", lambda key: calls.append(("down", key)))
+    monkeypatch.setattr(script, "key_up", lambda key: calls.append(("up", key)))
+    monkeypatch.setattr(script.time, "sleep", lambda seconds: calls.append(("sleep", round(seconds, 2))))
+    monkeypatch.setattr(script, "focus_live_window", lambda args: calls.append(("focus", args.window_query)))
+    action = CombatAction("ATTACK_NEARBY_MOBS", "attack_target", "selected mob", args={})
+
+    script.run_focused_live_command(action, SimpleNamespace(burst_seconds=0.4, window_query="MT2Portugalia"), {})
+
+    assert calls[:2] == [("focus", "MT2Portugalia"), ("down", "space")]
+    assert calls[-1] == ("up", "space")
+
+
+
+def test_live_buff_key_uses_elevated_key_macro_sender(monkeypatch, tmp_path):
+    calls = []
+
+    class Done:
+        returncode = 0
+        stdout = "relaunched_elevated_for_live_key_macro\nelevated_child_exit_code 0\n"
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return Done()
+
+    monkeypatch.setattr(cmcs.subprocess, "run", fake_run)
+    args = SimpleNamespace(out=tmp_path / "buff_keepalive.jsonl", window_query="MT2Portugalia")
+    result = press_buff_key_via_key_macro(key="f1", args=args, stop_file=tmp_path / "stop.flag", run_id="run-test")
+
+    cmd, kwargs = calls[0]
+    assert "scripts\\key_macro_control.py" in " ".join(cmd) or "scripts/key_macro_control.py" in " ".join(cmd)
+    assert "--live" in cmd
+    assert "--elevate" in cmd
+    assert cmd[cmd.index("--key") + 1] == "f1"
+    assert cmd[cmd.index("--presses") + 1] == "1"
+    assert kwargs["env"]["HERMES_STOP_FILE"].endswith("stop.flag")
+    assert result["exit_code"] == 0
+    assert result["elevated_log"].endswith(".elevated.log")
+
+def test_buff_only_mode_logs_idle_and_never_attacks_selected_mob(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "player": {"x": 100, "y": 200, "z": 0, "hp": 100, "max_hp": 100, "sp": 50, "max_sp": 50},
+        "target": {"vid": 888, "name": "Wild Dog", "alive": True, "type": 0},
+        "nearby_entities": [{"vid": 888, "name": "Wild Dog", "kind": "mob", "hostile": True, "distance": 120}],
+        "buffs": [],
+    }), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    buff_config = tmp_path / "buffs.json"
+    buff_config.write_text(json.dumps({"use_buff_config": True, "buffs": []}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+    env = dict(**__import__('os').environ, METIN2_COMBAT_CONFIG=str(combat_config), METIN2_BUFF_CONFIG=str(buff_config))
+
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--buff-only",
+        "--max-cycles", "1",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=Path(__file__).resolve().parents[1], env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    events = [json.loads(line) for line in out_path.read_text().splitlines()]
+    assert events[0]["state"] == "BUFF_KEEPALIVE_IDLE"
+    assert events[0]["command"] == "wait_for_next_buff_due"
+    assert "ATTACK_NEARBY_MOBS" not in out_path.read_text()
+
+
+
+
+
+
+def test_buff_damage_guard_suppresses_f1_timer_before_full_duration():
+    guard = cmcs.BuffDamageGuard(guard_keys={"f1"})
+    last_cast = {"f1": 100.0}
+    buff = {"key": "f1", "interval_seconds": 109.0, "pre_cast_seconds": 3.0}
+
+    suppress, evidence = guard.suppress_refresh(buff, last_cast, now=206.0)
+
+    assert suppress is True
+    assert evidence["reason"] == "timer_before_full_duration_damage_guard"
+
+
+def test_buff_damage_guard_uses_recent_damage_baseline_to_delay_toggle_refresh():
+    guard = cmcs.BuffDamageGuard(guard_keys={"f1"}, baseline_window_seconds=30, recent_window_seconds=10, active_ratio=0.7)
+    guard.note_buff_pressed("f1", now=0.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=1000), now=1.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=900), now=3.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=800), now=5.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=700), now=111.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=600), now=113.0)
+
+    buff = {"key": "f1", "interval_seconds": 109.0, "pre_cast_seconds": 3.0}
+    due, suppressed = cmcs.apply_buff_damage_guard([buff], {"f1": 0.0}, now=113.0, guard=guard)
+
+    assert due == []
+    assert suppressed[0]["key"] == "f1"
+    assert suppressed[0]["damage_guard"]["reason"] == "recent_damage_still_matches_buffed_baseline"
+
+
+def test_buff_damage_guard_does_not_suppress_when_damage_falls_below_baseline():
+    guard = cmcs.BuffDamageGuard(guard_keys={"f1"}, baseline_window_seconds=30, recent_window_seconds=10, active_ratio=0.7)
+    guard.note_buff_pressed("f1", now=0.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=1000), now=1.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=900), now=3.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=800), now=5.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=799), now=111.0)
+    guard.observe_game(SimpleNamespace(target_vid=7, target_hp=798), now=113.0)
+
+    buff = {"key": "f1", "interval_seconds": 109.0, "pre_cast_seconds": 3.0}
+    due, suppressed = cmcs.apply_buff_damage_guard([buff], {"f1": 0.0}, now=113.0, guard=guard)
+
+    assert due == [buff]
+    assert suppressed == []
+
+def test_json_state_exposes_mounted_flag_for_buff_keeper(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "player": {"x": 1, "y": 2, "z": 3, "mounted": True},
+        "target": None,
+    }), encoding="utf-8")
+
+    game = read_game(tmp_path / "missing.tsv", json_path=state_path, max_age_seconds=10)
+
+    assert mounted_state_from_game(game) is True
+
+
+def test_mounted_state_from_game_normalizes_missing_and_false():
+    assert mounted_state_from_game(SimpleNamespace(player_flags={})) is None
+    assert mounted_state_from_game(SimpleNamespace(player_flags={"mounted": "false"})) is False
+    assert mounted_state_from_game(SimpleNamespace(player_flags={"mounted": "1"})) is True
+
+
+def test_buff_only_live_dismounts_and_remounts_around_due_buffs(monkeypatch, tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "player": {"x": 1, "y": 2, "z": 3, "hp": 10, "max_hp": 10, "mounted": True},
+        "target": None,
+    }), encoding="utf-8")
+    out = tmp_path / "buff_mount.jsonl"
+    sent = []
+
+    def fake_press(*, key, args, stop_file, run_id):
+        sent.append(key)
+        return {"key": key, "exit_code": 0}
+
+    monkeypatch.setattr(cmcs, "press_buff_key_via_key_macro", fake_press)
+    monkeypatch.setattr(cmcs, "focus_live_window", lambda args: None)
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(sys, "argv", [
+        "combat_metin_client_state.py",
+        "--live",
+        "--buff-only",
+        "--buff-keys", "f1,f2",
+        "--buff-durations", "1,1",
+        "--max-cycles", "1",
+        "--json-state", str(state_path),
+        "--out", str(out),
+    ])
+    rc = cmcs.main()
+
+    assert rc == 0
+    assert sent == ["ctrl+g", "f1", "ctrl+g", "f2"]
+    events = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    assert sum(1 for event in events if event.get("state") == "DISMOUNT_FOR_BUFF") == 2
+    assert any(event.get("state") == "REMOUNT_AFTER_BUFF_SKIPPED" for event in events)
+
+
+def test_buff_only_assume_mounted_does_not_need_mount_detection_and_remounts_each_buff(monkeypatch, tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "player": {"x": 1, "y": 2, "z": 3, "hp": 10, "max_hp": 10},
+        "target": None,
+    }), encoding="utf-8")
+    out = tmp_path / "buff_assume_mounted.jsonl"
+    sent = []
+
+    def fake_press(*, key, args, stop_file, run_id):
+        sent.append(key)
+        return {"key": key, "exit_code": 0}
+
+    monkeypatch.setattr(cmcs, "press_buff_key_via_key_macro", fake_press)
+    monkeypatch.setattr(cmcs, "focus_live_window", lambda args: None)
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(sys, "argv", [
+        "combat_metin_client_state.py",
+        "--live",
+        "--buff-only",
+        "--assume-mounted",
+        "--buff-keys", "f1,f2",
+        "--buff-durations", "1,1",
+        "--max-cycles", "1",
+        "--json-state", str(state_path),
+        "--out", str(out),
+    ])
+
+    rc = cmcs.main()
+
+    assert rc == 0
+    assert sent == ["ctrl+g", "f1", "ctrl+g", "ctrl+g", "f2", "ctrl+g"]
+    events = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    due_events = [event for event in events if event.get("state") == "BUFF_DUE"]
+    assert [event.get("mounted_source") for event in due_events] == ["assume_mounted", "assume_mounted"]
+    assert not any(event.get("state") == "BUFF_MOUNT_STATE_UNKNOWN" for event in events)
+
+def test_buff_only_live_max_cycles_exit_code_is_success():
+    from scripts.combat_metin_client_state import max_cycles_exit_code
+
+    assert max_cycles_exit_code(live=True, buff_only=True) == 0
+    assert max_cycles_exit_code(live=True, buff_only=False) == 1
+    assert max_cycles_exit_code(live=False, buff_only=True) == 0
+
+
+def test_buff_only_cli_f1_f2_preset_presses_each_key_once_in_dry_run(tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({"player": {"x": 1, "y": 2, "z": 3}, "target": None}), encoding="utf-8")
+    out_path = tmp_path / "buffs.jsonl"
+
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--buff-only",
+        "--buff-keys", "f1,f2",
+        "--buff-durations", "109,301",
+        "--max-cycles", "2",
+        "--out", str(out_path),
+        "--no-session-start-scan",
+    ], cwd=Path(__file__).resolve().parents[1], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    events = [json.loads(line) for line in out_path.read_text().splitlines()]
+    states = [event["state"] for event in events]
+    assert states[:2] == ["BUFF_DUE", "BUFF_DUE"]
+    assert states[-1] == "BUFF_KEEPALIVE_IDLE"
+    due_events = [event for event in events if event["state"] == "BUFF_DUE"]
+    assert [event["buff"]["key"] for event in due_events] == ["f1", "f2"]
+    assert all(event["dry_run"] is True for event in events)
+
+
+def test_buff_only_does_not_require_fresh_client_state(tmp_path):
+    import os
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "timestamp_ms": 1,
+        "player": {"x": 100, "y": 200, "z": 0, "hp": 100, "max_hp": 100, "sp": 50, "max_sp": 50},
+        "target": None,
+        "nearby_entities": [],
+    }), encoding="utf-8")
+    old = 1_700_000_000
+    os.utime(state_path, (old, old))
+    buff_config = tmp_path / "buffs.json"
+    buff_config.write_text(json.dumps({"use_buff_config": True, "buffs": [{"key": "f1", "enabled": True, "interval_seconds": 109, "pre_cast_seconds": 3}]}), encoding="utf-8")
+    combat_config = tmp_path / "combat.json"
+    combat_config.write_text(json.dumps({"attack_nearby_mobs": True}), encoding="utf-8")
+    out_path = tmp_path / "combat.jsonl"
+    env = dict(os.environ, METIN2_BUFF_CONFIG=str(buff_config), METIN2_COMBAT_CONFIG=str(combat_config))
+
+    result = subprocess.run([
+        sys.executable,
+        "scripts/combat_metin_client_state.py",
+        "--json-state", str(state_path),
+        "--buff-only",
+        "--max-cycles", "1",
+        "--out", str(out_path),
+        "--max-state-age-seconds", "0.01",
+    ], cwd=Path(__file__).resolve().parents[1], env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    text = out_path.read_text()
+    assert "BUFF_DUE" in text
+    assert "press_buff" in text
+    assert "WAIT_FRESH_STATE" not in text

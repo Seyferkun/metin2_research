@@ -1,4 +1,7 @@
-from scripts.login_mt2_local import INPUT, KEYBDINPUT, build_enter_game_sequence, build_login_sequence, build_terminate_command, choose_client_launch_executable, credential_target, is_expected_foreground_window, parse_pair, quote_windows_arg, should_self_elevate_for_login
+from pathlib import Path
+
+from scripts.login_mt2_local import INPUT, KEYBDINPUT, build_enter_game_sequence, build_login_sequence, build_terminate_command, choose_client_launch_executable, credential_target, is_expected_foreground_window, materialize_loose_game_from_pack_if_missing, parse_pair, quote_windows_arg, should_self_elevate_for_login
+from scripts import login_mt2_local as login_helper
 
 
 def test_windows_sendinput_struct_has_expected_keyboard_layout():
@@ -11,6 +14,22 @@ def test_windows_sendinput_struct_has_expected_keyboard_layout():
 def test_credential_target_includes_username_without_secret():
     assert credential_target("yoshy") == "MT2Portugalia:yoshy"
 
+
+
+def test_login_parser_accepts_app_dir_for_buffer_client():
+    from scripts.login_mt2_local import build_parser
+
+    args = build_parser().parse_args(["login", "--app-dir", "D:/Games/MT2PortugaliaBuffer/app"])
+
+    assert args.app_dir == Path("D:/Games/MT2PortugaliaBuffer/app")
+
+
+def test_credential_exists_returns_false_off_windows(monkeypatch):
+    from scripts import login_mt2_local
+
+    monkeypatch.setattr(login_mt2_local.sys, "platform", "linux")
+
+    assert login_mt2_local.credential_exists("anything") is False
 
 def test_build_login_sequence_uses_username_tab_password_enter():
     steps = build_login_sequence("yoshy", "secret")
@@ -41,6 +60,7 @@ def test_login_parser_accepts_restart_flag_and_command_targets_pgclient():
     from scripts.login_mt2_local import build_parser
     args = build_parser().parse_args(["login", "--restart"])
     assert args.restart is True
+    assert "taskkill" in build_terminate_command()
     assert "pgclient.app" in build_terminate_command()
 
 
@@ -117,6 +137,13 @@ def test_login_parser_self_elevates_by_default_and_can_disable():
     assert build_parser().parse_args(["login", "--no-self-elevate"]).self_elevate is False
 
 
+def test_login_parser_accepts_elevated_log_path():
+    from scripts.login_mt2_local import build_parser
+
+    args = build_parser().parse_args(["login", "--elevated-log", "reports/dashboard_runs/login.elevated.log"])
+    assert args.elevated_log == Path("reports/dashboard_runs/login.elevated.log")
+
+
 def test_should_self_elevate_only_when_enabled_and_not_admin(monkeypatch):
     from scripts import login_mt2_local
 
@@ -127,6 +154,22 @@ def test_should_self_elevate_only_when_enabled_and_not_admin(monkeypatch):
     monkeypatch.setattr(login_mt2_local, "is_user_admin", lambda: True)
     assert should_self_elevate_for_login(parser.parse_args(["login"])) is False
 
+
+
+
+def test_materialize_loose_game_noops_when_loose_exists(tmp_path):
+    app = tmp_path / "app"
+    app.mkdir()
+    loose = app / "game.py"
+    loose.write_bytes(b"already")
+    assert materialize_loose_game_from_pack_if_missing(app) is None
+    assert loose.read_bytes() == b"already"
+
+def test_game_window_process_filter_rejects_file_explorer_and_accepts_pgclient(monkeypatch):
+    monkeypatch.setattr(login_helper, "_process_image_name", lambda pid: {1: "explorer.exe", 2: "chrome.exe", 3: "pgclient.app"}[pid])
+    assert login_helper._is_game_window_process(1) is False
+    assert login_helper._is_game_window_process(2) is False
+    assert login_helper._is_game_window_process(3) is True
 
 def test_quote_windows_arg_preserves_backslashes_and_quotes_spaces():
     assert quote_windows_arg(r"C:\Hermes Unreal\metin2_research\scripts\login_mt2_local.py") == r'"C:\Hermes Unreal\metin2_research\scripts\login_mt2_local.py"'

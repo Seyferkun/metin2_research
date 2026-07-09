@@ -150,6 +150,7 @@ def test_updated_pack_logger_injects_json_export_and_keeps_tsv_compat():
     assert b"GetPixelPosition" in patched
     assert b"GetProjectPosition(vid)" in patched
     assert b"GetProjectPosition()" in patched
+    assert b"targetBoard.GetTargetVID()" in patched
     assert b"GetRaceNumByVID" in patched
     assert patched.count(b"pixel_position") >= 2
     assert b"chr.SelectInstance(nv)" in patched
@@ -172,6 +173,44 @@ def test_patch_source_handles_onupdate_prelude_before_updategame():
 
     assert b"self.__RefreshScreenSize()\r\n\t\tapp.UpdateGame()\r\n\t\t# HERMES_STATE_LOGGER_BEGIN" in patched
     assert b"hermes_state.json" in patched
+
+
+def test_updated_logger_includes_target_coordinate_hp_diagnostics():
+    from scripts.patch_mt2_root_state_logger import LOGGER_BLOCK
+
+    required = [
+        "player_target_vid",
+        "target_board_vid",
+        "target_board_available",
+        "target_board_error",
+        "target_pixel_position_error",
+        "target_project_position_error",
+        "target_hp_now",
+        "target_hp_max",
+        "target_hp_pct",
+        "_hermes_target_hp_vid",
+    ]
+    for needle in required:
+        assert needle in LOGGER_BLOCK
+
+
+def test_patch_source_caches_target_board_hp_updates():
+    src = (
+        b"\tdef SetHPTargetBoard(self, vid, hpNow, hpMax):\r\n"
+        b"\t\tif vid != self.targetBoard.GetTargetVID():\r\n"
+        b"\t\t\tself.targetBoard.ResetTargetBoard()\r\n"
+        b"\t\t\tself.targetBoard.SetEnemyVID(vid)\r\n"
+        b"\t\tself.targetBoard.SetHP(hpNow, hpMax)\r\n"
+        b"\t\tself.targetBoard.Show()\r\n"
+        b"\tdef OnUpdate(self):\r\n\t\tapp.UpdateGame()\r\n"
+    )
+
+    patched = patch_source(src)
+
+    assert b"self._hermes_target_hp_vid=vid" in patched
+    assert b"self._hermes_target_hp_now=hpNow" in patched
+    assert b"self._hermes_target_hp_max=hpMax" in patched
+    assert patched.count(b"self._hermes_target_hp_vid=vid") == 1
 
 
 def test_parse_json_state_accepts_chr_probe_list_without_splitting():

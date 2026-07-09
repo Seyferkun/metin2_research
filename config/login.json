@@ -1,0 +1,13 @@
+{
+  "active_profile": "main",
+  "profiles": {
+    "main": {
+      "username": "yoshy",
+      "app_dir": "D:/Games/MT2Portugalia/app"
+    },
+    "buffer": {
+      "username": "nienna",
+      "app_dir": "D:/Games/MT2PortugaliaBuffer/app"
+    }
+  }
+}

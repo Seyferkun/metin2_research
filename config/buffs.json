@@ -1,0 +1,17 @@
+{
+  "use_buff_config": true,
+  "buffs": [
+    {
+      "key": "f1",
+      "enabled": true,
+      "interval_seconds": 145.0,
+      "pre_cast_seconds": 0.0
+    },
+    {
+      "key": "f2",
+      "enabled": true,
+      "interval_seconds": 305.0,
+      "pre_cast_seconds": 0.0
+    }
+  ]
+}

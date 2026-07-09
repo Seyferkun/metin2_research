@@ -1,18 +1,22 @@
 import json
 import subprocess
 import sys
+from pathlib import Path
 from urllib.error import HTTPError
 
 import pytest
 
 from metin2_dashboard.control_panel import (
+    LEARNED_CHANNEL_CLICK_POINTS,
     ControlPanelApp,
     DashboardApiClient,
+    GlobalStopHotkey,
     build_combat_payload,
     build_combat_confirmation_message,
     build_quick_start_payload,
     format_nearby_metins_results,
     format_state_card,
+    format_truth_dashboard,
     format_combat_summary,
     combat_state_color,
     combat_log_is_stale,
@@ -20,11 +24,33 @@ from metin2_dashboard.control_panel import (
     state_has_metin_target,
     has_active_live_combat_run,
     has_active_live_control_run,
+    find_running_buff_keeper_run,
+    find_running_attack_nearby_run,
     load_nearby_metins_artifact,
     build_move_payload_from_metin,
     build_move_confirmation_message,
     option_default_values,
     option_payload_from_vars,
+    format_control_config_summary,
+    build_control_config_payload,
+    build_key_macro_payload,
+    build_player_training_payload,
+    build_boss_farm_tracker_payload,
+    build_reroll_recorder_payload,
+    build_reroll_config_payload,
+    format_reroll_config_summary,
+    format_reroll_slot_table,
+    build_server_cmd,
+    BUFFER_JSON_STATE,
+    BUFFER_TSV_STATE,
+    build_player_training_manual_command,
+    format_player_training_panel_text,
+    latest_player_training_summary,
+    find_running_player_training_run,
+    format_player_training_run_status,
+    allow_practice_live_without_metin,
+    format_state_bridge_report,
+    state_bridge_report,
 )
 
 
@@ -86,6 +112,56 @@ def test_api_client_surfaces_http_error_body(monkeypatch):
         client.post("/api/start", {"script": "combat_metin_client_state", "live": True})
 
 
+def test_quick_start_payloads_include_safe_buff_presets():
+    dry = build_quick_start_payload("buff_only_dry_run")
+    live = build_quick_start_payload("buff_only_live")
+
+    assert dry == {
+        "script": "combat_metin_client_state",
+        "live": False,
+        "confirm_live": False,
+        "options": {"max_cycles": "4", "buff_only": True, "buff_keys": "f1,f2", "buff_durations": "109,301", "buff_damage_guard_keys": "f1"},
+    }
+    assert live["live"] is True
+    assert live["confirm_live"] is True
+    assert live["options"]["max_cycles"] == "0"
+    assert live["options"]["buff_only"] is True
+    assert "buff_keys" not in live["options"]
+    assert "buff_durations" not in live["options"]
+    assert live["options"]["assume_mounted"] is True
+
+    configured = build_quick_start_payload("buff_only_live", buff_keys="f1,f2", buff_durations="124,304", buff_refresh_margin_seconds="3")
+    assert configured["options"]["buff_keys"] == "f1,f2"
+    assert configured["options"]["buff_durations"] == "124,304"
+    assert configured["options"]["buff_refresh_margin_seconds"] == "3"
+
+
+def test_key_macro_payloads_for_direct_f1_f2_buttons():
+    one = build_key_macro_payload(key="F1", interval_seconds="35", presses="1", hold_seconds="0.06", live=True)
+    macro = build_key_macro_payload(key="f2", interval_seconds="109", presses="0", hold_seconds="0.07", live=True)
+
+    assert one == {
+        "script": "key_macro_control",
+        "live": True,
+        "confirm_live": True,
+        "options": {"key": "f1", "interval_seconds": "35.0", "presses": "1", "hold_seconds": "0.06", "window_query": "MT2Portugalia", "elevate": True},
+    }
+    assert macro["options"]["key"] == "f2"
+    assert macro["options"]["interval_seconds"] == "109.0"
+    assert macro["options"]["presses"] == "0"
+
+
+def test_control_panel_source_exposes_direct_key_test_buttons():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+    assert "Direct key test + timed macro" in source
+    assert "Press F1 once LIVE" in source
+    assert "Press F2 once LIVE" in source
+    assert "Start F1 timed macro LIVE" in source
+    assert "Start F2 timed macro LIVE" in source
+    assert "def press_key_once" in source
+    assert "def start_key_macro" in source
+
+
 def test_option_default_values_preserve_editable_defaults():
     script = {
         "options": [
@@ -127,6 +203,338 @@ def test_option_payload_from_vars_can_disable_non_bool_default():
     assert option_payload_from_vars(script, {"max_cycles": "0"}) == {"max_cycles": "0"}
 
 
+
+def test_control_panel_formats_and_builds_buff_mob_config():
+    combat = {"attack_nearby_mobs": True}
+    buffs = {
+        "use_buff_config": True,
+        "buffs": [
+            {"key": "f1", "enabled": True, "interval_seconds": 35, "pre_cast_seconds": 3},
+            {"key": "f2", "enabled": False, "interval_seconds": 42, "pre_cast_seconds": 4},
+        ],
+    }
+
+    summary = format_control_config_summary(combat, buffs)
+    assert "attack nearby mobs: ON" in summary
+    assert "use buff config: ON" in summary
+    assert "f1 enabled every 35s pre-cast 3s" in summary
+    assert "f2 disabled" in summary
+
+    combat_payload, buff_payload = build_control_config_payload(
+        attack_nearby_mobs=False,
+        use_buff_config=True,
+        f1_enabled=True,
+        f1_interval="36",
+        f1_pre_cast="2",
+        f2_enabled=True,
+        f2_interval="44",
+        f2_pre_cast="5",
+    )
+    assert combat_payload == {"attack_nearby_mobs": False}
+    assert buff_payload["use_buff_config"] is True
+    assert buff_payload["buffs"][0] == {"key": "f1", "enabled": True, "interval_seconds": 36.0, "pre_cast_seconds": 2.0}
+    assert buff_payload["buffs"][1] == {"key": "f2", "enabled": True, "interval_seconds": 44.0, "pre_cast_seconds": 5.0}
+
+
+def test_render_control_config_preserves_dirty_operator_edits():
+    class FakeVar:
+        def __init__(self, value):
+            self.value = value
+        def set(self, value):
+            self.value = value
+        def get(self):
+            return self.value
+    class FakeLabel:
+        def __init__(self):
+            self.text = ""
+        def configure(self, **kwargs):
+            self.text = kwargs.get("text", self.text)
+
+    app = object.__new__(ControlPanelApp)
+    app._control_config_dirty = True
+    app.attack_nearby_mobs_var = FakeVar(True)
+    app.use_buff_config_var = FakeVar(True)
+    app.f1_enabled_var = FakeVar(True)
+    app.f2_enabled_var = FakeVar(False)
+    app.f1_interval_var = FakeVar("99")
+    app.f2_interval_var = FakeVar("88")
+    app.f1_pre_cast_var = FakeVar("7")
+    app.f2_pre_cast_var = FakeVar("6")
+    app.control_config_label = FakeLabel()
+
+    app.render_control_config(
+        {"attack_nearby_mobs": False},
+        {"use_buff_config": False, "buffs": [{"key": "f1", "enabled": False, "interval_seconds": 35, "pre_cast_seconds": 3}]},
+    )
+
+    assert app.attack_nearby_mobs_var.get() is True
+    assert app.use_buff_config_var.get() is True
+    assert app.f1_enabled_var.get() is True
+    assert app.f1_interval_var.get() == "99"
+    assert "editing; not overwritten" in app.control_config_label.text
+
+
+def test_practice_live_allows_no_metin_when_attack_nearby_mobs_enabled():
+    assert allow_practice_live_without_metin({}, {"attack_nearby_mobs": True}) is True
+    assert allow_practice_live_without_metin({}, {"attack_nearby_mobs": False}) is False
+
+
+def test_control_panel_formats_state_bridge_trust_report():
+    report = state_bridge_report(
+        {
+            "_file_mtime": 100.0,
+            "target": {"vid": 321, "name": "Metin da Batalha", "alive": True, "pixel_position": [1, 2, 3]},
+        },
+        now=100.5,
+    )
+    text = format_state_bridge_report(report)
+
+    assert report["has_trusted_target"] is True
+    assert "State bridge trust" in text
+    assert "Dry-run DRY_RUN_IDLE" in text
+    assert "Live ENGAGE_TARGET" in text
+
+
+
+
+def test_format_truth_dashboard_shows_honest_uiux_statuses():
+    state = {
+        "_file_mtime": 100.0,
+        "target": {
+            "vid": 1558008,
+            "name": "Metin da Alma",
+            "type": 2,
+            "alive": True,
+            "pixel_position": [95920.0, 25729.0],
+            "target_hp_now": 103614,
+            "target_hp_max": 119700,
+            "target_hp_pct": 86.5614,
+            "target_project_position_error": "project_error",
+        },
+    }
+
+    text = format_truth_dashboard(
+        state,
+        now=100.2,
+        combat_config={"attack_nearby_mobs": True},
+        buff_config={"use_buff_config": True, "buffs": [{"key": "f1", "enabled": True, "interval_seconds": 109}]},
+        runs=[],
+    )
+
+    assert "[TARGET PROVEN] Metin da Alma" in text
+    assert "pixel_position=(95920, 25729)" in text
+    assert "project_position=not proven" in text
+    assert "z=not proven" in text
+    assert "HP 86.6%" in text
+    assert "[SAFETY LOCKED]" in text
+    assert "manual buffs observed; automation not proven" in text or "no active dispatcher proof" in text
+    assert "DRY-RUN ONLY" in text
+    assert "generic mobs need a separate hostile-mob gate" in text
+
+
+def test_control_panel_source_exposes_operator_enabled_attack_live_toggle():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+    assert "Select/attack nearby LIVE (operator enabled)" in source
+    assert "toggle_attack_nearby_live" in source
+    assert "confirm_live" in source
+    assert "Automation truth dashboard" in source
+    assert "ribbon_left_var" in source
+    assert "LIVE ATTACK ENABLED" in source
+
+def test_control_panel_log_tail_has_manual_refresh_and_follow_toggle():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+    assert "Refresh log tail" in source
+    assert "follow log tail" in source
+    assert "Log tail: paused" in source
+    assert "def refresh_selected_log" in source
+
+
+def test_control_panel_uses_notebook_pages_to_organize_operator_surface():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+    assert "ttk.Notebook" in source
+    assert "text=\"State\"" in source
+    assert "F1/F2 + buffs" in source
+    assert "Scripts" in source
+    assert "Targets + runs" in source
+    assert "Player training" in source
+    assert "Boss farm" in source
+    assert "Start boss farm tracker" in source
+    assert "boss_farm_tracker" in source
+    assert "alterar personagem" in source
+    assert "boss_kills_confirmed" in source
+    assert "Cofre do Chefe Orc" in source
+    assert "loot vnum" in source
+    assert "Reroll Items" in source
+    assert "possible rolls for selected equipment slot" in source
+    assert "reroll_slot_notebook" in source
+    assert "build_reroll_slot_tabs" in source
+    assert "self.reroll_slot_combo" not in source
+    assert "Best stat #1" in source
+    assert "Best stat #4" in source
+    assert "Start reroll recorder" in source
+    assert "reroll_recorder" in source
+    assert "reports/reroll_recordings" in source
+    assert "reroll_desired_stat_vars" in source
+    assert "comma-separated" not in source
+
+
+
+def test_reroll_panel_formats_slot_tables_and_builds_desired_stat_payload():
+    config = {
+        "equip_slots": [
+            {
+                "slot": "weapon",
+                "label": "Weapon",
+                "possible_rolls": [
+                    {"attr_type": 71, "name": "Dano Médio", "observed_values": [-49, 23], "observed_min": -49, "observed_max": 23},
+                    {"attr_type": 72, "name": "Dano de Habilidade", "observed_values": [-29, 12], "observed_min": -29, "observed_max": 12},
+                ],
+            }
+        ],
+        "desired_stats": {"weapon": [{"attr_type": 71, "target_value": 50, "priority": 1}]},
+    }
+
+    table = format_reroll_slot_table(config, "weapon")
+    assert "Weapon" in table
+    assert "Dano Médio" in table
+    assert "desired priority 1 target 50" in table
+
+    summary = format_reroll_config_summary(config)
+    assert "Reroll Items" in summary
+    assert "weapon: #1 attr 71 >= 50" in summary
+
+    payload = build_reroll_config_payload(
+        "weapon",
+        [
+            {"attr_type": "71", "target_value": "50"},
+            {"attr_type": "72", "target_value": "20"},
+            {"attr_type": "", "target_value": ""},
+            {"attr_type": "15", "target_value": "10"},
+        ],
+        config,
+    )
+    assert payload["desired_stats"]["weapon"] == [
+        {"attr_type": 71, "target_value": 50, "priority": 1},
+        {"attr_type": 72, "target_value": 20, "priority": 2},
+        {"attr_type": 15, "target_value": 10, "priority": 4},
+    ]
+
+
+def test_build_boss_farm_tracker_payload_is_observation_only():
+    payload = build_boss_farm_tracker_payload(
+        duration="7200",
+        interval="1",
+        boss_name="Boss Foo",
+        spawn_interval_minutes="30",
+        channels="8",
+        wait_menu="alterar personagem",
+        state_json=BUFFER_JSON_STATE,
+    )
+
+    assert payload["script"] == "boss_farm_tracker"
+    assert payload["live"] is False
+    assert payload["confirm_live"] is False
+    assert payload["options"] == {
+        "duration": "7200.0",
+        "interval": "1.0",
+        "state_json": BUFFER_JSON_STATE,
+        "boss_name": "Boss Foo",
+        "spawn_interval_minutes": "30.0",
+        "channels": "8",
+        "wait_menu": "alterar personagem",
+        "loot_name": "Cofre do Chefe Orc",
+        "loot_vnum": "50070",
+    }
+
+
+def test_build_reroll_recorder_payload_is_observation_only():
+    payload = build_reroll_recorder_payload(duration="120", interval="0.2", target_slot="12", target_vnum="2849", state_json=BUFFER_JSON_STATE)
+
+    assert payload["script"] == "reroll_recorder"
+    assert payload["live"] is False
+    assert payload["confirm_live"] is False
+    assert payload["options"] == {
+        "duration": "120.0",
+        "interval": "0.2",
+        "target_slot": "12",
+        "target_vnum": "2849",
+        "state_json": BUFFER_JSON_STATE,
+    }
+
+
+
+def test_render_reroll_config_preserves_dirty_operator_edits():
+    class FakeVar:
+        def __init__(self, value):
+            self.value = value
+        def set(self, value):
+            self.value = value
+        def get(self):
+            return self.value
+    class FakeLabel:
+        def __init__(self):
+            self.value = ""
+        def set(self, value):
+            self.value = value
+
+    app = object.__new__(ControlPanelApp)
+    app._reroll_config_dirty = True
+    app.reroll_slot_var = FakeVar("weapon")
+    app.reroll_desired_stat_vars = [FakeVar("71 - Dano Médio"), FakeVar("72 - Dano de Habilidade"), FakeVar(""), FakeVar("")]
+    app.reroll_desired_target_vars = [FakeVar("50"), FakeVar("20"), FakeVar(""), FakeVar("")]
+    app.reroll_desired_combos = []
+    app.reroll_status_var = FakeLabel()
+
+    app.render_reroll_config({"equip_slots": [{"slot": "weapon", "label": "Weapon", "possible_rolls": []}], "desired_stats": {"weapon": []}})
+
+    assert app.reroll_desired_stat_vars[0].get() == "71 - Dano Médio"
+    assert app.reroll_desired_target_vars[0].get() == "50"
+    assert "editing; not overwritten" in app.reroll_status_var.value
+
+
+
+def test_control_panel_build_server_cmd_can_target_buffer_client():
+    cmd = build_server_cmd(port="8768", json_state=BUFFER_JSON_STATE, tsv_state=BUFFER_TSV_STATE)
+
+    assert "--json-state" in cmd
+    assert BUFFER_JSON_STATE in cmd
+    assert "--tsv" in cmd
+    assert BUFFER_TSV_STATE in cmd
+    assert cmd[cmd.index("--port") + 1] == "8768"
+
+
+
+def test_open_login_payload_can_target_buffer_account_and_app_dir():
+    payload = build_quick_start_payload("open_login_game", login_username="buffer", login_app_dir="D:/Games/MT2PortugaliaBuffer/app")
+
+    assert payload["script"] == "login_mt2_local"
+    assert payload["live"] is True
+    assert payload["confirm_live"] is True
+    assert payload["options"] == {"username": "buffer", "app_dir": "D:/Games/MT2PortugaliaBuffer/app"}
+
+
+def test_control_panel_source_exposes_login_account_config_fields():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+
+    assert "Login accounts" in source
+    assert "Save login config" in source
+    assert "Open MAIN + login" in source
+    assert "Open BUFFER + login" in source
+    assert "This keeps the other client open" in source
+    assert "/api/login_config" in source
+
+    assert "open_login_profile" in source
+    assert "login_buffer_user_var" in source
+    assert "login_buffer_password_var" in source
+    assert "_login_config_dirty" in source
+    assert "Login config editing; auto-refresh will not overwrite fields" in source
+
+def test_player_training_payload_preserves_buffer_state_json():
+    payload = build_player_training_payload(duration="2", interval="0.1", state_json=BUFFER_JSON_STATE)
+
+    assert payload["script"] == "player_training_recorder"
+    assert payload["options"]["state_json"] == BUFFER_JSON_STATE
+
 def test_control_panel_script_runs_from_project_root_without_pythonpath():
     result = subprocess.run(
         [sys.executable, "scripts/metin2_control_panel.py", "--help"],
@@ -139,6 +547,107 @@ def test_control_panel_script_runs_from_project_root_without_pythonpath():
     assert result.returncode == 0, result.stderr
     assert "--base-url" in result.stdout
 
+
+
+
+def test_global_stop_hotkey_poll_once_fires_on_ctrl_alt_s(monkeypatch):
+    calls = []
+
+    class FakeRoot:
+        def after(self, _delay, callback):
+            callback()
+
+    hotkey = GlobalStopHotkey(FakeRoot(), lambda: calls.append("stop"))
+    pressed = {hotkey.VK_CONTROL, hotkey.VK_MENU, hotkey.VK_S}
+    hotkey._user32 = object()
+    monkeypatch.setattr(hotkey, "_down", lambda vk: vk in pressed)
+
+    assert hotkey.poll_once() is True
+    assert calls == ["stop"]
+
+
+def test_global_stop_hotkey_poll_once_requires_full_chord(monkeypatch):
+    calls = []
+
+    class FakeRoot:
+        def after(self, _delay, callback):
+            callback()
+
+    hotkey = GlobalStopHotkey(FakeRoot(), lambda: calls.append("stop"))
+    pressed = {hotkey.VK_CONTROL, hotkey.VK_MENU}
+    hotkey._user32 = object()
+    monkeypatch.setattr(hotkey, "_down", lambda vk: vk in pressed)
+
+    assert hotkey.poll_once() is False
+    assert calls == []
+
+def test_stop_all_now_posts_stop_all_without_confirmation():
+    calls = []
+
+    class FakeVar:
+        def __init__(self):
+            self.value = None
+        def set(self, value):
+            self.value = value
+
+    app = object.__new__(ControlPanelApp)
+    app.action_status = FakeVar()
+    app._post_async = lambda path, payload: calls.append((path, payload))
+
+    app.stop_all_now()
+
+    assert calls == [("/api/stop_all", {})]
+    assert "Ctrl+Alt+S" in app.action_status.value
+
+
+def test_stop_all_button_uses_immediate_stop_after_confirmation(monkeypatch):
+    calls = []
+    app = object.__new__(ControlPanelApp)
+    app.stop_all_now = lambda source="hotkey": calls.append(source)
+    monkeypatch.setattr("metin2_dashboard.control_panel.messagebox.askokcancel", lambda *args, **kwargs: True)
+
+    app.stop_all()
+
+    assert calls == ["button"]
+
+
+def test_buff_only_live_payload_can_start_on_ground_without_ctrl_g():
+    mounted = build_quick_start_payload("buff_only_live", assume_mounted=True)
+    ground = build_quick_start_payload("buff_only_live", assume_mounted=False)
+
+    assert mounted["options"]["assume_mounted"] is True
+    assert ground["options"]["assume_mounted"] is False
+
+
+def test_toggle_buff_only_live_uses_starting_mount_toggle(monkeypatch):
+    calls = []
+
+    class FakeVar:
+        def __init__(self, value):
+            self.value = value
+        def get(self):
+            return self.value
+
+    app = object.__new__(ControlPanelApp)
+    app.buff_start_mounted_var = FakeVar(False)
+    app.f1_enabled_var = FakeVar(True)
+    app.f2_enabled_var = FakeVar(True)
+    app.f1_interval_var = FakeVar("124")
+    app.f2_interval_var = FakeVar("304")
+    app.f1_pre_cast_var = FakeVar("3")
+    app.f2_pre_cast_var = FakeVar("3")
+    app._toggle_existing_run_or_none = lambda **kwargs: False
+    app._post_after_api_ready = lambda payload: calls.append(payload)
+    monkeypatch.setattr("metin2_dashboard.control_panel.messagebox.askokcancel", lambda *args, **kwargs: True)
+
+    app.toggle_buff_only_live()
+
+    assert calls
+    assert calls[0]["options"]["buff_only"] is True
+    assert calls[0]["options"]["assume_mounted"] is False
+    assert calls[0]["options"]["buff_keys"] == "f1,f2"
+    assert calls[0]["options"]["buff_durations"] == "124,304"
+    assert calls[0]["options"]["buff_refresh_margin_seconds"] == "3"
 
 def test_quick_start_payloads_cover_login_and_practice_buttons():
     assert build_quick_start_payload("open_login_game") == {
@@ -163,7 +672,19 @@ def test_quick_start_payloads_cover_login_and_practice_buttons():
         "script": "combat_metin_client_state",
         "live": True,
         "confirm_live": True,
-        "options": {"max_cycles": "60"},
+        "options": {"max_cycles": "0"},
+    }
+    assert build_quick_start_payload("attack_nearby_live") == {
+        "script": "combat_metin_client_state",
+        "live": True,
+        "confirm_live": True,
+        "options": {"max_cycles": "0", "attack_nearby_mobs": True, "visual_target_clicks": True, "allow_blind_target_clicks": True, "minimap_camera_hint": True},
+    }
+    assert build_quick_start_payload("buff_only_live") == {
+        "script": "combat_metin_client_state",
+        "live": True,
+        "confirm_live": True,
+        "options": {"max_cycles": "0", "buff_only": True, "assume_mounted": True, "buff_damage_guard_keys": "f1"},
     }
     assert build_quick_start_payload("find_nearby_metins") == {
         "script": "find_nearby_metins",
@@ -172,6 +693,126 @@ def test_quick_start_payloads_cover_login_and_practice_buttons():
         "options": {"radius": "300", "limit": "8"},
     }
 
+
+
+
+
+
+
+def test_player_training_payload_is_observation_only_dry_run():
+    payload = build_player_training_payload(duration="180", interval="0.25", capture_screenshots=True)
+
+    assert payload == {
+        "script": "player_training_recorder",
+        "live": False,
+        "confirm_live": False,
+        "options": {"duration": "180.0", "interval": "0.25", "capture_screenshots": True, "screenshot_backend": "screen", "record_mouse": True, "refresh_window_every": "1.0", "window_query": "MT2Portugalia", "state_json": "D:/Games/MT2Portugalia/app/hermes_state.json"},
+    }
+
+
+def test_player_training_panel_text_includes_start_command_outputs_and_safety():
+    text = format_player_training_panel_text(duration="300", interval="0.25", capture_screenshots=True)
+
+    assert "observation-only" in text
+    assert "sends no keys/clicks" in text
+    assert "mouse clicks" in text
+    assert "reports/player_training_runs/<run-id>/events.jsonl" in text
+    assert "summary.json" in text
+    assert "recommendations.md" in text
+    assert "python scripts/player_training_recorder.py --duration 300" in text
+    assert "--window-query MT2Portugalia" in text
+    assert "--screenshot-backend screen" in text
+    assert "--refresh-window-every 1.0" in text
+
+
+def test_player_training_manual_command_omits_screenshot_flag_when_disabled():
+    command = build_player_training_manual_command(duration="60", interval="0.5", capture_screenshots=False)
+
+    assert "--duration 60" in command
+    assert "--interval 0.5" in command
+    assert "--capture-screenshots" not in command
+    assert "--record-mouse" in command
+    assert "PYTHONPATH='src;.'" in command
+
+
+def test_latest_player_training_summary_reads_newest_summary(tmp_path):
+    old = tmp_path / "reports" / "player_training_runs" / "old"
+    new = tmp_path / "reports" / "player_training_runs" / "new"
+    old.mkdir(parents=True)
+    new.mkdir(parents=True)
+    (old / "summary.json").write_text(json.dumps({"samples": 1, "recommendations": []}), encoding="utf-8")
+    (new / "summary.json").write_text(json.dumps({"samples": 9, "recommendations": [{"topic": "pickup_after_destroy", "suggestion": "spam Z"}]}), encoding="utf-8")
+
+    summary = latest_player_training_summary(tmp_path)
+
+    assert summary["run_dir"].endswith("new")
+    assert "samples: 9" in summary["text"]
+    assert "pickup_after_destroy" in summary["text"]
+
+
+def test_player_training_run_status_shows_recording_when_active(tmp_path):
+    run_dir = tmp_path / "reports" / "player_training_runs" / "run-live"
+    run_dir.mkdir(parents=True)
+    (run_dir / "events.jsonl").write_text(
+        "{}\n" + json.dumps({"type": "sample", "t": 0.1}) + "\n" + json.dumps({"type": "key_down", "key": "w", "t": 0.2}) + "\n",
+        encoding="utf-8",
+    )
+    (run_dir / "screenshots").mkdir()
+    (run_dir / "screenshots" / "frame-00000.jpg").write_bytes(b"fake")
+    runs = [{"run_id": "run-live", "script": "player_training_recorder", "running": True, "exit_code": None}]
+
+    assert find_running_player_training_run(runs)["run_id"] == "run-live"
+    text = format_player_training_run_status(tmp_path, runs)["text"]
+
+    assert "RECORDING" in text
+    assert "run-live" in text
+    assert "samples so far: 1" in text
+    assert "key events so far: 1" in text
+    assert "screenshots so far: 1" in text
+
+
+def test_player_training_run_status_shows_latest_analysis_when_not_running(tmp_path):
+    run_dir = tmp_path / "reports" / "player_training_runs" / "done"
+    run_dir.mkdir(parents=True)
+    (run_dir / "summary.json").write_text(json.dumps({"samples": 7, "target_lock_count": 2, "destroy_candidates": 1, "recommendations": [{"topic": "attack_start", "suggestion": "pulse Space"}]}), encoding="utf-8")
+
+    status = format_player_training_run_status(tmp_path, [])
+
+    assert status["recording"] is False
+    assert "Latest analysis" in status["text"]
+    assert "samples: 7" in status["text"]
+    assert "attack_start" in status["text"]
+
+
+def test_learned_channel_click_points_are_ch1_to_ch8_rows():
+    points = LEARNED_CHANNEL_CLICK_POINTS.split(";")
+    assert len(points) == 8
+    assert points[4] == "0.4039,0.4287"  # learned CH5 current row
+    assert points[5] == "0.4039,0.4559"  # learned CH6 row, verified by controlled click
+
+
+def test_attack_nearby_live_payload_can_enable_channel_rotation():
+    payload = build_quick_start_payload(
+        "attack_nearby_live",
+        channel_rotate_after_destroy=True,
+        channel_click_points="0.42,0.35;0.42,0.45",
+        pickup_spam_count="15",
+    )
+
+    assert payload["options"]["channel_rotate_after_destroy"] is True
+    assert payload["options"]["channel_click_points"] == "0.42,0.35;0.42,0.45"
+    assert payload["options"]["pickup_spam_count"] == "15"
+
+
+def test_live_toggle_run_detection_distinguishes_buff_keeper_and_attack_nearby():
+    runs = [
+        {"run_id": "buff", "script": "combat_metin_client_state", "mode": "live", "running": True, "command": ["python", "scripts/combat_metin_client_state.py", "--live", "--buff-only", "--max-cycles", "0"]},
+        {"run_id": "attack", "script": "combat_metin_client_state", "mode": "live", "running": True, "command": "python scripts/combat_metin_client_state.py --live --attack-nearby-mobs --max-cycles 0"},
+        {"run_id": "dry", "script": "combat_metin_client_state", "mode": "dry-run", "running": True, "command": "--buff-only"},
+    ]
+
+    assert find_running_buff_keeper_run(runs)["run_id"] == "buff"
+    assert find_running_attack_nearby_run(runs)["run_id"] == "attack"
 
 def test_build_combat_payload_uses_live_memory_coordinate(tmp_path):
     artifact = tmp_path / "reports" / "nearby_metins" / "latest_nearby_metins.json"
@@ -228,7 +869,7 @@ def test_build_combat_payload_rejects_table_rows_from_auto_scan(tmp_path):
     payload, coord = build_combat_payload(tmp_path, {"target": {"name": "Metin da Batalha", "vid": 3846}})
 
     assert coord is None
-    assert payload["options"] == {"max_cycles": "60", "metin_vid": "3846"}
+    assert payload["options"] == {"max_cycles": "0", "metin_vid": "3846"}
 
 
 def test_build_combat_payload_rejects_current_position_estimate_for_navigation(tmp_path):
@@ -257,7 +898,7 @@ def test_build_combat_payload_rejects_current_position_estimate_for_navigation(t
     payload, coord = build_combat_payload(tmp_path, {"target": {"name": "Metin da Batalha", "vid": 3846}})
 
     assert coord is None
-    assert payload["options"] == {"max_cycles": "60", "metin_vid": "3846"}
+    assert payload["options"] == {"max_cycles": "0", "metin_vid": "3846"}
 
 
 def test_build_combat_confirmation_message_shows_navigation_status():
@@ -483,6 +1124,9 @@ def test_has_active_live_combat_run_detects_running_exclusive_practice():
     assert has_active_live_combat_run([
         {"script": "combat_metin_client_state", "mode": "dry-run", "running": True, "run_id": "run-1"}
     ]) is False
+    assert has_active_live_combat_run([
+        {"script": "combat_metin_client_state", "mode": "live", "running": True, "run_id": "run-buff", "command": ["python", "script", "--live", "--buff-only"]}
+    ]) is False
 
 
 def test_has_active_live_control_run_includes_movement_runs():
@@ -491,6 +1135,9 @@ def test_has_active_live_control_run_includes_movement_runs():
     ]) is True
     assert has_active_live_control_run([
         {"script": "move_to_metin_client_state", "mode": "dry-run", "running": True, "run_id": "run-move"}
+    ]) is False
+    assert has_active_live_control_run([
+        {"script": "combat_metin_client_state", "mode": "live", "running": True, "run_id": "run-buff", "command": "--buff-only"}
     ]) is False
 
 
@@ -800,6 +1447,43 @@ def test_load_nearby_metins_artifact_includes_indicator_rows_for_visibility(tmp_
     assert rows[1]["_move_safe"] is False
 
 
+class FakeBoolVar:
+    def __init__(self, value=False):
+        self.value = value
+    def get(self):
+        return self.value
+    def set(self, value):
+        self.value = bool(value)
+
+
+class FakeStringVar:
+    def __init__(self, value=""):
+        self.value = value
+    def get(self):
+        return self.value
+    def set(self, value):
+        self.value = str(value)
+
+
+class FakeListbox:
+    def __init__(self):
+        self.items = []
+        self.selected = []
+    def delete(self, start, end):
+        self.items = []
+    def insert(self, index, label):
+        self.items.append(label)
+    def selection_set(self, index):
+        if index == "end":
+            self.selected = [len(self.items) - 1]
+        else:
+            self.selected = [index]
+    def curselection(self):
+        return tuple(self.selected)
+    def get(self, index):
+        return self.items[index]
+
+
 class FakeText:
     def __init__(self, yview=(1.0, 1.0)):
         self._yview = yview
@@ -846,6 +1530,54 @@ def test_show_run_log_autoscrolls_when_already_at_bottom():
     assert ("see", "end") in app.log_text.calls
 
 
+def test_render_runs_does_not_overwrite_log_tail_when_follow_disabled(monkeypatch):
+    app = object.__new__(ControlPanelApp)
+    app.selected_run = FakeStringVar("run-1")
+    app.follow_log_tail = FakeBoolVar(False)
+    app.log_tail_status = FakeStringVar()
+    app.runs_list = FakeListbox()
+    app.log_text = FakeText()
+    app.log_text.content = "operator selected text should stay"
+    monkeypatch.setattr(app, "render_nearby_metins", lambda: None)
+
+    app.render_runs([
+        {"run_id": "run-1", "script": "combat_metin_client_state", "mode": "live", "running": True, "exit_code": None, "log_tail": "new tail"}
+    ])
+
+    assert app.log_text.content == "operator selected text should stay"
+    assert "paused for run-1" in app.log_tail_status.get()
+
+
+def test_render_runs_updates_log_tail_when_follow_enabled(monkeypatch):
+    app = object.__new__(ControlPanelApp)
+    app.selected_run = FakeStringVar("run-1")
+    app.follow_log_tail = FakeBoolVar(True)
+    app.log_tail_status = FakeStringVar()
+    app.runs_list = FakeListbox()
+    app.log_text = FakeText()
+    monkeypatch.setattr(app, "render_nearby_metins", lambda: None)
+
+    app.render_runs([
+        {"run_id": "run-1", "script": "combat_metin_client_state", "mode": "live", "running": True, "exit_code": None, "log_tail": "fresh follow tail"}
+    ])
+
+    assert app.log_text.content == "fresh follow tail"
+    assert "showing run-1" in app.log_tail_status.get()
+
+
+def test_refresh_selected_log_updates_log_tail_manually():
+    app = object.__new__(ControlPanelApp)
+    app.selected_run = FakeStringVar("run-1")
+    app._runs_by_id = {"run-1": {"run_id": "run-1", "log_tail": "manual tail"}}
+    app.log_tail_status = FakeStringVar()
+    app.log_text = FakeText()
+
+    app.refresh_selected_log()
+
+    assert app.log_text.content == "manual tail"
+    assert "showing run-1" in app.log_tail_status.get()
+
+
 def test_render_runs_refreshes_nearby_panel_after_completed_find_run(monkeypatch):
     app = object.__new__(ControlPanelApp)
     app.selected_run = type("Selected", (), {"get": lambda _self: ""})()
@@ -881,3 +1613,26 @@ def test_start_server_reuses_existing_api_instead_of_spawning_duplicate(monkeypa
 
     assert spawned == []
     assert statuses == ["local API already running"]
+
+
+def test_archive_all_posts_archive_all_endpoint(monkeypatch):
+    class FakeClient:
+        def __init__(self):
+            self.calls = []
+        def post(self, path, payload):
+            self.calls.append((path, payload))
+            return []
+    class FakeRoot:
+        def after(self, _delay, func):
+            func()
+    app = object.__new__(ControlPanelApp)
+    app.client = FakeClient()
+    app.root = FakeRoot()
+    app._start_in_flight = False
+    app.action_status = type("Status", (), {"set": lambda self, value: setattr(self, "value", value)})()
+    monkeypatch.setattr("metin2_dashboard.control_panel.messagebox.askokcancel", lambda *args, **kwargs: True)
+    monkeypatch.setattr("metin2_dashboard.control_panel.messagebox.showerror", lambda *args, **kwargs: None)
+
+    app.archive_all()
+
+    assert app.client.calls == [("/api/archive_all", {})]

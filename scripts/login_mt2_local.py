@@ -111,6 +111,16 @@ def write_credential(username: str, password: str) -> None:
         raise ctypes.WinError(ctypes.get_last_error())
 
 
+def credential_exists(username: str) -> bool:
+    if sys.platform != "win32":
+        return False
+    pcred = PCREDENTIALW()
+    ok = bool(advapi32.CredReadW(credential_target(username), CRED_TYPE_GENERIC, 0, ctypes.byref(pcred)))
+    if ok:
+        advapi32.CredFree(pcred)
+    return ok
+
+
 def read_credential(username: str) -> str:
     if sys.platform != "win32":
         raise RuntimeError("Windows Credential Manager is only available on Windows")
@@ -132,16 +142,59 @@ def delete_credential(username: str) -> bool:
 
 
 def build_terminate_command() -> str:
-    return 'wmic process where "name=\'pgclient.app\'" call terminate'
+    return 'taskkill /F /IM pgclient.app /T'
 
 
-def terminate_client_processes() -> None:
+def terminate_client_processes(app_dir: Path | None = None) -> None:
+    # With a configured app_dir, terminate only pgclient processes launched from that folder so the buffer client does not kill the main client.
+    if app_dir is not None and sys.platform == "win32":
+        try:
+            out = subprocess.check_output(
+                'wmic process where "name=\'pgclient.app\'" get ProcessId,ExecutablePath /format:csv',
+                shell=True, text=True, stderr=subprocess.STDOUT, timeout=10,
+            )
+            root = str(Path(app_dir)).replace("\\", "/").lower().rstrip("/") + "/"
+            for line in out.splitlines():
+                parts = [p.strip() for p in line.split(",")]
+                if len(parts) >= 3 and parts[-1].isdigit():
+                    exe = ",".join(parts[1:-1]).replace("\\", "/").lower()
+                    if exe.startswith(root):
+                        subprocess.run(f"taskkill /F /PID {parts[-1]} /T", shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            return
+        except Exception:
+            pass
+    # taskkill returns non-zero when no client is running; that is OK for restart.
     subprocess.run(build_terminate_command(), shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for name in ("MT2Portugalia.exe",):
+        subprocess.run(f'taskkill /F /IM {name} /T', shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 
 def choose_client_launch_executable(client_root: Path = CLIENT_ROOT, app_dir: Path = APP_DIR) -> Path:
     """Open the already-patched game client directly; do not run the launcher/patcher."""
     return app_dir / "pgclient.app"
+
+
+def materialize_loose_game_from_pack_if_missing(app_dir: Path = APP_DIR) -> Path | None:
+    """Direct pgclient launches can fail at game phase unless app/game.py exists.
+
+    MT2Portugalia's launcher normally resolves packed root assets, but our direct
+    login flow launches pgclient.app after local pack patching. On this client,
+    direct game phase import raises `IOError: game.py` unless a loose app/game.py
+    override exists. Materialize the patched game chunk from app/pack/root when
+    missing so Open game + login reaches the map.
+    """
+    loose = app_dir / "game.py"
+    if loose.exists():
+        return None
+    root_pack = app_dir / "pack" / "root"
+    if not root_pack.exists():
+        return None
+    from scripts.patch_mt2_root_state_logger import find_game_chunk, iter_chunks
+
+    blob = bytearray(root_pack.read_bytes())
+    _idx, _chunk, src = find_game_chunk(blob, list(iter_chunks(blob)))
+    loose.write_bytes(src)
+    return loose
 
 
 def is_user_admin() -> bool:
@@ -157,34 +210,110 @@ def quote_windows_arg(value: str) -> str:
     return subprocess.list2cmdline([value])
 
 
-def relaunch_current_command_elevated() -> bool:
-    """Re-run this helper as admin so it can launch/control MT2Portugalia.
+def relaunch_current_command_elevated(elevated_log: Path | None = None) -> int:
+    """Re-run this helper as admin, wait, and surface the elevated child's result.
 
-    pgclient.app currently has an elevated manifest on Yoshy's machine. Starting it
-    from the unelevated dashboard raises WinError 740, and an unelevated helper is
-    also unreliable for typing into an elevated game window. The native panel keeps
-    its safe local API, while this helper hands the actual login flow to an elevated
-    copy after the user approves the UAC prompt.
+    The dashboard parent is normally medium integrity while pgclient.app is
+    elevated. A fire-and-forget UAC launch made the control panel report success
+    even when the elevated child failed or never reached the login window. Use
+    ShellExecuteExW + SEE_MASK_NOCLOSEPROCESS so the managed run waits and logs
+    the elevated child exit code, matching the proven key_macro_control pattern.
     """
     if not hasattr(ctypes, "windll"):
-        return False
-    script = str(Path(__file__).resolve())
-    params = " ".join([quote_windows_arg(script), *[quote_windows_arg(arg) for arg in sys.argv[1:]]])
-    shell32 = ctypes.windll.shell32
-    shell32.ShellExecuteW.argtypes = [wintypes.HWND, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.LPCWSTR, ctypes.c_int]
-    shell32.ShellExecuteW.restype = wintypes.HINSTANCE
-    rc = shell32.ShellExecuteW(None, "runas", sys.executable, params, str(Path.cwd()), 1)
-    if int(rc) <= 32:
-        raise ctypes.WinError(int(rc))
-    return True
+        return 1
+
+    class SHELLEXECUTEINFOW(ctypes.Structure):
+        _fields_ = [
+            ("cbSize", ctypes.c_ulong),
+            ("fMask", ctypes.c_ulong),
+            ("hwnd", ctypes.c_void_p),
+            ("lpVerb", ctypes.c_wchar_p),
+            ("lpFile", ctypes.c_wchar_p),
+            ("lpParameters", ctypes.c_wchar_p),
+            ("lpDirectory", ctypes.c_wchar_p),
+            ("nShow", ctypes.c_int),
+            ("hInstApp", ctypes.c_void_p),
+            ("lpIDList", ctypes.c_void_p),
+            ("lpClass", ctypes.c_wchar_p),
+            ("hkeyClass", ctypes.c_void_p),
+            ("dwHotKey", ctypes.c_ulong),
+            ("hIcon", ctypes.c_void_p),
+            ("hProcess", ctypes.c_void_p),
+        ]
+
+    relaunch_args = list(sys.argv[1:])
+    if "--elevated-log" not in relaunch_args:
+        elevated_log = elevated_log or Path("reports/dashboard_runs/login_mt2_local.elevated.log")
+        relaunch_args.extend(["--elevated-log", str(elevated_log)])
+    relaunch_args.append("--no-self-elevate")
+    params = subprocess.list2cmdline([str(Path(__file__).resolve()), *relaunch_args])
+    info = SHELLEXECUTEINFOW()
+    info.cbSize = ctypes.sizeof(SHELLEXECUTEINFOW)
+    info.fMask = 0x00000040  # SEE_MASK_NOCLOSEPROCESS
+    info.lpVerb = "runas"
+    info.lpFile = sys.executable
+    info.lpParameters = params
+    info.lpDirectory = str(Path.cwd())
+    info.nShow = 1
+    if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(info)):
+        err = ctypes.get_last_error()
+        raise RuntimeError(f"ShellExecuteExW runas failed with WinError {err}")
+    print("MT2Portugalia login helper relaunched as Administrator. Approve the Windows UAC prompt; waiting for elevated child.", flush=True)
+    if info.hProcess:
+        ctypes.windll.kernel32.WaitForSingleObject(info.hProcess, 0xFFFFFFFF)
+        exit_code = ctypes.c_ulong()
+        ctypes.windll.kernel32.GetExitCodeProcess(info.hProcess, ctypes.byref(exit_code))
+        ctypes.windll.kernel32.CloseHandle(info.hProcess)
+        print(f"elevated_login_child_exit_code {exit_code.value}", flush=True)
+        return int(exit_code.value)
+    return 0
 
 
 def should_self_elevate_for_login(args: argparse.Namespace) -> bool:
     return bool(getattr(args, "self_elevate", True)) and not is_user_admin()
 
 
-def find_window(title_substring: str) -> int:
-    matches: list[int] = []
+def _process_image_path(pid: int) -> str:
+    if sys.platform != "win32":
+        return ""
+    kernel32 = ctypes.windll.kernel32
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+    handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, wintypes.DWORD(pid))
+    if not handle:
+        return ""
+    try:
+        size = wintypes.DWORD(32768)
+        buf = ctypes.create_unicode_buffer(size.value)
+        query = kernel32.QueryFullProcessImageNameW
+        query.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+        query.restype = wintypes.BOOL
+        if query(handle, 0, buf, ctypes.byref(size)):
+            return buf.value
+        return ""
+    finally:
+        kernel32.CloseHandle(handle)
+
+
+def _process_image_name(pid: int) -> str:
+    path = _process_image_path(pid)
+    return Path(path).name.lower() if path else ""
+
+
+def _is_game_window_process(pid: int) -> bool:
+    name = _process_image_name(pid)
+    return name in {"pgclient.app", "pgclient.exe", "mt2portugalia.exe"}
+
+
+def _pid_matches_app_dir(pid: int, app_dir: Path | None) -> bool:
+    if app_dir is None:
+        return True
+    image = _process_image_path(pid).replace("\\", "/").lower()
+    root = str(Path(app_dir)).replace("\\", "/").lower().rstrip("/") + "/"
+    return bool(image) and image.startswith(root)
+
+
+def find_window(title_substring: str, app_dir: Path | None = None) -> int:
+    matches: list[tuple[int, int, str, str]] = []
 
     @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
     def enum_proc(hwnd, _lparam):
@@ -195,22 +324,39 @@ def find_window(title_substring: str) -> int:
             return True
         buf = ctypes.create_unicode_buffer(length + 1)
         user32.GetWindowTextW(hwnd, buf, length + 1)
-        if title_substring.lower() in buf.value.lower():
-            matches.append(int(hwnd))
+        title = buf.value
+        if title_substring.lower() in title.lower():
+            pid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if _pid_matches_app_dir(int(pid.value), app_dir):
+                matches.append((int(hwnd), int(pid.value), title, _process_image_name(int(pid.value))))
         return True
 
     user32.EnumWindows(enum_proc, 0)
-    return matches[0] if matches else 0
+    exact_title = title_substring.strip().lower()
+    for hwnd, _pid, title, _proc in matches:
+        if title.strip().lower() == exact_title:
+            return hwnd
+    for hwnd, pid, _title, _proc in matches:
+        if _is_game_window_process(pid):
+            return hwnd
+    # Do not treat File Explorer/Chrome/VS Code windows that merely contain the
+    # folder/title text as the game. Returning 0 lets launch_client_if_needed()
+    # start pgclient.app instead of typing credentials into the wrong app.
+    return 0
 
 
 def is_expected_foreground_window(target_hwnd: int, foreground_hwnd: int) -> bool:
     return bool(target_hwnd) and int(target_hwnd) == int(foreground_hwnd)
 
 
-def launch_client_if_needed() -> None:
-    if find_window(WINDOW_TITLE):
+def launch_client_if_needed(app_dir: Path = APP_DIR, window_title: str = WINDOW_TITLE) -> None:
+    if find_window(window_title, app_dir=app_dir):
         return
-    exe = choose_client_launch_executable()
+    materialized = materialize_loose_game_from_pack_if_missing(app_dir)
+    if materialized:
+        print(f"materialized_loose_game_py {materialized}", flush=True)
+    exe = choose_client_launch_executable(app_dir.parent, app_dir)
     subprocess.Popen([str(exe)], cwd=str(exe.parent))
 
 
@@ -360,20 +506,27 @@ def cmd_setup(args: argparse.Namespace) -> None:
 
 def cmd_login(args: argparse.Namespace) -> None:
     if should_self_elevate_for_login(args):
-        relaunch_current_command_elevated()
-        print("MT2Portugalia login helper relaunched as Administrator. Approve the Windows UAC prompt to open/login the game.")
-        return
+        code = relaunch_current_command_elevated(getattr(args, "elevated_log", None))
+        raise SystemExit(code)
+    if getattr(args, "elevated_log", None):
+        log_path = Path(args.elevated_log)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log = log_path.open("a", encoding="utf-8", buffering=1)
+        sys.stdout = log
+        sys.stderr = log
+        print(f"elevated_login_child_started admin={is_user_admin()} argv={sys.argv[1:]}", flush=True)
     password = read_credential(args.username)
+    app_dir = Path(args.app_dir)
     if args.restart:
-        terminate_client_processes()
+        terminate_client_processes(app_dir)
         time.sleep(1.0)
-        launch_client_if_needed()
+        launch_client_if_needed(app_dir, args.window_title)
     elif args.launch:
-        launch_client_if_needed()
+        launch_client_if_needed(app_dir, args.window_title)
     deadline = time.time() + args.window_timeout
     hwnd = 0
     while time.time() < deadline and not hwnd:
-        hwnd = find_window(args.window_title)
+        hwnd = find_window(args.window_title, app_dir=app_dir)
         if not hwnd:
             time.sleep(0.5)
     focus_window(hwnd)
@@ -411,8 +564,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     login = sub.add_parser("login", help="Read stored credential and type it into MT2Portugalia")
     login.add_argument("--username", default="yoshy")
+    login.add_argument("--app-dir", type=Path, default=APP_DIR, help="Client app directory containing pgclient.app")
     login.add_argument("--window-title", default=WINDOW_TITLE)
-    login.add_argument("--window-timeout", type=float, default=30.0)
+    login.add_argument("--window-timeout", type=float, default=90.0)
     login.add_argument("--delay", type=float, default=3.0)
     login.add_argument("--launch", action="store_true", help="Launch client if the window is not found")
     login.add_argument("--restart", action="store_true", help="Terminate pgclient.app before launching and logging in")
@@ -423,6 +577,7 @@ def build_parser() -> argparse.ArgumentParser:
     login.add_argument("--password-pos", type=parse_pair, default=DEFAULT_PASSWORD_POS, help="Password field coordinate as x,y relative to the MT2 window")
     login.add_argument("--login-pos", type=parse_pair, default=DEFAULT_LOGIN_POS, help="Login button coordinate as x,y relative to the MT2 window")
     login.add_argument("--no-self-elevate", dest="self_elevate", action="store_false", help="Do not relaunch this helper as Administrator before login")
+    login.add_argument("--elevated-log", type=Path, default=None, help="Path where elevated child writes detailed login diagnostics")
     login.set_defaults(func=cmd_login, self_elevate=True)
 
     delete = sub.add_parser("delete", help="Delete stored credential")

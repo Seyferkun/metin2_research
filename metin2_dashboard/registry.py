@@ -129,7 +129,8 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
         default_args=("--max-cycles", "1", "--out", "reports/dashboard_runs/combat_metin_dryrun.jsonl"),
         exclusive_live_group="combat",
         options=(
-            OptionSpec("max_cycles", "--max-cycles", "int", 60, "decision loop cycles"),
+            OptionSpec("max_cycles", "--max-cycles", "int", 60, "decision loop cycles; 0 means run until stopped"),
+            OptionSpec("state_json", "--json-state", "str", "D:/Games/MT2Portugalia/app/hermes_state.json", "client-state JSON path"),
             OptionSpec("burst_seconds", "--burst-seconds", "float", 2.5, "attack burst length"),
             OptionSpec("micro_move_seconds", "--micro-move-seconds", "float", 0.12, "micro-position probe length"),
             OptionSpec("metin_name", "--metin-name", "str", "Metin da Batalha", "target Metin name"),
@@ -138,6 +139,29 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("metin_y", "--metin-y", "int", None, "known Metin y coord"),
             OptionSpec("metin_coord_source", "--metin-coord-source", "str", None, "coordinate source: live_memory_visible_text or table"),
             OptionSpec("allow_selected_vid_without_exact_coords", "--allow-selected-vid-without-exact-coords", "bool", False, "operator-approved Space-only fallback for selected VID when exact projection is missing"),
+            OptionSpec("attack_nearby_mobs", "--attack-nearby-mobs", "bool", False, "attack nearby mobs when client state reports a valid mob target or hostile nearby entity"),
+            OptionSpec("buff_only", "--buff-only", "bool", False, "only run the configured buff keeper; do not target, move, or attack"),
+            OptionSpec("buff_keys", "--buff-keys", "str", "f1,f2", "comma-separated buff quickslot keys for keepalive"),
+            OptionSpec("buff_durations", "--buff-durations", "str", "109,301", "comma-separated buff durations in seconds"),
+            OptionSpec("buff_refresh_margin_seconds", "--buff-refresh-margin-seconds", "float", 3.0, "refresh buffs this many seconds before duration"),
+            OptionSpec("buff_damage_guard_keys", "--buff-damage-guard-keys", "str", "f1", "toggle-style buff keys whose timer refresh can be delayed while Metin damage still indicates active buff"),
+            OptionSpec("assume_mounted", "--assume-mounted", "bool", False, "buff-only live override: dismount/buff/remount each due buff without trusting mount detection"),
+            OptionSpec("enable_combat_buffs", "--enable-combat-buffs", "bool", False, "opt-in: allow non-buff-only attack/combat runs to press configured buff keys"),
+            OptionSpec("visual_target_clicks", "--visual-target-clicks", "bool", False, "attack-nearby: screenshot/YOLO-detected Metin click before blind fallback"),
+            OptionSpec("visual_detector_model", "--visual-detector-model", "str", str(Path("reports/yolo_easy_retrain_runs/round2_hardneg_10ep_lowlr/weights/best.onnx")), "ONNX model for visual target clicks"),
+            OptionSpec("visual_target_min_confidence", "--visual-target-min-confidence", "float", 0.30, "minimum YOLO confidence for visual target click"),
+            OptionSpec("allow_blind_target_clicks", "--allow-blind-target-clicks", "bool", False, "operator-approved attack-nearby arbitrary window click probes to select visible Metins when Tab/state fails"),
+            OptionSpec("target_search_move_seconds", "--target-search-move-seconds", "float", 0.25, "short bounded W step while attack-nearby searches for a target"),
+            OptionSpec("target_click_cooldown_seconds", "--target-click-cooldown-seconds", "float", 4.0, "wait after a left-click target attempt before clicking again so Metin2 auto-attack can continue"),
+            OptionSpec("target_camera_sweep_seconds", "--target-camera-sweep-seconds", "float", 0.16, "Q/E camera sweep duration while searching for visible Metins"),
+            OptionSpec("minimap_camera_hint", "--minimap-camera-hint", "bool", False, "use yellow minimap dot/facing geometry to choose Q or E while searching"),
+            OptionSpec("minimap_yellow_min_pixels", "--minimap-yellow-min-pixels", "int", 3, "minimum yellow pixels before trusting minimap camera hint"),
+            OptionSpec("channel_rotate_after_destroy", "--channel-rotate-after-destroy", "bool", False, "after destroying a Metin, spam Z pickup, press X, click next configured channel, then continue"),
+            OptionSpec("channel_click_points", "--channel-click-points", "str", "", "semicolon-separated channel menu click points as window fractions or screen pixels"),
+            OptionSpec("pickup_spam_count", "--pickup-spam-count", "int", 12, "number of Z pickups before channel switch"),
+            OptionSpec("pickup_spam_interval", "--pickup-spam-interval", "float", 0.08, "seconds between Z pickups"),
+            OptionSpec("channel_menu_delay_seconds", "--channel-menu-delay-seconds", "float", 0.35, "wait after pressing X before channel click"),
+            OptionSpec("channel_switch_wait_seconds", "--channel-switch-wait-seconds", "float", 4.0, "wait after clicking next channel before searching again"),
         ),
     ),
     "find_nearby_metins": ScriptSpec(
@@ -168,6 +192,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
         exclusive_live_group="combat",
         options=(
             OptionSpec("max_cycles", "--max-cycles", "int", 90, "movement loop cycles"),
+            OptionSpec("state_json", "--json-state", "str", "D:/Games/MT2Portugalia/app/hermes_state.json", "client-state JSON path"),
             OptionSpec("arrival_radius", "--arrival-radius", "float", 260.0, "stop when within this raw-unit radius"),
             OptionSpec("move_step_seconds", "--move-step-seconds", "float", 0.45, "maximum smooth movement hold per cycle"),
             OptionSpec("metin_name", "--metin-name", "str", "Metin da Batalha", "target Metin name"),
@@ -176,16 +201,34 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("metin_coord_source", "--metin-coord-source", "str", None, "coordinate source: live_memory_visible_text"),
         ),
     ),
+    "key_macro_control": ScriptSpec(
+        name="key_macro_control",
+        path="scripts/key_macro_control.py",
+        description="direct F1/F2 key test and timed key macro; live mode is explicit and dashboard-managed",
+        default_args=("--out", "reports/dashboard_runs/key_macro_dryrun.json"),
+        exclusive_live_group="combat",
+        options=(
+            OptionSpec("key", "--key", "str", "f1", "key to tap, e.g. f1 or f2"),
+            OptionSpec("interval_seconds", "--interval-seconds", "float", 35.0, "seconds between key taps for timed macro"),
+            OptionSpec("presses", "--presses", "int", 1, "number of key taps; 0 runs until stopped"),
+            OptionSpec("hold_seconds", "--hold-seconds", "float", 0.06, "seconds to hold each key tap"),
+            OptionSpec("window_query", "--window-query", "str", "MT2Portugalia", "target window title/process query"),
+            OptionSpec("elevate", "--elevate", "bool", True, "relaunch key sender elevated via UAC for elevated game clients"),
+        ),
+    ),
     "login_mt2_local": ScriptSpec(
         name="login_mt2_local",
         path="scripts/login_mt2_local.py",
-        description="open/restart MT2Portugalia, login with Windows Credential Manager, and enter game",
+        description="open/attach MT2Portugalia, login with Windows Credential Manager, and enter game without closing the other client",
         default_args=("--help",),
-        live_args=("login", "--username", "yoshy", "--restart", "--click-fields", "--enter-game", "--enter-game-count", "3", "--delay", "5"),
+        live_args=("login", "--launch", "--click-fields", "--enter-game", "--enter-game-count", "3", "--delay", "5", "--window-timeout", "90"),
         options=(
             OptionSpec("username", "--username", "str", "yoshy", "Credential Manager username"),
+            OptionSpec("app_dir", "--app-dir", "str", "D:/Games/MT2Portugalia/app", "client app directory containing pgclient.app"),
+            OptionSpec("restart", "--restart", "bool", False, "close/restart only this app_dir before login; leave off to keep main+buffer open"),
             OptionSpec("enter_game_count", "--enter-game-count", "int", 3, "Enter/Começar presses after login"),
             OptionSpec("delay", "--delay", "float", 5.0, "seconds to wait before typing login"),
+            OptionSpec("window_timeout", "--window-timeout", "float", 90.0, "seconds to wait for MT2Portugalia window after launch"),
         ),
     ),
     "patch_mt2_root_state_logger": ScriptSpec(
@@ -209,6 +252,59 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("no_process", "--no-process", "bool", True, "skip process/window probe"),
             OptionSpec("coordinate_text", "--coordinate-text", "str", None, "manual/OCR coordinate text"),
             OptionSpec("screenshot", "--screenshot", "str", None, "optional screenshot path"),
+        ),
+    ),
+    "player_training_recorder": ScriptSpec(
+        name="player_training_recorder",
+        path="scripts/player_training_recorder.py",
+        description="observation-only player training recorder; records state/key timeline and optional screenshots, sends no gameplay input",
+        default_args=("--duration", "180", "--interval", "0.25"),
+        live_args=(),
+        force_dry_run=True,
+        options=(
+            OptionSpec("duration", "--duration", "float", 180.0, "seconds to observe manual gameplay"),
+            OptionSpec("interval", "--interval", "float", 0.25, "seconds between state/input samples"),
+            OptionSpec("capture_screenshots", "--capture-screenshots", "bool", False, "also capture game-window screenshots for visual review"),
+            OptionSpec("screenshot_backend", "--screenshot-backend", "str", "screen", "screenshot backend: screen for DirectX game content, printwindow for HWND diagnostics"),
+            OptionSpec("record_mouse", "--record-mouse", "bool", True, "record mouse button edges and cursor positions; observation-only"),
+            OptionSpec("screenshot_every", "--screenshot-every", "int", 4, "capture every N samples when screenshots are enabled"),
+            OptionSpec("refresh_window_every", "--refresh-window-every", "float", 1.0, "seconds between window-geometry refreshes for mouse-relative coordinates"),
+            OptionSpec("window_query", "--window-query", "str", "MT2Portugalia", "game window title/process query for screenshot capture"),
+            OptionSpec("state_json", "--state-json", "str", "D:/Games/MT2Portugalia/app/hermes_state.json", "client-state JSON path"),
+        ),
+    ),
+    "reroll_recorder": ScriptSpec(
+        name="reroll_recorder",
+        path="scripts/reroll_recorder.py",
+        description="observation-only item reroll recorder; samples item attrs and writes roll-change artifacts, sends no gameplay input",
+        default_args=("--duration", "180", "--interval", "0.10"),
+        live_args=(),
+        force_dry_run=True,
+        options=(
+            OptionSpec("duration", "--duration", "float", 180.0, "seconds to observe manual rerolling"),
+            OptionSpec("interval", "--interval", "float", 0.10, "seconds between item-state samples"),
+            OptionSpec("state_json", "--state-json", "str", "D:/Games/MT2Portugalia/app/hermes_state.json", "client-state JSON path with inventory/equipment attrs"),
+            OptionSpec("target_slot", "--target-slot", "int", None, "optional inventory/equipment slot to track"),
+            OptionSpec("target_vnum", "--target-vnum", "int", None, "optional item vnum to track"),
+        ),
+    ),
+    "boss_farm_tracker": ScriptSpec(
+        name="boss_farm_tracker",
+        path="scripts/boss_farm_tracker.py",
+        description="observation-first boss farm tracker; tracks spawn windows/farm counts scaffold, sends no gameplay input",
+        default_args=("--duration", "3600", "--interval", "1.0", "--spawn-interval-minutes", "30", "--channels", "8"),
+        live_args=(),
+        force_dry_run=True,
+        options=(
+            OptionSpec("duration", "--duration", "float", 3600.0, "seconds to track the boss farm session"),
+            OptionSpec("interval", "--interval", "float", 1.0, "seconds between tracker samples"),
+            OptionSpec("state_json", "--state-json", "str", "D:/Games/MT2Portugalia/app/hermes_state.json", "client-state JSON path"),
+            OptionSpec("boss_name", "--boss-name", "str", "", "optional boss name substring for target matching"),
+            OptionSpec("spawn_interval_minutes", "--spawn-interval-minutes", "float", 30.0, "minutes between boss spawns"),
+            OptionSpec("channels", "--channels", "int", 8, "number of channels to track"),
+            OptionSpec("wait_menu", "--wait-menu", "str", "alterar personagem", "menu to wait in between spawn windows"),
+            OptionSpec("loot_name", "--loot-name", "str", "Cofre do Chefe Orc", "loot item name used to count confirmed boss kills"),
+            OptionSpec("loot_vnum", "--loot-vnum", "int", 50070, "loot item vnum used to count confirmed boss kills"),
         ),
     ),
 }
@@ -256,21 +352,42 @@ class ProcessRegistry:
     created by this registry. that is the safety rail.
     """
 
-    def __init__(self, project_root: str | Path, reports_dir: str | Path = "reports/dashboard_runs"):
+    def __init__(self, project_root: str | Path, reports_dir: str | Path = "reports/dashboard_runs", *, default_state_json: str | Path | None = None, default_login_username: str | None = None, default_login_app_dir: str | Path | None = None):
         self.project_root = Path(project_root)
+        self.default_state_json = str(default_state_json) if default_state_json is not None else None
+        self.default_login_username = str(default_login_username) if default_login_username else None
+        self.default_login_app_dir = str(default_login_app_dir) if default_login_app_dir else None
         self.reports_dir = self.project_root / reports_dir
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         self._runs: dict[str, RunRecord] = {}
         self._lock = RLock()
 
+    def _script_dict_with_defaults(self, spec: ScriptSpec) -> dict:
+        data = spec.to_dict()
+        if self.default_state_json:
+            for opt in data.get("options", []):
+                if opt.get("name") == "state_json":
+                    opt["default"] = self.default_state_json
+                if opt.get("name") == "username" and self.default_login_username:
+                    opt["default"] = self.default_login_username
+                if opt.get("name") == "app_dir" and self.default_login_app_dir:
+                    opt["default"] = self.default_login_app_dir
+        return data
+
     def list_scripts(self) -> list[dict]:
-        return [spec.to_dict() for spec in DEFAULT_SCRIPTS.values()]
+        return [self._script_dict_with_defaults(spec) for spec in DEFAULT_SCRIPTS.values()]
 
     def build_option_args(self, spec: ScriptSpec, options: dict[str, Any] | None) -> list[str]:
-        if not options:
-            return []
+        options = dict(options or {})
         by_name = {opt.name: opt for opt in spec.options}
         args: list[str] = []
+        if self.default_state_json and any(opt.name == "state_json" for opt in spec.options) and "state_json" not in options:
+            options["state_json"] = self.default_state_json
+        if spec.name == "login_mt2_local":
+            if self.default_login_username and "username" not in options:
+                options["username"] = self.default_login_username
+            if self.default_login_app_dir and "app_dir" not in options:
+                options["app_dir"] = self.default_login_app_dir
         for name, value in options.items():
             if value is None or value == "":
                 continue
@@ -283,6 +400,19 @@ class ProcessRegistry:
                 continue
             args.extend([opt.flag, opt.coerce(value)])
         return args
+
+    @staticmethod
+    def live_conflict_key(script_name: str, command_args: Iterable[str]) -> str | None:
+        """Return the live-control conflict bucket for an argv.
+
+        Buff-only keepalive is intentionally allowed to run beside one attack/combat
+        loop. Duplicate buff keepers and duplicate movement/combat loops still block.
+        """
+        args = [str(arg) for arg in command_args]
+        if script_name == "combat_metin_client_state":
+            return "buff" if "--buff-only" in args else "combat"
+        spec = DEFAULT_SCRIPTS.get(script_name)
+        return spec.exclusive_live_group if spec else None
 
     def start(self, script_name: str, *, live: bool = False, confirm_live: bool = False, extra_args: Iterable[str] = (), options: dict[str, Any] | None = None) -> dict:
         if script_name not in DEFAULT_SCRIPTS:
@@ -299,12 +429,20 @@ class ProcessRegistry:
         if not script_path.exists():
             raise FileNotFoundError(f"script not found: {script_path}")
 
+        option_args = self.build_option_args(spec, options)
+        if not live and spec.name == "learn_runaround_client_tsv":
+            # Dry-run calibration must never be turned into real movement by UI defaults or stale form values.
+            option_args = []
+        args = list(spec.live_args if live else spec.default_args) + option_args + list(extra_args)
+        proposed_conflict_key = self.live_conflict_key(spec.name, args) if live else None
+
         with self._lock:
-            if live and spec.exclusive_live_group:
+            if live and proposed_conflict_key:
                 for rec in self._runs.values():
-                    other = DEFAULT_SCRIPTS.get(rec.script)
-                    if other and other.exclusive_live_group == spec.exclusive_live_group and rec.mode == "live" and rec.process.poll() is None:
-                        raise RuntimeError(f"duplicate live {spec.exclusive_live_group} run blocked: {rec.run_id}")
+                    if rec.mode != "live" or rec.process.poll() is not None:
+                        continue
+                    if self.live_conflict_key(rec.script, rec.command) == proposed_conflict_key:
+                        raise RuntimeError(f"duplicate live {proposed_conflict_key} run blocked: {rec.run_id}")
 
             run_id = f"run-{uuid.uuid4().hex[:12]}"
             log_path = self.reports_dir / f"{run_id}-{script_name}.log"
@@ -313,11 +451,6 @@ class ProcessRegistry:
                 stop_file.unlink()
             except FileNotFoundError:
                 pass
-            option_args = self.build_option_args(spec, options)
-            if not live and spec.name == "learn_runaround_client_tsv":
-                # Dry-run calibration must never be turned into real movement by UI defaults or stale form values.
-                option_args = []
-            args = list(spec.live_args if live else spec.default_args) + option_args + list(extra_args)
             cmd = [sys.executable, str(script_path), *args]
             log_file = log_path.open("ab", buffering=0)
             env = os.environ.copy()
@@ -329,6 +462,12 @@ class ProcessRegistry:
             env["PYTHONPATH"] = os.pathsep.join(pythonpath_parts)
             env["HERMES_RUN_ID"] = run_id
             env["HERMES_STOP_FILE"] = str(stop_file)
+            buff_config = self.project_root / "config" / "buffs.json"
+            combat_config = self.project_root / "config" / "combat.json"
+            if buff_config.exists():
+                env["METIN2_BUFF_CONFIG"] = str(buff_config)
+            if combat_config.exists():
+                env["METIN2_COMBAT_CONFIG"] = str(combat_config)
             proc = subprocess.Popen(
                 cmd,
                 cwd=str(self.project_root),
@@ -362,6 +501,17 @@ class ProcessRegistry:
             if rec.archived_at is None:
                 rec.archived_at = utc_now()
         return self.status(run_id)
+
+    def archive_all(self) -> list[dict]:
+        """Archive every completed managed run; leave running runs visible."""
+        with self._lock:
+            now = utc_now()
+            for rec in self._runs.values():
+                if rec.process.poll() is None:
+                    continue
+                if rec.archived_at is None:
+                    rec.archived_at = now
+        return self.status(include_archived=True)
 
     def stop(self, run_id: str, *, timeout: float = 3.0) -> dict:
         with self._lock:
