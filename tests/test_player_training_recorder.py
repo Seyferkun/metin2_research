@@ -47,7 +47,7 @@ def test_sanitize_state_snapshot_keeps_learning_fields_without_secrets():
     raw = {
         "map": "metin2_map_n_desert_01",
         "player": {"name": "Yoshypt", "x": 100, "y": 200, "hp": 300, "max_hp": 500, "sp": 20, "max_sp": 40, "password": "secret"},
-        "target": {"vid": 123, "name": "Metin da Batalha", "alive": True, "hp_pct": 75},
+        "target": {"vid": 123, "name": "Metin da Batalha", "alive": True, "hp_pct": 75, "source": "player.GetTargetVID", "target_source": "player.GetTargetVID", "player_target_vid": 123, "target_board_vid": 0, "target_board_available": 1, "target_hp_cache_age_ms": 88, "target_errors": "target_name_error;"},
         "nearby_entities": [{"vid": 1, "name": "mob", "distance": 12, "password": "secret"}],
         "inventory": [{"slot": 0, "vnum": 2849, "name": "Lança Fénix+9", "attrs": [{"index": 0, "type": 72, "value": 23, "secret_token": "x"}], "sockets": [1, 2, 3], "password": "secret"}],
         "equipped_weapon": {"slot": 0, "vnum": 2849, "name": "Lança Fénix+9", "attrs": [{"index": 0, "type": 72, "value": 23}], "sockets": [1, 2, 3]},
@@ -60,6 +60,9 @@ def test_sanitize_state_snapshot_keeps_learning_fields_without_secrets():
     assert snapshot["player"]["name"] == "Yoshypt"
     assert snapshot["player"]["x"] == 100
     assert snapshot["target"]["name"] == "Metin da Batalha"
+    assert snapshot["target"]["target_source"] == "player.GetTargetVID"
+    assert snapshot["target"]["target_hp_cache_age_ms"] == 88
+    assert snapshot["target"]["target_errors"] == "target_name_error;"
     assert snapshot["nearby_entities"][0] == {"vid": 1, "name": "mob", "distance": 12}
     assert snapshot["inventory"][0]["name"] == "Lança Fénix+9"
     assert snapshot["inventory"][0]["attrs"] == [{"index": 0, "type": 72, "value": 23}]

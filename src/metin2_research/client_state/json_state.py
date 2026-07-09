@@ -53,6 +53,9 @@ def parse_json_state(data: dict[str, Any]) -> ClientState:
         api_probe["chr_probe"] = [item for item in data.get("chr_probe", "").split(";") if item]
     elif isinstance(data.get("chr_probe"), list):
         api_probe["chr_probe"] = [str(item) for item in data.get("chr_probe", []) if item]
+    for key in ("source", "target_source", "player_target_vid", "target_board_vid", "target_board_available", "target_hp_cache_vid", "target_hp_cache_age_ms", "target_errors", "target_board_error", "target_pixel_position_error", "target_project_position_error"):
+        if key in target:
+            api_probe[key] = target[key]
 
     game = GameInfo(
         map_name=data.get("map") or data.get("map_name"),

@@ -50,7 +50,7 @@ def sanitize_state_snapshot(raw: dict[str, Any] | None) -> dict[str, Any]:
         snapshot["player"] = _project_allowed(raw, ("player_name", "x", "y", "z", "hp", "max_hp", "sp", "max_sp"))
     target = raw.get("target") if isinstance(raw.get("target"), dict) else None
     if target:
-        snapshot["target"] = _project_allowed(target, ("vid", "name", "type", "alive", "hp", "max_hp", "hp_pct", "pixel_position", "project_position"))
+        snapshot["target"] = _project_allowed(target, ("vid", "name", "type", "alive", "hp", "max_hp", "hp_pct", "pixel_position", "project_position", "source", "target_source", "player_target_vid", "target_board_vid", "target_board_available", "target_hp_now", "target_hp_max", "target_hp_pct", "target_hp_cache_vid", "target_hp_cache_age_ms", "target_errors", "target_board_error", "target_pixel_position_error", "target_project_position_error"))
     elif raw.get("target_vid") or raw.get("target_name"):
         snapshot["target"] = _project_allowed(raw, ("target_vid", "target_name", "target_alive", "target_hp", "target_max_hp"))
     else:

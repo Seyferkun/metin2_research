@@ -36,29 +36,44 @@ LOGGER_BLOCK = """\
 				try: mounted=1 if player.IsMountingHorse() else 0
 				except: mounted=0
 				m=""; pn=""; vid=0; tn=""; ta=-1; tt=-1; rn=-1; pix=""; proj=""; nprobe=""; nearby=[]; ep="not_called"; cp=""
-				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""
+				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""; thpt=0; thpa=-1; tsrc=""; terr=""
 				try: m=background.GetCurrentMapName()
 				except: pass
 				try: pn=player.GetName()
 				except: pass
 				try:
 					try: ptv=player.GetTargetVID()
+					except: ptv=0; terr+="player_target_error;"
+					try: ptv=int(ptv)
 					except: ptv=0
-					vid=ptv
 					try:
 						if hasattr(self,"targetBoard") and self.targetBoard:
 							tba=1
 							try: tbv=self.targetBoard.GetTargetVID()
-							except: tbe="target_board_error"
-					except: tbe="target_board_error"
-					if (not vid) and tbv: vid=tbv
+							except: tbe="target_board_error"; terr+="target_board_error;"
+					except: tbe="target_board_error"; terr+="target_board_error;"
+					try: tbv=int(tbv)
+					except: tbv=0
+					try:
+						if hasattr(self,"_hermes_target_hp_vid"):
+							thpt=self._hermes_target_hp_vid
+							try: thpt=int(thpt)
+							except: thpt=0
+							try: thpa=now-self._hermes_target_hp_time
+							except: thpa=-1
+					except: thpt=0
+					if ptv: vid=ptv; tsrc="player.GetTargetVID"
+					elif tbv: vid=tbv; tsrc="targetBoard.GetTargetVID"
+					elif thpt and (thpa<0 or thpa<5000): vid=thpt; tsrc="target_hp_cache"
 					if vid:
 						try: ta=1 if chr.HasInstance(vid) else 0
 						except: ta=-1
 						try: tt=chr.GetInstanceType(vid)
 						except: tt=-1
 						try: tn=chr.GetNameByVID2AD(vid)
-						except: tn=""
+						except:
+							try: tn=chr.GetNameByVID(vid)
+							except: tn=""; terr+="target_name_error;"
 						try: rn=nonplayer.GetRaceNumByVID(vid)
 						except: rn=-1
 						try:
@@ -135,8 +150,11 @@ LOGGER_BLOCK = """\
 						if rn!=-1: out+=',"race_num":'+str(rn)
 						if pix: out+=',"pixel_position":'+pix
 						if proj: out+=',"project_position":'+proj
-						out+=',"player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
+						out+=',"source":"'+str(tsrc)+'","target_source":"'+str(tsrc)+'","player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
 						if tbe: out+=',"target_board_error":"'+str(tbe)+'"'
+						if terr: out+=',"target_errors":"'+str(terr)+'"'
+						if thpt: out+=',"target_hp_cache_vid":'+str(thpt)
+						if thpa!=-1: out+=',"target_hp_cache_age_ms":'+str(thpa)
 						if pixe: out+=',"target_pixel_position_error":"'+str(pixe)+'"'
 						if proje: out+=',"target_project_position_error":"'+str(proje)+'"'
 						if thp!=-1: out+=',"hp":'+str(thp)+',"target_hp_now":'+str(thp)
@@ -164,7 +182,7 @@ COMPACT_LOGGER_BLOCK = """\
 			if now>=self._hermes_state_next:
 				self._hermes_state_next=now+200
 				x=y=z=0; m=""; pn=""; vid=0; tn=""; ta=-1; tt=-1; rn=-1; pix=""; proj=""
-				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""
+				ptv=0; tbv=0; tba=0; tbe=""; pixe=""; proje=""; thp=-1; tmhp=-1; thpp=""; thpt=0; thpa=-1; tsrc=""; terr=""
 				try: x,y,z=player.GetMainCharacterPosition()
 				except: pass
 				try: hp=player.GetStatus(player.HP); mhp=player.GetStatus(player.MAX_HP); sp=player.GetStatus(player.SP); msp=player.GetStatus(player.MAX_SP)
@@ -178,22 +196,37 @@ COMPACT_LOGGER_BLOCK = """\
 				except: pass
 				try:
 					try: ptv=player.GetTargetVID()
+					except: ptv=0; terr+="player_target_error;"
+					try: ptv=int(ptv)
 					except: ptv=0
-					vid=ptv
 					try:
 						if hasattr(self,"targetBoard") and self.targetBoard:
 							tba=1
 							try: tbv=self.targetBoard.GetTargetVID()
-							except: tbe="target_board_error"
-					except: tbe="target_board_error"
-					if (not vid) and tbv: vid=tbv
+							except: tbe="target_board_error"; terr+="target_board_error;"
+					except: tbe="target_board_error"; terr+="target_board_error;"
+					try: tbv=int(tbv)
+					except: tbv=0
+					try:
+						if hasattr(self,"_hermes_target_hp_vid"):
+							thpt=self._hermes_target_hp_vid
+							try: thpt=int(thpt)
+							except: thpt=0
+							try: thpa=now-self._hermes_target_hp_time
+							except: thpa=-1
+					except: thpt=0
+					if ptv: vid=ptv; tsrc="player.GetTargetVID"
+					elif tbv: vid=tbv; tsrc="targetBoard.GetTargetVID"
+					elif thpt and (thpa<0 or thpa<5000): vid=thpt; tsrc="target_hp_cache"
 					if vid:
 						try: ta=1 if chr.HasInstance(vid) else 0
 						except: ta=-1
 						try: tt=chr.GetInstanceType(vid)
 						except: tt=-1
 						try: tn=chr.GetNameByVID2AD(vid)
-						except: tn=""
+						except:
+							try: tn=chr.GetNameByVID(vid)
+							except: tn=""; terr+="target_name_error;"
 						try: rn=nonplayer.GetRaceNumByVID(vid)
 						except: rn=-1
 						try:
@@ -221,8 +254,11 @@ COMPACT_LOGGER_BLOCK = """\
 						if rn!=-1: out+=',"race_num":'+str(rn)
 						if pix: out+=',"pixel_position":'+pix
 						if proj: out+=',"project_position":'+proj
-						out+=',"player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
+						out+=',"source":"'+str(tsrc)+'","target_source":"'+str(tsrc)+'","player_target_vid":'+str(ptv)+',"target_board_vid":'+str(tbv)+',"target_board_available":'+str(tba)
 						if tbe: out+=',"target_board_error":"'+str(tbe)+'"'
+						if terr: out+=',"target_errors":"'+str(terr)+'"'
+						if thpt: out+=',"target_hp_cache_vid":'+str(thpt)
+						if thpa!=-1: out+=',"target_hp_cache_age_ms":'+str(thpa)
 						if pixe: out+=',"target_pixel_position_error":"'+str(pixe)+'"'
 						if proje: out+=',"target_project_position_error":"'+str(proje)+'"'
 						if thp!=-1: out+=',"hp":'+str(thp)+',"target_hp_now":'+str(thp)
@@ -350,6 +386,7 @@ def patch_source(src: bytes, strip_comments: bool = False, *, compact: bool = Fa
             + b"\t\t\tself._hermes_target_hp_vid=vid" + newline
             + b"\t\t\tself._hermes_target_hp_now=hpNow" + newline
             + b"\t\t\tself._hermes_target_hp_max=hpMax" + newline
+            + b"\t\t\tself._hermes_target_hp_time=app.GetGlobalTime()" + newline
             + b"\t\texcept: pass" + newline
         )
         return source[:line_end] + hp_block + source[line_end:]

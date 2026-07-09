@@ -188,6 +188,11 @@ def test_updated_logger_includes_target_coordinate_hp_diagnostics():
         "target_hp_now",
         "target_hp_max",
         "target_hp_pct",
+        "source",
+        "target_source",
+        "target_errors",
+        "target_hp_cache_vid",
+        "target_hp_cache_age_ms",
         "_hermes_target_hp_vid",
     ]
     for needle in required:
@@ -210,7 +215,37 @@ def test_patch_source_caches_target_board_hp_updates():
     assert b"self._hermes_target_hp_vid=vid" in patched
     assert b"self._hermes_target_hp_now=hpNow" in patched
     assert b"self._hermes_target_hp_max=hpMax" in patched
+    assert b"self._hermes_target_hp_time=app.GetGlobalTime()" in patched
     assert patched.count(b"self._hermes_target_hp_vid=vid") == 1
+
+
+def test_parse_json_state_accepts_target_without_hp_and_keeps_diagnostics():
+    state = parse_json_state({
+        "timestamp_ms": 7,
+        "map": "map_a2",
+        "player": {"name": "Yoshypt", "x": 1, "y": 2, "z": 3},
+        "target": {
+            "vid": 123456,
+            "name": "Chefe Orc*",
+            "alive": True,
+            "source": "target_hp_cache",
+            "target_source": "target_hp_cache",
+            "player_target_vid": 0,
+            "target_board_vid": 0,
+            "target_board_available": 1,
+            "target_hp_cache_vid": 123456,
+            "target_hp_cache_age_ms": 312,
+            "target_errors": "target_name_error;",
+        },
+    })
+
+    assert state.game.target_vid == 123456
+    assert state.game.target_name == "Chefe Orc*"
+    assert state.game.target_hp is None
+    assert state.game.api_probe["target_source"] == "target_hp_cache"
+    assert state.game.api_probe["target_hp_cache_vid"] == 123456
+    assert state.game.api_probe["target_hp_cache_age_ms"] == 312
+    assert state.game.api_probe["target_errors"] == "target_name_error;"
 
 
 def test_parse_json_state_accepts_chr_probe_list_without_splitting():
