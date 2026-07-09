@@ -155,6 +155,13 @@ def test_updated_pack_logger_injects_json_export_and_keeps_tsv_compat():
     assert patched.count(b"pixel_position") >= 2
     assert b"chr.SelectInstance(nv)" in patched
     assert b"alive_source" in patched
+    assert b"GetItemIndex" in patched
+    assert b"GetItemCount" in patched
+    assert b"GetItemAttribute" in patched
+    assert b"GetItemMetinSocket" in patched
+    assert b"item.SelectItem" in patched
+    assert b"\"inventory\"" in patched
+    assert b"inventory_probe" in patched
 
     assert b"project_position" in patched
     assert b"race_num" in patched

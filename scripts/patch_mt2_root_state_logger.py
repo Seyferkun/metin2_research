@@ -131,6 +131,47 @@ LOGGER_BLOCK = """\
 							if ("VID" in cn) or ("Vid" in cn) or ("Instance" in cn) or ("Near" in cn) or ("Target" in cn) or ("Name" in cn) or ("Position" in cn): cp+=str(cn)+";"
 						except: pass
 				except: cp="dir_fail"
+				inv=[]; ierr=""
+				try:
+					for sl in range(180):
+						v=0; cnt=0; inm=""; sock=[]; attrs=[]
+						try: v=player.GetItemIndex(sl)
+						except:
+							try: v=player.GetItemIndex(player.INVENTORY,sl)
+							except: v=0
+						try: v=int(v)
+						except: v=0
+						if v:
+							try: cnt=player.GetItemCount(sl)
+							except:
+								try: cnt=player.GetItemCount(player.INVENTORY,sl)
+								except: cnt=0
+							try: item.SelectItem(v); inm=item.GetItemName()
+							except: inm=""
+							try:
+								for si in range(3):
+									sv=0
+									try: sv=player.GetItemMetinSocket(sl,si)
+									except:
+										try: sv=player.GetItemMetinSocket(player.INVENTORY,sl,si)
+										except: sv=0
+									sock.append(str(sv))
+							except: pass
+							try:
+								for ai in range(7):
+									at=av=0
+									try: at,av=player.GetItemAttribute(sl,ai)
+									except:
+										try: at,av=player.GetItemAttribute(player.INVENTORY,sl,ai)
+										except: at=av=0
+									if at or av: attrs.append('{"index":'+str(ai)+',"type":'+str(at)+',"value":'+str(av)+'}')
+							except: pass
+							ii='{"slot":'+str(sl)+',"vnum":'+str(v)+',"count":'+str(cnt)
+							if inm: ii+=',"name":"'+str(inm)+'"'
+							if sock: ii+=',"sockets":['+','.join(sock)+']'
+							if attrs: ii+=',"attrs":['+','.join(attrs)+']'
+							ii+='}'; inv.append(ii)
+				except: ierr="inventory_error"
 				try:
 					vl=chr.GetNearInstanceList(1500)
 					ep="ok_empty"
@@ -163,7 +204,7 @@ LOGGER_BLOCK = """\
 						if thpp: out+=',"hp_pct":'+str(thpp)+',"target_hp_pct":'+str(thpp)
 						out+='},'
 					else: out+='"target":null,'
-					out+='"nearby_entities":['+','.join(nearby)+'],"named_metin_probe":['+str(nprobe)+'],"entity_probe":"'+str(ep)+'","chr_probe":"'+str(cp)+'","buffs":[],"skills":[],"quickslots":[]}'
+					out+='"nearby_entities":['+','.join(nearby)+'],"named_metin_probe":['+str(nprobe)+'],"entity_probe":"'+str(ep)+'","chr_probe":"'+str(cp)+'","buffs":[],"skills":[],"quickslots":[],"inventory":['+','.join(inv)+'],"inventory_probe":"slots=180;count='+str(len(inv))+';'+str(ierr)+'"}'
 					_hf=old_open("hermes_state.json","w"); _hf.write(out); _hf.close()
 				except: pass
 				try:
@@ -268,7 +309,7 @@ COMPACT_LOGGER_BLOCK = """\
 						if thpp: out+=',"hp_pct":'+str(thpp)+',"target_hp_pct":'+str(thpp)
 						out+='},'
 					else: out+='"target":null,'
-					out+='"nearby_entities":[],"named_metin_probe":[],"entity_probe":"compact","chr_probe":"compact","buffs":[],"skills":[],"quickslots":[]}'
+					out+='"nearby_entities":[],"named_metin_probe":[],"entity_probe":"compact","chr_probe":"compact","buffs":[],"skills":[],"quickslots":[],"inventory":['+','.join(inv)+'],"inventory_probe":"slots=180;count='+str(len(inv))+';'+str(ierr)+'"}'
 					_hf=old_open("hermes_state.json","w"); _hf.write(out); _hf.close()
 				except: pass
 				try:
