@@ -194,6 +194,7 @@ def test_updated_logger_includes_target_coordinate_hp_diagnostics():
         "target_hp_cache_vid",
         "target_hp_cache_age_ms",
         "_hermes_target_hp_vid",
+        "now+1000<self._hermes_state_next",
     ]
     for needle in required:
         assert needle in LOGGER_BLOCK

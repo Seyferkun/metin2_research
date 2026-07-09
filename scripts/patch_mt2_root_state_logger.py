@@ -26,6 +26,7 @@ LOGGER_BLOCK = """\
 		try:
 			now=app.GetGlobalTime()
 			if not hasattr(self,"_hermes_state_next"): self._hermes_state_next=0
+			if now+1000<self._hermes_state_next: self._hermes_state_next=0
 			if now>=self._hermes_state_next:
 				self._hermes_state_next=now+200
 				x=y=z=0
@@ -179,6 +180,7 @@ COMPACT_LOGGER_BLOCK = """\
 		try:
 			now=app.GetGlobalTime()
 			if not hasattr(self,"_hermes_state_next"): self._hermes_state_next=0
+			if now+1000<self._hermes_state_next: self._hermes_state_next=0
 			if now>=self._hermes_state_next:
 				self._hermes_state_next=now+200
 				x=y=z=0; m=""; pn=""; vid=0; tn=""; ta=-1; tt=-1; rn=-1; pix=""; proj=""
