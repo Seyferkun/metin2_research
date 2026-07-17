@@ -189,6 +189,9 @@ def materialize_loose_game_from_pack_if_missing(app_dir: Path = APP_DIR) -> Path
     root_pack = app_dir / "pack" / "root"
     if not root_pack.exists():
         return None
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
     from scripts.patch_mt2_root_state_logger import find_game_chunk, iter_chunks
 
     blob = bytearray(root_pack.read_bytes())
@@ -328,7 +331,13 @@ def find_window(title_substring: str, app_dir: Path | None = None) -> int:
         if title_substring.lower() in title.lower():
             pid = wintypes.DWORD()
             user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-            if _pid_matches_app_dir(int(pid.value), app_dir):
+            proc_path = _process_image_path(int(pid.value))
+            # Some elevated/game windows deny PROCESS_QUERY_LIMITED_INFORMATION
+            # to the medium-integrity dashboard helper, so the image path can be
+            # blank even for the exact MT2Portugalia top-level window.  Accept
+            # exact title matches with an unknown path; still reject non-exact
+            # folder/browser windows unless they pass the app_dir filter below.
+            if _pid_matches_app_dir(int(pid.value), app_dir) or (not proc_path and title.strip().lower() == title_substring.strip().lower()):
                 matches.append((int(hwnd), int(pid.value), title, _process_image_name(int(pid.value))))
         return True
 
@@ -340,7 +349,7 @@ def find_window(title_substring: str, app_dir: Path | None = None) -> int:
     for hwnd, pid, _title, _proc in matches:
         if _is_game_window_process(pid):
             return hwnd
-    # Do not treat File Explorer/Chrome/VS Code windows that merely contain the
+
     # folder/title text as the game. Returning 0 lets launch_client_if_needed()
     # start pgclient.app instead of typing credentials into the wrong app.
     return 0

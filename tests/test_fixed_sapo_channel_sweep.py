@@ -10,6 +10,7 @@ from scripts.fixed_sapo_channel_sweep import (
     channel_menu_visible_in_screenshot,
     finalize_channel_switch_with_retries,
     LowDpsNudgeController,
+    trim_low_dps_hp_samples,
     low_dps_drop_rate,
     low_dps_adjustment_key,
     low_dps_target_freeze_reason,
@@ -72,6 +73,25 @@ def test_low_dps_drop_rate_detects_real_sapo_hp_progress():
     samples = [(0.0, 86.0), (2.0, 84.0), (4.0, 76.0), (6.0, 61.0), (8.0, 52.0)]
 
     assert low_dps_drop_rate(samples, min_span_seconds=8.0, noise_margin_pct=3.0) > 3.0
+
+
+def test_low_dps_sample_retention_preserves_full_min_window_with_timer_jitter():
+    # Live smoke showed 1 Hz visual HP samples but no SWEEP_LOW_DPS_ADJUST.
+    # If the retention window equals the required min span, small scheduling
+    # jitter can prune the oldest sample just before computing DPS, so the span
+    # stays below low_dps_min_window_seconds forever.
+    samples = [(float(t), 88.0 - t * 0.2) for t in range(10)]
+
+    trimmed = trim_low_dps_hp_samples(
+        samples,
+        now=9.05,
+        window_seconds=8.0,
+        min_window_seconds=8.0,
+    )
+
+    assert trimmed[0][0] == 0.0
+    assert trimmed[-1][0] == 9.0
+    assert trimmed[-1][0] - trimmed[0][0] >= 8.0
 
 
 def test_low_dps_nudge_controller_keeps_improved_probe_position():

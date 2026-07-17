@@ -322,6 +322,25 @@ def target_hp_pct_from_state_or_screen(state: dict[str, Any], *, window_query: s
         return None, None, {"available": False, "reason": str(exc)}
 
 
+def trim_low_dps_hp_samples(
+    hp_samples: list[tuple[float, float]],
+    *,
+    now: float,
+    window_seconds: float,
+    min_window_seconds: float,
+) -> list[tuple[float, float]]:
+    """Retain enough HP samples for a full low-DPS decision window.
+
+    Live samples arrive about once per second.  When the retention horizon equals
+    the required minimum span, small scheduler/capture jitter can remove the
+    oldest sample before `low_dps_drop_rate()` ever sees an 8s span.  Keep a
+    small one-sample slack over the max configured window so DPS can become
+    red/green instead of staying permanently "not enough history".
+    """
+    retention_seconds = max(float(window_seconds), float(min_window_seconds)) + 1.25
+    return [(t, v) for t, v in hp_samples if now - t <= max(1.0, retention_seconds)]
+
+
 def low_dps_drop_rate(
     hp_samples: list[tuple[float, float]],
     *,
@@ -329,6 +348,7 @@ def low_dps_drop_rate(
     noise_margin_pct: float,
 ) -> float | None:
     """Return robust HP drop pct/sec, or None until enough stable history exists.
+
 
     Visual target-bar HP is noisy: leaf/name overlays can make estimates jump up
     and down by a few percentage points.  The old first-vs-last slope treated an
@@ -533,12 +553,18 @@ def hold_space_until_destroyed(
                     elif target_hp_pct is not None:
                         now = time.time()
                         hp_samples.append((now, target_hp_pct))
-                        hp_samples = [(t, v) for t, v in hp_samples if now - t <= max(1.0, low_dps_window_seconds)]
+                        hp_samples = trim_low_dps_hp_samples(
+                            hp_samples,
+                            now=now,
+                            window_seconds=low_dps_window_seconds,
+                            min_window_seconds=low_dps_min_window_seconds,
+                        )
                         dps = low_dps_drop_rate(
                             hp_samples,
                             min_span_seconds=low_dps_min_window_seconds,
                             noise_margin_pct=low_dps_noise_margin_pct,
                         )
+
                         if dps is not None:
                             preferred_key = low_dps_adjustment_key(state, deadzone=adjust_deadzone)
                             nudge = nudge_controller.update(
