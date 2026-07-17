@@ -29,6 +29,30 @@ def _lock_is_active(data: dict[str, Any] | None, *, now: float | None = None) ->
         return False
 
 
+def _write_lock_exclusive(path: Path, payload: dict[str, Any]) -> bool:
+    data = json.dumps(payload, sort_keys=True).encode("utf-8")
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY
+    try:
+        fd = os.open(str(path), flags)
+    except FileExistsError:
+        return False
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            try:
+                os.fsync(handle.fileno())
+            except OSError:
+                pass
+    except Exception:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+    return True
+
+
 @dataclass
 class LiveInputLease:
     path: Path
@@ -47,6 +71,11 @@ class LiveInputLease:
             now = time.time()
             current = read_live_input_lock(self.path)
             if not _lock_is_active(current, now=now):
+                if current is not None and self.path.exists():
+                    try:
+                        self.path.unlink()
+                    except FileNotFoundError:
+                        pass
                 payload = {
                     "owner": self.owner,
                     "run_id": self.run_id,
@@ -55,11 +84,10 @@ class LiveInputLease:
                     "acquired_at": now,
                     "expires_at": now + max(0.1, float(self.ttl_seconds)),
                 }
-                tmp = self.path.with_name(self.path.name + f".{os.getpid()}.tmp")
-                tmp.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
-                os.replace(tmp, self.path)
-                self.acquired = True
-                return self
+                if _write_lock_exclusive(self.path, payload):
+                    self.acquired = True
+                    return self
+                current = read_live_input_lock(self.path)
             if now >= deadline:
                 owner = current.get("owner") if isinstance(current, dict) else "unknown"
                 action = current.get("action") if isinstance(current, dict) else "unknown"

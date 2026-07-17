@@ -1,7 +1,9 @@
 import json
 import time
+import threading
 from pathlib import Path
 
+import metin2_research.live_input_lock as live_lock
 from metin2_research.live_input_lock import LiveInputLease, acquire_live_input_lease, read_live_input_lock
 
 
@@ -35,3 +37,44 @@ def test_live_input_lease_allows_takeover_of_expired_lock(tmp_path):
         data = read_live_input_lock(lock_path)
         assert data["owner"] == "buff"
         assert data["run_id"] == "run-b"
+
+
+def test_live_input_lease_acquire_is_atomic_when_readers_race(monkeypatch, tmp_path):
+    lock_path = tmp_path / "live_input.lock"
+    real_read = live_lock.read_live_input_lock
+    barrier = threading.Barrier(2)
+    first_reads = 0
+    first_reads_lock = threading.Lock()
+
+    def racing_read(path):
+        nonlocal first_reads
+        if Path(path) == lock_path:
+            with first_reads_lock:
+                first_reads += 1
+                call_no = first_reads
+            if call_no <= 2:
+                barrier.wait(timeout=2)
+                return None
+        return real_read(path)
+
+    monkeypatch.setattr(live_lock, "read_live_input_lock", racing_read)
+    results = []
+
+    def contender(owner):
+        lease = acquire_live_input_lease(lock_path, owner=owner, run_id=owner, action="input", ttl_seconds=30, timeout_seconds=0)
+        try:
+            lease.__enter__()
+        except TimeoutError:
+            results.append((owner, "blocked"))
+        else:
+            results.append((owner, "acquired"))
+            time.sleep(0.1)
+            lease.__exit__(None, None, None)
+
+    threads = [threading.Thread(target=contender, args=(f"owner-{idx}",)) for idx in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=3)
+
+    assert sorted(status for _owner, status in results) == ["acquired", "blocked"]

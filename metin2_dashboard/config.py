@@ -6,6 +6,10 @@ from typing import Any
 
 DEFAULT_BUFF_CONFIG = {
     "use_buff_config": False,
+    "active_stat_thresholds": {
+        "f1_attack_min_min": 200.0,
+        "f2_attack_speed_min": 130.0,
+    },
     "buffs": [
         {"key": "f1", "enabled": False, "interval_seconds": 35.0, "pre_cast_seconds": 3.0},
         {"key": "f2", "enabled": False, "interval_seconds": 35.0, "pre_cast_seconds": 3.0},
@@ -90,7 +94,8 @@ DEFAULT_LOGIN_CONFIG = {
     "active_profile": "main",
     "profiles": {
         "main": {"username": "yoshy", "app_dir": "D:/Games/MT2Portugalia/app"},
-        "buffer": {"username": "buffer", "app_dir": "D:/Games/MT2PortugaliaBuffer/app"},
+        "buffer": {"username": "nienna", "app_dir": "D:/Games/MT2PortugaliaBuffer/app"},
+        "farmer": {"username": "seyfer", "app_dir": "D:/Games/MT2PortugaliaFarmer/app"},
     },
 }
 
@@ -174,7 +179,13 @@ def _read_json(path: Path) -> dict[str, Any]:
 def normalize_buff_config(data: dict[str, Any] | None) -> dict[str, Any]:
     raw = data or {}
     out = dict(DEFAULT_BUFF_CONFIG)
+    out["active_stat_thresholds"] = dict(DEFAULT_BUFF_CONFIG["active_stat_thresholds"])
     out["use_buff_config"] = bool(raw.get("use_buff_config", out["use_buff_config"]))
+    raw_thresholds = raw.get("active_stat_thresholds") if isinstance(raw.get("active_stat_thresholds"), dict) else {}
+    out["active_stat_thresholds"] = {
+        "f1_attack_min_min": float(raw_thresholds.get("f1_attack_min_min", raw_thresholds.get("f1_attack_power_min", out["active_stat_thresholds"]["f1_attack_min_min"]))),
+        "f2_attack_speed_min": float(raw_thresholds.get("f2_attack_speed_min", out["active_stat_thresholds"]["f2_attack_speed_min"])),
+    }
     buffs = raw.get("buffs") if isinstance(raw.get("buffs"), list) else out["buffs"]
     normalized = []
     for row in buffs:
