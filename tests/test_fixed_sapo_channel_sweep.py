@@ -157,10 +157,18 @@ def test_repeat_sweep_still_stops_on_hard_safety_blocks():
     assert blocked_cycle_action("state_stale", repeat_while_running=True) == "stop"
 
 
-def test_channel_menu_visible_detector_flags_failed_switch_screenshot():
-    root = Path(__file__).resolve().parents[1]
-    menu = root / "reports/dashboard_runs/fixed_sapo_sweep_1784221374_screens/fixed_sapo_sweep_1784221374_r01_cycle03_pre.jpg"
-    no_menu = root / "reports/dashboard_runs/fixed_sapo_sweep_1784221374_screens/fixed_sapo_sweep_1784221374_r01_cycle01_post.jpg"
+def test_channel_menu_visible_detector_flags_synthetic_menu_screenshot(tmp_path):
+    from PIL import Image, ImageDraw
+
+    menu = tmp_path / "menu.png"
+    no_menu = tmp_path / "no_menu.png"
+    im = Image.new("RGB", (1000, 800), (0, 0, 0))
+    draw = ImageDraw.Draw(im)
+    crop = (int(1000 * 0.42), int(800 * 0.33), int(1000 * 0.59), int(800 * 0.71))
+    draw.rectangle(crop, fill=(118, 118, 118))
+    draw.rectangle((crop[0] + 35, crop[1] + 45, crop[2] - 35, crop[1] + 95), fill=(135, 52, 32))
+    im.save(menu)
+    Image.new("RGB", (1000, 800), (0, 0, 0)).save(no_menu)
 
     assert channel_menu_visible_in_screenshot(menu) is True
     assert channel_menu_visible_in_screenshot(no_menu) is False

@@ -78,3 +78,31 @@ def test_live_input_lease_acquire_is_atomic_when_readers_race(monkeypatch, tmp_p
         thread.join(timeout=3)
 
     assert sorted(status for _owner, status in results) == ["acquired", "blocked"]
+
+
+def test_expired_lock_cleanup_does_not_delete_new_active_replacement(monkeypatch, tmp_path):
+    lock_path = tmp_path / "live_input.lock"
+    expired = {"owner": "old", "run_id": "stale", "action": "channel_switch", "expires_at": time.time() - 10}
+    replacement = {"owner": "sweep", "run_id": "new", "action": "pickup_channel_transition", "expires_at": time.time() + 30}
+    lock_path.write_text(json.dumps(replacement), encoding="utf-8")
+    real_read = live_lock.read_live_input_lock
+    reads = 0
+
+    def stale_then_real(path):
+        nonlocal reads
+        if Path(path) == lock_path:
+            reads += 1
+            if reads == 1:
+                return dict(expired)
+        return real_read(path)
+
+    monkeypatch.setattr(live_lock, "read_live_input_lock", stale_then_real)
+
+    try:
+        acquire_live_input_lease(lock_path, owner="buff", run_id="buff", action="f1", ttl_seconds=30, timeout_seconds=0).__enter__()
+    except TimeoutError as exc:
+        assert "held by sweep" in str(exc)
+    else:
+        raise AssertionError("stale read must not let buff delete and replace a fresh active lock")
+
+    assert read_live_input_lock(lock_path)["owner"] == "sweep"

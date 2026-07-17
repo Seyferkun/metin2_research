@@ -82,6 +82,7 @@ def parse_json_state(data: dict[str, Any]) -> ClientState:
         buffs=_list_of_dicts(data.get("buffs")),
         skills=_list_of_dicts(data.get("skills")),
         quickslots=_list_of_dicts(data.get("quickslots")),
+        player_stats=player.get("stats") if isinstance(player.get("stats"), dict) else (data.get("player_stats") if isinstance(data.get("player_stats"), dict) else {}),
         player_flags={
             key: player[key]
             for key in ("is_dead", "is_stunned", "is_moving", "facing_deg", "mounted")

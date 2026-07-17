@@ -53,6 +53,25 @@ def _write_lock_exclusive(path: Path, payload: dict[str, Any]) -> bool:
     return True
 
 
+def _read_lock_file_direct(path: Path) -> dict[str, Any] | None:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return {"owner": "unknown", "action": "unknown", "run_id": "unknown", "expires_at": 0.0, "corrupt": True}
+    return data if isinstance(data, dict) else None
+
+
+def _remove_lock_if_matches(path: Path, expected: dict[str, Any]) -> bool:
+    current = _read_lock_file_direct(path)
+    if current != expected:
+        return False
+    try:
+        path.unlink()
+        return True
+    except FileNotFoundError:
+        return False
+
+
 @dataclass
 class LiveInputLease:
     path: Path
@@ -71,11 +90,8 @@ class LiveInputLease:
             now = time.time()
             current = read_live_input_lock(self.path)
             if not _lock_is_active(current, now=now):
-                if current is not None and self.path.exists():
-                    try:
-                        self.path.unlink()
-                    except FileNotFoundError:
-                        pass
+                if current is not None:
+                    _remove_lock_if_matches(self.path, current)
                 payload = {
                     "owner": self.owner,
                     "run_id": self.run_id,

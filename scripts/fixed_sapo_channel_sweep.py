@@ -661,72 +661,76 @@ def main() -> int:
                 emit(args.out, {"state": "SWEEP_CYCLE_SKIPPED" if action == "continue" else "SWEEP_CYCLE_BLOCKED", "cycle": cycle, "round": round_no, "reason": block_reason, "action": action, "run_id": run_id})
                 if action == "continue":
                     try:
-                        window = find_window(args.window_query)
-                        switch_lock = acquire_live_input_lease(args.live_input_lock, owner="fixed_sapo_sweep", run_id=run_id, action="channel_switch", ttl_seconds=90.0, timeout_seconds=args.live_input_lock_timeout_seconds)
-                        switch_lock.__enter__()
-                        emit(args.out, {"state": "SWEEP_INPUT_LOCK_ACQUIRED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
-                        switch_result = pickup_then_channel_switch(
-                            window=window,
-                            window_query=args.window_query,
-                            points_spec=args.channel_click_points,
-                            channel_index=args.channel_index,
-                            channel_auto_cycle=args.channel_auto_cycle,
-                            channel_cycle_state=args.channel_cycle_state,
-                            pickup_count=0,
-                            pickup_interval=args.pickup_interval,
-                            menu_delay=args.channel_menu_delay_seconds,
-                            switch_wait=args.channel_switch_wait_seconds,
-                            live=True,
+                        def _skip_channel_advance():
+                            window = find_window(args.window_query)
+                            switch_result = pickup_then_channel_switch(
+                                window=window,
+                                window_query=args.window_query,
+                                points_spec=args.channel_click_points,
+                                channel_index=args.channel_index,
+                                channel_auto_cycle=args.channel_auto_cycle,
+                                channel_cycle_state=args.channel_cycle_state,
+                                pickup_count=0,
+                                pickup_interval=args.pickup_interval,
+                                menu_delay=args.channel_menu_delay_seconds,
+                                switch_wait=args.channel_switch_wait_seconds,
+                                live=True,
+                                run_id=run_id,
+                                defer_cycle_state=True,
+                            )
+                            verify_path = screenshot_dir / f"{run_id}_r{round_no:02d}_cycle{cycle:02d}_switch_check.jpg"
+                            capture_safe(verify_path, args.window_query, args.screenshot_backend, args.out, kind="switch_check", run_id=run_id, cycle=cycle)
+                            menu_visible = channel_menu_visible_in_screenshot(verify_path)
+                            switch_result = finalize_channel_switch_with_retries(
+                                switch_result,
+                                run_id=run_id,
+                                cycle=cycle,
+                                round_no=round_no,
+                                screenshot_dir=screenshot_dir,
+                                window_query=args.window_query,
+                                screenshot_backend=args.screenshot_backend,
+                                out=args.out,
+                                initial_menu_visible=menu_visible,
+                            )
+                            cycle_record["channel_switch_result"] = switch_result
+                            if not switch_result.get("verified"):
+                                return {"switch_result": switch_result, "post_state": None}
+                            emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_SENT", "cycle": cycle, "round": round_no, "result": switch_result, "skip_reason": block_reason, "run_id": run_id})
+                            if args.load_wait_seconds > 0:
+                                emit(args.out, {"state": "SWEEP_LOAD_WAIT", "cycle": cycle, "round": round_no, "seconds": args.load_wait_seconds, "skip_reason": block_reason, "run_id": run_id})
+                                deadline = time.time() + args.load_wait_seconds
+                                while time.time() < deadline and not should_stop(stop_file):
+                                    time.sleep(min(0.25, max(0.0, deadline - time.time())))
+                            try:
+                                post_state = wait_for_fresh_state(args.state_json, max_age=args.max_state_age_seconds, timeout=10.0)
+                            except Exception:
+                                post_state = None
+                            return {"switch_result": switch_result, "post_state": post_state}
+
+                        transition_result = run_channel_switch_with_input_lock(
+                            _skip_channel_advance,
+                            lock_path=args.live_input_lock,
                             run_id=run_id,
-                            defer_cycle_state=True,
-                        )
-                        verify_path = screenshot_dir / f"{run_id}_r{round_no:02d}_cycle{cycle:02d}_switch_check.jpg"
-                        capture_safe(verify_path, args.window_query, args.screenshot_backend, args.out, kind="switch_check", run_id=run_id, cycle=cycle)
-                        menu_visible = channel_menu_visible_in_screenshot(verify_path)
-                        switch_result = finalize_channel_switch_with_retries(
-                            switch_result,
-                            run_id=run_id,
+                            timeout_seconds=args.live_input_lock_timeout_seconds,
+                            out=args.out,
                             cycle=cycle,
                             round_no=round_no,
-                            screenshot_dir=screenshot_dir,
-                            window_query=args.window_query,
-                            screenshot_backend=args.screenshot_backend,
-                            out=args.out,
-                            initial_menu_visible=menu_visible,
+                            action="channel_switch",
                         )
-
-                        cycle_record["channel_switch_result"] = switch_result
+                        switch_result = transition_result["switch_result"]
                         if not switch_result.get("verified"):
                             cycle_record.update({"outcome": "channel_switch_unconfirmed", "reason": switch_result.get("unverified_reason"), "skip_reason": block_reason, "elapsed_seconds": round(time.time() - cycle_start, 3)})
                             cycles.append(cycle_record)
                             outcome, reason = "channel_switch_unconfirmed", str(switch_result.get("unverified_reason"))
-                            switch_lock.__exit__(None, None, None)
-                            emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                             emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_UNCONFIRMED", "cycle": cycle, "round": round_no, "result": switch_result, "skip_reason": block_reason, "run_id": run_id})
                             break
-                        emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_SENT", "cycle": cycle, "round": round_no, "result": switch_result, "skip_reason": block_reason, "run_id": run_id})
-                        if args.load_wait_seconds > 0:
-                            emit(args.out, {"state": "SWEEP_LOAD_WAIT", "cycle": cycle, "round": round_no, "seconds": args.load_wait_seconds, "skip_reason": block_reason, "run_id": run_id})
-                            deadline = time.time() + args.load_wait_seconds
-                            while time.time() < deadline and not should_stop(stop_file):
-                                time.sleep(min(0.25, max(0.0, deadline - time.time())))
-                        try:
-                            post_state = wait_for_fresh_state(args.state_json, max_age=args.max_state_age_seconds, timeout=10.0)
-                            cycle_record["post_switch_state"] = state_brief(post_state)
-                        except Exception:
-                            pass
-                        switch_lock.__exit__(None, None, None)
-                        emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
+                        if transition_result.get("post_state") is not None:
+                            cycle_record["post_switch_state"] = state_brief(transition_result["post_state"])
                         cycle_record["elapsed_seconds"] = round(time.time() - cycle_start, 3)
                         cycles.append(cycle_record)
                         outcome, reason = "completed", "round_channel_attempted"
                         continue
                     except Exception as exc:
-                        try:
-                            switch_lock.__exit__(None, None, None)
-                            emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
-                        except Exception:
-                            pass
                         cycle_record.update({"outcome": "channel_switch_failed", "reason": str(exc), "skip_reason": block_reason, "elapsed_seconds": round(time.time() - cycle_start, 3)})
                         cycles.append(cycle_record)
                         outcome, reason = "channel_switch_failed", str(exc)
