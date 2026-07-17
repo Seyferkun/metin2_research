@@ -29,9 +29,11 @@ for _path in (PROJECT_ROOT, SRC_ROOT):
 from metin2_research.client_state.combat import CombatAction, CombatConfig, CombatSnapshot, decide_combat_action
 from metin2_research.client_state.json_state import DEFAULT_JSON_PATH, JsonClientStateSource
 from metin2_research.client_state.navigation import OnlineNavModel, choose_key_for_direction, choose_movement_steps
+from metin2_research.live_input_lock import acquire_live_input_lease, read_live_input_lock
 from metin2_research.win_input import SmoothMover, click_at, hold_key, key_down, key_up, tap_key
 from metin2_research.window_capture import activate_window, capture_window_image, find_window
 from metin2_dashboard.config import normalize_buff_config, normalize_combat_config
+
 
 DEFAULT_LOG = Path("reports/client_tsv_runaround/combat_metin_state_machine.jsonl")
 DEFAULT_METIN_ONNX = Path("reports/yolo_easy_retrain_runs/round2_hardneg_10ep_lowlr/weights/best.onnx")
@@ -248,6 +250,119 @@ def key_macro_out_path(base_out: Path, key: str, run_id: str | None) -> Path:
     return base.with_name(stem + suffix + ".key_macro.json")
 
 
+
+def player_stats_from_game(game) -> dict:
+    stats = getattr(game, "player_stats", None)
+    return stats if isinstance(stats, dict) else {}
+
+
+def _numeric_stat(stats: dict, names: tuple[str, ...]) -> float | None:
+    for name in names:
+        if name in stats and stats.get(name) not in (None, ""):
+            try:
+                return float(stats.get(name))
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
+def buff_stat_probe(game, key: str) -> dict:
+    """Return API/stat evidence for whether a quickslot buff is likely active.
+
+    Yoshy's F1 adds a large amount of Portuguese "poder de ataque" (attack power).
+    F2 adds "rapidez de ataque" (attack speed).  The client logger exports
+    player.GetStatus-derived stats, so this check is API/state based rather than
+    image/icon based.
+    """
+    stats = player_stats_from_game(game)
+    key_l = str(key or "").lower()
+    if key_l == "f1":
+        attack_power = _numeric_stat(stats, ("attack_power", "att_grade", "att_power", "ATT_GRADE", "ATT_POWER"))
+        attack_min = _numeric_stat(stats, ("attack_min", "att_min", "ATT_MIN"))
+        attack_max = _numeric_stat(stats, ("attack_max", "att_max", "ATT_MAX"))
+        if attack_min is not None and attack_max is not None:
+            if float(attack_min).is_integer() and float(attack_max).is_integer():
+                attack_range = f"{int(attack_min)}-{int(attack_max)}"
+            else:
+                attack_range = f"{attack_min}-{attack_max}"
+        else:
+            attack_range = None
+        return {
+            "key": key_l,
+            "stat": "attack_power",
+            "value": attack_power,
+            "attack_power": attack_power,
+            "attack_min": attack_min,
+            "attack_max": attack_max,
+            "attack_range": attack_range,
+            "visible_range_source": "player.GetStatus(player.ATT_MIN)-player.GetStatus(player.ATT_MAX)",
+            "secondary_source": "player.GetStatus(player.ATT_GRADE/ATT_POWER)",
+            "stats_available": bool(stats),
+            "source": "hermes_state.player.stats",
+        }
+    if key_l == "f2":
+        value = _numeric_stat(stats, ("attack_speed", "att_speed", "ATT_SPEED"))
+        return {"key": key_l, "stat": "attack_speed", "value": value, "stats_available": bool(stats), "source": "hermes_state.player.stats"}
+    return {"key": key_l, "stat": None, "value": None, "stats_available": bool(stats), "source": "hermes_state.player.stats"}
+
+
+
+def buff_stat_active_threshold(key: str, args) -> float | None:
+    key_l = str(key or "").lower()
+    if key_l == "f1":
+        value = getattr(args, "f1_active_attack_min_min", None)
+        if value is None:
+            value = getattr(args, "f1_active_attack_power_min", None)
+        if value is None:
+            value = 200.0
+        # Older control-panel builds/configs used the misleading attack_min threshold
+        # default 349.  Live testing shows F1 toggles attack_power 189<->219 on foot,
+        # while attack_min can stay at 349, so map stale 349-ish values to 200.
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            return 200.0
+        if numeric >= 300.0:
+            return 200.0
+        return numeric
+    if key_l == "f2":
+        return float(getattr(args, "f2_active_attack_speed_min", 130.0))
+    return None
+
+
+def buff_stat_is_active(probe: dict | None, *, key: str, args) -> dict:
+    probe = probe if isinstance(probe, dict) else {}
+    threshold = buff_stat_active_threshold(key, args)
+    value = probe.get("value")
+    active = False
+    reason = "threshold_unavailable"
+    try:
+        if threshold is not None and value is not None:
+            active = float(value) >= float(threshold)
+            reason = "stat_at_or_above_active_threshold" if active else "stat_below_active_threshold"
+        elif value is None:
+            reason = "stat_value_unavailable"
+    except (TypeError, ValueError):
+        reason = "stat_non_numeric"
+    return {"key": str(key or "").lower(), "active": active, "reason": reason, "probe": probe, "threshold": threshold}
+
+def verify_buff_stat_increase(before: dict | None, after: dict | None, *, key: str, min_delta: float = 1.0) -> dict:
+    before = before if isinstance(before, dict) else {}
+    after = after if isinstance(after, dict) else {}
+    b = before.get("value")
+    a = after.get("value")
+    verified = False
+    delta = None
+    reason = "stat_unavailable"
+    try:
+        if b is not None and a is not None:
+            delta = float(a) - float(b)
+            verified = delta >= float(min_delta)
+            reason = "stat_increased" if verified else "stat_did_not_increase"
+    except (TypeError, ValueError):
+        reason = "stat_non_numeric"
+    return {"key": str(key or "").lower(), "verified": verified, "reason": reason, "before": before, "after": after, "delta": delta, "min_delta": min_delta}
+
 def mounted_state_from_game(game) -> bool | None:
     flags = getattr(game, "player_flags", {}) or {}
     if "mounted" not in flags:
@@ -295,14 +410,43 @@ def press_buff_key_via_key_macro(*, key: str, args, stop_file: Path | None, run_
     env = os.environ.copy()
     if stop_file:
         env["HERMES_STOP_FILE"] = str(stop_file)
-    completed = subprocess.run(cmd, cwd=PROJECT_ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90, env=env)
-    result = {
-        "command": cmd,
-        "exit_code": completed.returncode,
-        "stdout_tail": completed.stdout[-2000:],
-        "out": str(out_path),
-        "elevated_log": str(out_path.with_suffix(".elevated.log")),
-    }
+    lock_path = Path(getattr(args, "live_input_lock", None) or (PROJECT_ROOT / "reports" / "dashboard_runs" / "live_input.lock"))
+    lock_timeout = float(getattr(args, "live_input_lock_timeout_seconds", 12.0))
+    try:
+        lock_seen = read_live_input_lock(lock_path)
+        lock_wait_started = time.monotonic()
+        with acquire_live_input_lease(
+            lock_path,
+            owner="buff_keeper",
+            run_id=run_id,
+            action=f"buff:{str(key).lower()}",
+            ttl_seconds=90.0,
+            timeout_seconds=lock_timeout,
+        ):
+            lock_wait_seconds = round(time.monotonic() - lock_wait_started, 3)
+            completed = subprocess.run(cmd, cwd=PROJECT_ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90, env=env)
+        result = {
+            "command": cmd,
+            "exit_code": completed.returncode,
+            "stdout_tail": completed.stdout[-2000:],
+            "out": str(out_path),
+            "elevated_log": str(out_path.with_suffix(".elevated.log")),
+            "live_input_lock": str(lock_path),
+            "lock_wait_seconds": lock_wait_seconds,
+            "lock_seen_before_wait": lock_seen,
+        }
+    except subprocess.TimeoutExpired as exc:
+        result = {
+            "command": cmd,
+            "exit_code": 124,
+            "stdout_tail": ((exc.stdout or "") if isinstance(exc.stdout, str) else str(exc.stdout or ""))[-2000:],
+            "out": str(out_path),
+            "elevated_log": str(out_path.with_suffix(".elevated.log")),
+            "live_input_lock": str(lock_path),
+            "error": "key_macro_control timed out; likely waiting for UAC/elevation approval or blocked focus",
+        }
+        print("key_macro_child " + json.dumps(result, sort_keys=True), flush=True)
+        return result
     print("key_macro_child " + json.dumps(result, sort_keys=True), flush=True)
     if completed.returncode != 0:
         raise RuntimeError(f"key_macro_control failed for {key}: exit={completed.returncode} tail={completed.stdout[-600:]}")
@@ -1254,13 +1398,21 @@ def main() -> int:
     ap.add_argument("--attack-nearby-mobs", action="store_true", help="Dry-run/live gated option: attack valid nearby mob targets reported by client state when no Metin target is locked")
     ap.add_argument("--buff-only", action="store_true", help="Only run the configured buff keeper; never target, move, or attack")
     ap.add_argument("--buff-damage-guard-keys", default="", help="comma-separated toggle-style buff keys (for example f1) whose timer refresh may be delayed while Metin HP damage still indicates the buff is active")
+    ap.add_argument("--buff-stat-verify-delay-seconds", type=float, default=1.2, help="buff-only live: after sending F1/F2, wait this long and verify API stats changed before refreshing the timer")
+    ap.add_argument("--buff-stat-min-delta", type=float, default=1.0, help="buff-only live: minimum API stat increase to prove F1/F2 activated")
+    ap.add_argument("--f1-active-attack-power-min", dest="f1_active_attack_min_min", type=float, default=None, help="deprecated alias for --f1-active-attack-min-min")
+    ap.add_argument("--f1-active-attack-min-min", type=float, default=200.0, help="buff-only live: treat F1/poder de ataque as active at or above this attack_power API stat; stale 349 attack_min-style values are mapped to 200")
+    ap.add_argument("--f2-active-attack-speed-min", type=float, default=130.0, help="buff-only live: treat F2/rapidez de ataque as already active at or above this attack_speed API stat")
     ap.add_argument("--live", action="store_true", help="Actually send bounded inputs. Default is dry-run.")
     ap.add_argument("--window-query", default="MT2Portugalia", help="Window title/process query to focus before live keyboard/mouse input")
     ap.add_argument("--out", type=Path, default=DEFAULT_LOG)
     ap.add_argument("--run-id", default=None, help="Dashboard run id used for cooperative stop files")
     ap.add_argument("--stop-file", type=Path, default=None, help="Cooperative stop-file path; defaults from HERMES_STOP_FILE or reports/dashboard_runs/<run_id>.stop")
+    ap.add_argument("--live-input-lock", type=Path, default=Path("reports/dashboard_runs/live_input.lock"), help="shared live-input mutex path used to coordinate buffs/channel switching")
+    ap.add_argument("--live-input-lock-timeout-seconds", type=float, default=12.0, help="seconds to wait for the shared live-input mutex")
     ap.add_argument("--report-dir", type=Path, default=Path("reports/dashboard_runs"), help="Directory for <run_id>_report.json post-combat reports")
     ap.add_argument("--max-state-age-seconds", type=float, default=2.0)
+
     ap.add_argument("--session-start-scan", action=argparse.BooleanOptionalAction, default=True, help="Before combat, run read-only find_nearby_metins --source hybrid and use the first trusted exact-coordinate result if any")
     ap.add_argument("--session-start-scan-radius", type=float, default=600.0)
     ap.add_argument("--session-start-scan-limit", type=int, default=8)
@@ -1340,6 +1492,7 @@ def main() -> int:
     probe_loss_grace = ProbeLossGrace(grace_cycles=2)
     mover = SmoothMover()
     buff_damage_guard = BuffDamageGuard(guard_keys=parse_buff_damage_guard_keys(args.buff_damage_guard_keys))
+    last_buff_stat_verification: dict[str, dict] = {}
 
     def finish(outcome: str, stop_reason: str, exit_code: int) -> int:
         write_combat_report(
@@ -1357,7 +1510,7 @@ def main() -> int:
         )
         return exit_code
 
-    if args.live:
+    if args.live and not args.buff_only:
         focus_live_window(args)
         time.sleep(0.2)
 
@@ -1434,9 +1587,39 @@ def main() -> int:
                         print(f"[state=BUFF_DUE] [action=press_buff] [buff={buff['key']}] [mounted={mounted_state}] [dry_run={not args.live}]", flush=True)
                         append_state_once(states_visited, "BUFF_DUE")
                         live_key_result = None
+                        stat_before = None
+                        stat_after = None
+                        stat_verification = None
                         if args.live:
+                            try:
+                                before_game = read_game(args.tsv, json_path=args.json_state, max_age_seconds=args.max_state_age_seconds)
+                                stat_before = buff_stat_probe(before_game, buff["key"])
+                            except RuntimeError as exc:
+                                stat_before = {"key": str(buff["key"]).lower(), "stat": None, "value": None, "stats_available": False, "error": str(exc), "source": "hermes_state.player.stats"}
+                            if str(buff["key"]).lower() in {"f1", "f2"}:
+                                already_active = buff_stat_is_active(stat_before, key=buff["key"], args=args)
+                                if already_active.get("active"):
+                                    observed_at = time.monotonic()
+                                    last_config_buff_ts[buff["key"]] = observed_at
+                                    # This was an observation, not a key press.  Do not feed it to
+                                    # the damage guard as a post-cast baseline, otherwise the guard
+                                    # can suppress a later real F1 refresh using fake press timing.
+                                    last_buff_stat_verification[str(buff["key"]).lower()] = already_active
+                                    emit(args.out, {"cycle": cycle, "dry_run": False, "state": "BUFF_STAT_ALREADY_ACTIVE", "command": "skip_key_already_active_by_api_stat", "reason": "API stat already indicates the buff effect is active; skipping key press to avoid toggling it off", "buff": buff, "verification": already_active, "run_id": run_id})
+                                    append_state_once(states_visited, "BUFF_STAT_ALREADY_ACTIVE")
+                                    if args.assume_mounted and mounted_state is True:
+                                        remount_result = press_buff_key_via_key_macro(key="ctrl+g", args=args, stop_file=stop_file, run_id=run_id)
+                                        emit(args.out, {"cycle": cycle, "dry_run": False, "state": "REMOUNT_AFTER_BUFF", "command": "ctrl_g_remount_after_active_stat_skip", "reason": "assume-mounted mode dismounted before the API-stat check; remount even when the buff key itself is skipped as already active", "buff": buff, "mounted_source": mounted_source, "key_macro": remount_result, "run_id": run_id})
+                                        append_state_once(states_visited, "REMOUNT_AFTER_BUFF")
+                                        time.sleep(0.8)
+                                    else:
+                                        time.sleep(0.35)
+                                    continue
+
                             live_key_result = press_buff_key_via_key_macro(key=buff["key"], args=args, stop_file=stop_file, run_id=run_id)
-                        if live_key_result:
+                            if float((live_key_result or {}).get("lock_wait_seconds") or 0.0) > 0.25:
+                                emit(args.out, {"cycle": cycle, "dry_run": False, "state": "BUFF_DEFERRED_FOR_LIVE_INPUT_LOCK", "command": "wait_for_shared_input_lock", "reason": "buff key press waited for another live input owner, such as Fixed Sapo channel switch, before sending", "buff": buff, "key_macro": live_key_result, "run_id": run_id})
+
                             emit(
                                 args.out,
                                 {
@@ -1449,18 +1632,37 @@ def main() -> int:
                                     "mounted_state": mounted_state,
                                     "mounted_source": mounted_source,
                                     "key_macro": live_key_result,
+                                    "stat_before": stat_before,
                                     "run_id": run_id,
                                 },
                             )
+                            if str(buff["key"]).lower() in {"f1", "f2"}:
+                                time.sleep(max(0.0, float(args.buff_stat_verify_delay_seconds)))
+                                try:
+                                    after_game = read_game(args.tsv, json_path=args.json_state, max_age_seconds=args.max_state_age_seconds)
+                                    last_game = after_game
+                                    stat_after = buff_stat_probe(after_game, buff["key"])
+                                except RuntimeError as exc:
+                                    stat_after = {"key": str(buff["key"]).lower(), "stat": (stat_before or {}).get("stat"), "value": None, "stats_available": False, "error": str(exc), "source": "hermes_state.player.stats"}
+                                stat_verification = verify_buff_stat_increase(stat_before, stat_after, key=buff["key"], min_delta=args.buff_stat_min_delta)
+                                last_buff_stat_verification[str(buff["key"]).lower()] = stat_verification
+                                emit(args.out, {"cycle": cycle, "dry_run": False, "state": "BUFF_STAT_VERIFIED" if stat_verification.get("verified") else "BUFF_STAT_UNPROVEN", "command": "verify_buff_api_stat", "reason": "F1 should increase attack_power/poder de ataque; F2 should increase attack_speed/rapidez de ataque", "buff": buff, "verification": stat_verification, "run_id": run_id})
+                                append_state_once(states_visited, "BUFF_STAT_VERIFIED" if stat_verification.get("verified") else "BUFF_STAT_UNPROVEN")
                         pressed_at = time.monotonic()
-                        last_config_buff_ts[buff["key"]] = pressed_at
-                        buff_damage_guard.note_buff_pressed(buff["key"], now=pressed_at)
+                        stats_supported = bool((stat_before or {}).get("stats_available") or (stat_after or {}).get("stats_available"))
+                        timer_verified = (not args.live) or (stat_verification is None) or bool(stat_verification.get("verified")) or not stats_supported
+                        if timer_verified:
+                            last_config_buff_ts[buff["key"]] = pressed_at
+                            buff_damage_guard.note_buff_pressed(buff["key"], now=pressed_at)
+                        else:
+                            emit(args.out, {"cycle": cycle, "dry_run": False, "state": "BUFF_TIMER_NOT_REFRESHED", "command": "retry_until_api_stat_proves_active", "reason": "key was sent but API stats did not show the expected buff increase, so the keepalive timer was not refreshed", "buff": buff, "verification": stat_verification, "run_id": run_id})
                         if args.live and args.assume_mounted:
                             remount_result = press_buff_key_via_key_macro(key="ctrl+g", args=args, stop_file=stop_file, run_id=run_id)
                             emit(args.out, {"cycle": cycle, "dry_run": False, "state": "REMOUNT_AFTER_BUFF", "command": "ctrl_g_remount_after_each_assumed_mounted_buff", "reason": "assume-mounted mode restores horse state after each individual buff so the next buff starts from a known mounted state", "buff": buff, "mounted_source": mounted_source, "key_macro": remount_result, "run_id": run_id})
                             append_state_once(states_visited, "REMOUNT_AFTER_BUFF")
                             time.sleep(0.8)
                         time.sleep(1.0 if args.live else 0.35)
+
                     if args.live and restore_mount_after_buffs and not args.assume_mounted:
                         mounted_after_buffs = None
                         try:

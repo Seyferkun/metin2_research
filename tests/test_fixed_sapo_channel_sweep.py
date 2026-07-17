@@ -12,6 +12,7 @@ from scripts.fixed_sapo_channel_sweep import (
     LowDpsNudgeController,
     low_dps_drop_rate,
     low_dps_adjustment_key,
+    run_channel_switch_with_input_lock,
     should_stop,
 )
 from scripts.fixed_sapo_space_control import distance_to_sapo, read_state, sapo_probe_from_state
@@ -236,3 +237,25 @@ def test_channel_switch_retry_still_unconfirmed_after_bounded_failures(tmp_path)
     assert result["verified"] is False
     assert result["unverified_reason"] == "channel_menu_still_visible"
     assert result["retry_count"] == 2
+
+
+def test_channel_switch_holds_shared_input_lock(tmp_path):
+    from metin2_research.live_input_lock import read_live_input_lock
+
+    observed = []
+
+    def fake_switch():
+        observed.append(read_live_input_lock(tmp_path / "live_input.lock"))
+        return {"verified": True}
+
+    result = run_channel_switch_with_input_lock(
+        fake_switch,
+        lock_path=tmp_path / "live_input.lock",
+        run_id="sweep-run",
+        timeout_seconds=0,
+    )
+
+    assert result == {"verified": True}
+    assert observed[0]["owner"] == "fixed_sapo_sweep"
+    assert observed[0]["action"] == "channel_switch"
+    assert read_live_input_lock(tmp_path / "live_input.lock") is None

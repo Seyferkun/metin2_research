@@ -924,6 +924,7 @@ def test_cli_buff_config_builds_independent_f1_f2_schedules():
     cfg = buff_config_from_cli("f1,f2", "109,301", pre_cast_seconds=3)
     assert cfg == {
         "use_buff_config": True,
+        "active_stat_thresholds": {"f1_attack_min_min": 200.0, "f2_attack_speed_min": 130.0},
         "buffs": [
             {"key": "f1", "enabled": True, "interval_seconds": 109.0, "pre_cast_seconds": 3.0},
             {"key": "f2", "enabled": True, "interval_seconds": 301.0, "pre_cast_seconds": 3.0},
@@ -1086,6 +1087,34 @@ def test_live_buff_key_uses_elevated_key_macro_sender(monkeypatch, tmp_path):
     assert kwargs["env"]["HERMES_STOP_FILE"].endswith("stop.flag")
     assert result["exit_code"] == 0
     assert result["elevated_log"].endswith(".elevated.log")
+
+
+def test_live_buff_key_holds_shared_input_lock_while_sending(monkeypatch, tmp_path):
+    from metin2_research.live_input_lock import read_live_input_lock
+
+    observed = []
+
+    class Done:
+        returncode = 0
+        stdout = "ok\n"
+
+    def fake_run(cmd, **kwargs):
+        observed.append(read_live_input_lock(tmp_path / "live_input.lock"))
+        return Done()
+
+    monkeypatch.setattr(cmcs.subprocess, "run", fake_run)
+    args = SimpleNamespace(
+        out=tmp_path / "buff_keepalive.jsonl",
+        window_query="MT2Portugalia",
+        live_input_lock=tmp_path / "live_input.lock",
+        live_input_lock_timeout_seconds=0,
+    )
+
+    press_buff_key_via_key_macro(key="f1", args=args, stop_file=tmp_path / "stop.flag", run_id="run-test")
+
+    assert observed[0]["owner"] == "buff_keeper"
+    assert observed[0]["action"] == "buff:f1"
+    assert read_live_input_lock(tmp_path / "live_input.lock") is None
 
 def test_buff_only_mode_logs_idle_and_never_attacks_selected_mob(tmp_path):
     state_path = tmp_path / "hermes_state.json"
@@ -1256,6 +1285,77 @@ def test_buff_only_assume_mounted_does_not_need_mount_detection_and_remounts_eac
     due_events = [event for event in events if event.get("state") == "BUFF_DUE"]
     assert [event.get("mounted_source") for event in due_events] == ["assume_mounted", "assume_mounted"]
     assert not any(event.get("state") == "BUFF_MOUNT_STATE_UNKNOWN" for event in events)
+
+
+def test_buff_only_assume_mounted_remounts_when_f1_skipped_as_already_active(monkeypatch, tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "player": {"x": 1, "y": 2, "z": 3, "hp": 10, "max_hp": 10, "stats": {"attack_min": 349, "attack_max": 375, "attack_power": 219}},
+        "target": None,
+    }), encoding="utf-8")
+    out = tmp_path / "buff_assume_mounted_active_skip.jsonl"
+    sent = []
+
+    def fake_press(*, key, args, stop_file, run_id):
+        sent.append(key)
+        return {"key": key, "exit_code": 0}
+
+    monkeypatch.setattr(cmcs, "press_buff_key_via_key_macro", fake_press)
+    monkeypatch.setattr(cmcs, "focus_live_window", lambda args: None)
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(sys, "argv", [
+        "combat_metin_client_state.py",
+        "--live",
+        "--buff-only",
+        "--assume-mounted",
+        "--buff-keys", "f1",
+        "--buff-durations", "1",
+        "--max-cycles", "1",
+        "--json-state", str(state_path),
+        "--out", str(out),
+        "--f1-active-attack-min-min", "200",
+    ])
+
+    rc = cmcs.main()
+
+    assert rc == 0
+    assert sent == ["ctrl+g", "ctrl+g"]
+    events = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    assert any(event.get("state") == "BUFF_STAT_ALREADY_ACTIVE" for event in events)
+    assert any(event.get("command") == "ctrl_g_remount_after_active_stat_skip" for event in events)
+
+
+def test_buff_only_live_f2_can_skip_before_focus_when_api_stat_active(monkeypatch, tmp_path):
+    state_path = tmp_path / "hermes_state.json"
+    state_path.write_text(json.dumps({
+        "player": {"x": 1, "y": 2, "z": 3, "hp": 10, "max_hp": 10, "mounted": False, "stats": {"attack_speed": 134}},
+        "target": None,
+    }), encoding="utf-8")
+    out = tmp_path / "buff_active_no_focus.jsonl"
+
+    def fail_focus(_args):
+        raise RuntimeError("focus should not be required before active-stat proof")
+
+    monkeypatch.setattr(cmcs, "focus_live_window", fail_focus)
+    monkeypatch.setattr(cmcs, "press_buff_key_via_key_macro", lambda **_kwargs: (_ for _ in ()).throw(AssertionError("key press should be skipped")))
+    monkeypatch.setattr(cmcs.time, "sleep", lambda _seconds: None)
+    monkeypatch.setattr(sys, "argv", [
+        "combat_metin_client_state.py",
+        "--live",
+        "--buff-only",
+        "--buff-keys", "f2",
+        "--buff-durations", "1",
+        "--max-cycles", "1",
+        "--json-state", str(state_path),
+        "--out", str(out),
+        "--f2-active-attack-speed-min", "130",
+    ])
+
+    rc = cmcs.main()
+
+    assert rc == 0
+    events = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    assert any(event.get("state") == "BUFF_STAT_ALREADY_ACTIVE" for event in events)
 
 def test_buff_only_live_max_cycles_exit_code_is_success():
     from scripts.combat_metin_client_state import max_cycles_exit_code

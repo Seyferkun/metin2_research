@@ -24,9 +24,11 @@ for _path in (PROJECT_ROOT, SRC_ROOT):
     if str(_path) not in sys.path:
         sys.path.insert(0, str(_path))
 
+from metin2_research.live_input_lock import acquire_live_input_lease
 from metin2_research.win_input import click_at, key_down, key_up, tap_key
 from metin2_research.window_capture import capture_window_image, find_window
 from scripts.target_hp_vision import estimate_target_hp_from_image
+
 from fixed_sapo_space_control import (
     DEFAULT_CHANNEL_STATE,
     DEFAULT_STATE_JSON,
@@ -160,8 +162,26 @@ def blocked_cycle_action(reason: str, *, repeat_while_running: bool) -> str:
     return "stop"
 
 
+def run_channel_switch_with_input_lock(
+    switch_fn,
+    *,
+    lock_path: Path,
+    run_id: str,
+    timeout_seconds: float = 12.0,
+):
+    with acquire_live_input_lease(
+        Path(lock_path),
+        owner="fixed_sapo_sweep",
+        run_id=run_id,
+        action="channel_switch",
+        ttl_seconds=90.0,
+        timeout_seconds=timeout_seconds,
+    ):
+        return switch_fn()
+
+
 def channel_menu_visible_in_screenshot(path: Path) -> bool:
-    """Detect whether the MT2 `Mudar de Canal` menu is still visible."""
+
     try:
         from PIL import Image
 
@@ -517,6 +537,8 @@ def main() -> int:
     ap.add_argument("--run-id", default=None)
     ap.add_argument("--repeat-while-running", action="store_true", help="after a full sweep, keep cycling channels until dashboard stop file is requested")
     ap.add_argument("--stop-file", type=Path, default=None, help="cooperative stop-file path; defaults from HERMES_STOP_FILE")
+    ap.add_argument("--live-input-lock", type=Path, default=Path("reports/dashboard_runs/live_input.lock"), help="shared live-input mutex path used to coordinate channel switching with buff keeper")
+    ap.add_argument("--live-input-lock-timeout-seconds", type=float, default=12.0, help="seconds to wait for the shared live-input mutex")
     ap.add_argument("--low-dps-adjust", action="store_true", help="when target-bar DPS is low, tap small WASD nudges while Space remains held")
     ap.add_argument("--low-dps-threshold", type=float, default=0.2, help="minimum target HP percentage-points/sec before a WASD nudge is attempted")
     ap.add_argument("--low-dps-window-seconds", type=float, default=8.0)
@@ -630,6 +652,9 @@ def main() -> int:
                 if action == "continue":
                     try:
                         window = find_window(args.window_query)
+                        switch_lock = acquire_live_input_lease(args.live_input_lock, owner="fixed_sapo_sweep", run_id=run_id, action="channel_switch", ttl_seconds=90.0, timeout_seconds=args.live_input_lock_timeout_seconds)
+                        switch_lock.__enter__()
+                        emit(args.out, {"state": "SWEEP_INPUT_LOCK_ACQUIRED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                         switch_result = pickup_then_channel_switch(
                             window=window,
                             window_query=args.window_query,
@@ -665,6 +690,8 @@ def main() -> int:
                             cycle_record.update({"outcome": "channel_switch_unconfirmed", "reason": switch_result.get("unverified_reason"), "skip_reason": block_reason, "elapsed_seconds": round(time.time() - cycle_start, 3)})
                             cycles.append(cycle_record)
                             outcome, reason = "channel_switch_unconfirmed", str(switch_result.get("unverified_reason"))
+                            switch_lock.__exit__(None, None, None)
+                            emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                             emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_UNCONFIRMED", "cycle": cycle, "round": round_no, "result": switch_result, "skip_reason": block_reason, "run_id": run_id})
                             break
                         emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_SENT", "cycle": cycle, "round": round_no, "result": switch_result, "skip_reason": block_reason, "run_id": run_id})
@@ -678,11 +705,18 @@ def main() -> int:
                             cycle_record["post_switch_state"] = state_brief(post_state)
                         except Exception:
                             pass
+                        switch_lock.__exit__(None, None, None)
+                        emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                         cycle_record["elapsed_seconds"] = round(time.time() - cycle_start, 3)
                         cycles.append(cycle_record)
                         outcome, reason = "completed", "round_channel_attempted"
                         continue
                     except Exception as exc:
+                        try:
+                            switch_lock.__exit__(None, None, None)
+                            emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
+                        except Exception:
+                            pass
                         cycle_record.update({"outcome": "channel_switch_failed", "reason": str(exc), "skip_reason": block_reason, "elapsed_seconds": round(time.time() - cycle_start, 3)})
                         cycles.append(cycle_record)
                         outcome, reason = "channel_switch_failed", str(exc)
@@ -741,6 +775,9 @@ def main() -> int:
 
             try:
                 window = find_window(args.window_query)
+                switch_lock = acquire_live_input_lease(args.live_input_lock, owner="fixed_sapo_sweep", run_id=run_id, action="channel_switch", ttl_seconds=90.0, timeout_seconds=args.live_input_lock_timeout_seconds)
+                switch_lock.__enter__()
+                emit(args.out, {"state": "SWEEP_INPUT_LOCK_ACQUIRED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                 switch_result = pickup_then_channel_switch(
                     window=window,
                     window_query=args.window_query,
@@ -776,10 +813,17 @@ def main() -> int:
                     cycle_record.update({"outcome": "channel_switch_unconfirmed", "reason": switch_result.get("unverified_reason"), "elapsed_seconds": round(time.time() - cycle_start, 3)})
                     cycles.append(cycle_record)
                     outcome, reason = "channel_switch_unconfirmed", str(switch_result.get("unverified_reason"))
+                    switch_lock.__exit__(None, None, None)
+                    emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
                     emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_UNCONFIRMED", "cycle": cycle, "round": round_no, "result": switch_result, "run_id": run_id})
                     break
                 emit(args.out, {"state": "SWEEP_CHANNEL_SWITCH_SENT", "cycle": cycle, "round": round_no, "result": switch_result, "run_id": run_id})
             except Exception as exc:
+                try:
+                    switch_lock.__exit__(None, None, None)
+                    emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
+                except Exception:
+                    pass
                 cycle_record.update({"outcome": "channel_switch_failed", "reason": str(exc), "elapsed_seconds": round(time.time() - cycle_start, 3)})
                 cycles.append(cycle_record)
                 outcome, reason = "channel_switch_failed", str(exc)
@@ -791,6 +835,8 @@ def main() -> int:
                 deadline = time.time() + args.load_wait_seconds
                 while time.time() < deadline and not should_stop(stop_file):
                     time.sleep(min(0.25, max(0.0, deadline - time.time())))
+            switch_lock.__exit__(None, None, None)
+            emit(args.out, {"state": "SWEEP_INPUT_LOCK_RELEASED", "cycle": cycle, "round": round_no, "action": "channel_switch", "lock_path": str(args.live_input_lock), "run_id": run_id})
             post_state = wait_for_fresh_state(args.state_json, max_age=args.max_state_age_seconds, timeout=10.0)
             cycle_record["post_switch_state"] = state_brief(post_state)
             cycle_record.update({"outcome": "destroyed_switched", "reason": "cycle_complete", "elapsed_seconds": round(time.time() - cycle_start, 3)})
