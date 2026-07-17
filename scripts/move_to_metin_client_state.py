@@ -25,7 +25,7 @@ from metin2_research.client_state.navigation import OnlineNavModel
 from metin2_research.win_input import SmoothMover, key_up
 from metin2_research.window_capture import activate_window, find_window
 
-TRUSTED_MOVE_COORD_SOURCES = {"live_memory_visible_text"}
+TRUSTED_MOVE_COORD_SOURCES = {"live_memory_visible_text", "named_metin_probe"}
 NAV_CYCLE_SLEEP = 0.05
 
 
