@@ -420,8 +420,11 @@ def test_registry_exposes_safe_tunable_options():
     assert nearby_options["display_offset_y"]["default"] == 0
     assert move_options["metin_x"]["flag"] == "--metin-x"
     assert move_options["metin_coord_source"]["default"] is None
+    assert "named_metin_probe" in move_options["metin_coord_source"]["description"]
+    assert "no travel movement" in scripts["fixed_sapo_channel_sweep"]["description"]
     assert scripts["find_nearby_metins"]["force_dry_run"] is True
     assert scripts["move_to_metin_client_state"]["exclusive_live_group"] == "combat"
+
 
 
 def test_move_to_metin_allows_named_probe_coordinates_for_live_private_sandbox():

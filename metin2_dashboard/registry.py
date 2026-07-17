@@ -189,7 +189,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
     "move_to_metin_client_state": ScriptSpec(
         name="move_to_metin_client_state",
         path="scripts/move_to_metin_client_state.py",
-        description="movement-only direct approach to a trusted Metin coordinate; live mode is exclusive and never attacks",
+        description="movement-only direct approach to a trusted Metin coordinate; not used for fixed Sapo keep-sweep; live mode is exclusive and never attacks",
         default_args=("--metin-x", "0", "--metin-y", "0", "--metin-coord-source", "dry_run_placeholder", "--max-cycles", "1", "--out", "reports/dashboard_runs/move_to_metin_dryrun.jsonl"),
         exclusive_live_group="combat",
         options=(
@@ -200,7 +200,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("metin_name", "--metin-name", "str", "Metin da Batalha", "target Metin name"),
             OptionSpec("metin_x", "--metin-x", "int", None, "trusted Metin x coord"),
             OptionSpec("metin_y", "--metin-y", "int", None, "trusted Metin y coord"),
-            OptionSpec("metin_coord_source", "--metin-coord-source", "str", None, "coordinate source: live_memory_visible_text"),
+            OptionSpec("metin_coord_source", "--metin-coord-source", "str", None, "coordinate source: live_memory_visible_text or named_metin_probe; do not use for fixed Sapo keep-sweep"),
         ),
     ),
     "key_macro_control": ScriptSpec(
@@ -249,7 +249,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
     "fixed_sapo_channel_sweep": ScriptSpec(
         name="fixed_sapo_channel_sweep",
         path="scripts/fixed_sapo_channel_sweep.py",
-        description="sweep fixed-spawn Sapo across channels: destroy, pickup, switch, repeat; no move/no combat-click/no potion",
+        description="sweep fixed-spawn Sapo across channels at the fixed spawn: destroy, pickup, switch, repeat; no travel movement/no combat-click/no potion",
         default_args=("--channels", "8", "--out", "reports/dashboard_runs/fixed_sapo_channel_sweep_dryrun.jsonl", "--summary-out", "reports/dashboard_runs/fixed_sapo_channel_sweep_dryrun_summary.json"),
         live_args=("--live", "--elevate"),
         exclusive_live_group="combat",
