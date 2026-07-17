@@ -360,7 +360,7 @@ def build_fixed_sapo_sweep_payload(
     min_dist = max(0.0, float(min_distance))
     low_dps = max(0.0, float(low_dps_threshold))
     low_dps_window = max(1.0, float(low_dps_window_seconds))
-    low_dps_max_steps = max(0, int(float(low_dps_max_cumulative_steps)))
+    low_dps_max_steps = max(1, int(float(low_dps_max_cumulative_steps)))
     adjust_hold = max(0.03, min(0.5, float(adjust_hold_seconds)))
     pickup_count = pickup_count_from_seconds(pickup_seconds)
     options: dict[str, Any] = {

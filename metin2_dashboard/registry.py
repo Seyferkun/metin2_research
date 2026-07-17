@@ -274,7 +274,7 @@ DEFAULT_SCRIPTS: dict[str, ScriptSpec] = {
             OptionSpec("low_dps_noise_margin", "--low-dps-noise-margin", "float", 3.0, "ignore target HP drops smaller than this many percentage points as visual noise"),
             OptionSpec("low_dps_adjust_cooldown", "--low-dps-adjust-cooldown", "float", 6.0, "minimum seconds between low-DPS WASD probes"),
             OptionSpec("low_dps_improvement_margin", "--low-dps-improvement-margin", "float", 0.15, "minimum DPS gain to keep a probed nudge position"),
-            OptionSpec("low_dps_max_cumulative_steps", "--low-dps-max-cumulative-steps", "int", 3, "maximum kept WASD nudge steps from the original attack position"),
+            OptionSpec("low_dps_max_cumulative_steps", "--low-dps-max-cumulative-steps", "int", 3, "maximum kept WASD nudge steps from the original attack position; values below 1 clamp to 1"),
             OptionSpec("adjust_hold_seconds", "--adjust-hold-seconds", "float", 0.18, "seconds to tap each WASD centering nudge"),
             OptionSpec("channel_menu_delay_seconds", "--channel-menu-delay-seconds", "float", 1.25, "wait after X opens the channel menu"),
             OptionSpec("channel_switch_wait_seconds", "--channel-switch-wait-seconds", "float", 5.0, "wait after clicking the channel row"),

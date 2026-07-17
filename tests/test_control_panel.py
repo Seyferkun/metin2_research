@@ -299,6 +299,12 @@ def test_fixed_sapo_sweep_payload_is_bounded_and_safe():
     assert "move" not in opts
 
 
+def test_fixed_sapo_sweep_payload_clamps_zero_max_kept_steps_to_one():
+    sweep = build_fixed_sapo_sweep_payload(low_dps_max_cumulative_steps="0")
+
+    assert sweep["options"]["low_dps_max_cumulative_steps"] == "1"
+
+
 def test_control_panel_source_exposes_direct_key_test_buttons():
     source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
     assert "Direct key test + timed macro" in source

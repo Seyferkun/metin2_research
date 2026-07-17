@@ -370,7 +370,7 @@ class LowDpsNudgeController:
     def __init__(self, *, cooldown_seconds: float = 6.0, improvement_margin: float = 0.15, max_cumulative_steps: int = 3) -> None:
         self.cooldown_seconds = max(0.0, float(cooldown_seconds))
         self.improvement_margin = max(0.0, float(improvement_margin))
-        self.max_cumulative_steps = max(0, int(max_cumulative_steps))
+        self.max_cumulative_steps = max(1, int(max_cumulative_steps))
         self.pending_key: str | None = None
         self.pending_baseline: float | None = None
         self.last_action_at = 0.0
@@ -380,6 +380,14 @@ class LowDpsNudgeController:
 
     def _drift_total(self) -> int:
         return sum(abs(int(v)) for v in self.cumulative_steps.values())
+
+    def reset_pending(self, *, reason: str) -> dict[str, Any] | None:
+        if not self.pending_key:
+            return None
+        key = self.pending_key
+        self.pending_key = None
+        self.pending_baseline = None
+        return {"reset_pending_key": key, "reset_reason": reason}
 
     def choose_key(self, preferred_key: str | None) -> str | None:
         candidates = [k for k in (preferred_key, "a", "d", "w", "s") if k in OPPOSITE_NUDGE_KEY]
@@ -507,7 +515,8 @@ def hold_space_until_destroyed(
                 freeze_reason = low_dps_target_freeze_reason(state, locked_low_dps_target)
                 if freeze_reason:
                     hp_samples = []
-                    emit(out, {"state": "SWEEP_LOW_DPS_TARGET_FREEZE", "cycle": cycle, "t": ticks, "reason": freeze_reason, "locked_target": locked_low_dps_target, "target": target, "run_id": run_id})
+                    reset_meta = nudge_controller.reset_pending(reason=freeze_reason)
+                    emit(out, {"state": "SWEEP_LOW_DPS_TARGET_FREEZE", "cycle": cycle, "t": ticks, "reason": freeze_reason, "locked_target": locked_low_dps_target, "target": target, "nudge_reset": reset_meta, "run_id": run_id})
                 else:
                     target_hp_pct, target_hp_source, visual_meta = target_hp_pct_from_state_or_screen(
                         state,
@@ -618,7 +627,7 @@ def main() -> int:
     ap.add_argument("--low-dps-noise-margin", type=float, default=3.0, help="ignore target HP drops smaller than this many percentage points as visual noise")
     ap.add_argument("--low-dps-adjust-cooldown", type=float, default=6.0, help="minimum seconds between low-DPS WASD nudges")
     ap.add_argument("--low-dps-improvement-margin", type=float, default=0.15, help="minimum DPS gain to keep a probe nudge position")
-    ap.add_argument("--low-dps-max-cumulative-steps", type=int, default=3, help="maximum kept WASD nudge steps from the original attack position before movement is frozen")
+    ap.add_argument("--low-dps-max-cumulative-steps", type=int, default=3, help="maximum kept WASD nudge steps from the original attack position before movement is frozen; values below 1 clamp to 1")
     ap.add_argument("--adjust-hold-seconds", type=float, default=0.18)
     ap.add_argument("--adjust-deadzone", type=float, default=40.0)
     args = ap.parse_args()

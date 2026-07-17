@@ -132,6 +132,30 @@ def test_low_dps_nudge_controller_logs_plateau_without_motion_when_cooldown_bloc
     assert plateau["plateau_seconds_remaining"] > 0
 
 
+def test_low_dps_nudge_controller_resets_pending_probe_after_retarget_freeze():
+    c = LowDpsNudgeController(cooldown_seconds=0.0, improvement_margin=0.15)
+
+    assert c.update(dps=0.0, threshold=0.2, now=10.0, preferred_key="w")["kind"] == "probe"
+    reset = c.reset_pending(reason="target_changed")
+    after = c.update(dps=0.4, threshold=0.2, now=20.0, preferred_key="w")
+
+    assert reset == {"reset_pending_key": "w", "reset_reason": "target_changed"}
+    assert after is None
+    assert c.pending_key is None
+
+
+def test_low_dps_nudge_controller_treats_zero_max_steps_as_one_for_live_safety():
+    c = LowDpsNudgeController(cooldown_seconds=0.0, improvement_margin=0.15, max_cumulative_steps=0)
+
+    assert c.max_cumulative_steps == 1
+    assert c.update(dps=0.0, threshold=0.2, now=10.0, preferred_key="w")["kind"] == "probe"
+    assert c.update(dps=0.4, threshold=0.2, now=20.0, preferred_key="w")["kind"] == "keep"
+    blocked = c.update(dps=0.0, threshold=0.2, now=30.0, preferred_key="w")
+
+    assert blocked["kind"] == "drift_blocked"
+    assert blocked["max_cumulative_steps"] == 1
+
+
 def test_low_dps_target_freeze_blocks_dps_probe_when_target_retargets():
     locked = {"vid": 123, "name": "Sapo de Pedra"}
 
