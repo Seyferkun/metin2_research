@@ -12,6 +12,7 @@ from scripts.fixed_sapo_channel_sweep import (
     LowDpsNudgeController,
     low_dps_drop_rate,
     low_dps_adjustment_key,
+    low_dps_target_freeze_reason,
     run_channel_switch_with_input_lock,
     should_stop,
 )
@@ -105,6 +106,39 @@ def test_low_dps_nudge_controller_respects_cooldown_between_probes():
     assert c.update(dps=0.0, threshold=0.2, now=11.0, preferred_key="w")["kind"] == "undo"
     assert c.update(dps=0.0, threshold=0.2, now=12.0, preferred_key="w") is None
     assert c.update(dps=0.0, threshold=0.2, now=17.0, preferred_key="w")["kind"] == "probe"
+
+
+def test_low_dps_nudge_controller_blocks_cumulative_drift_beyond_radius():
+    c = LowDpsNudgeController(cooldown_seconds=0.0, improvement_margin=0.15, max_cumulative_steps=1)
+
+    assert c.update(dps=0.0, threshold=0.2, now=10.0, preferred_key="w")["kind"] == "probe"
+    assert c.update(dps=0.4, threshold=0.2, now=20.0, preferred_key="w")["kind"] == "keep"
+    blocked = c.update(dps=0.0, threshold=0.2, now=30.0, preferred_key="w")
+
+    assert blocked["kind"] == "drift_blocked"
+    assert blocked["cumulative_steps"] == {"w": 1}
+    assert blocked["max_cumulative_steps"] == 1
+
+
+def test_low_dps_nudge_controller_logs_plateau_without_motion_when_cooldown_blocks_probe():
+    c = LowDpsNudgeController(cooldown_seconds=6.0, improvement_margin=0.15)
+
+    assert c.update(dps=0.0, threshold=0.2, now=10.0, preferred_key="w")["kind"] == "probe"
+    assert c.update(dps=0.35, threshold=0.2, now=20.0, preferred_key="w")["kind"] == "keep"
+    plateau = c.update(dps=0.05, threshold=0.2, now=21.0, preferred_key="w")
+
+    assert plateau["kind"] == "plateau"
+    assert plateau["best_dps"] == 0.35
+    assert plateau["plateau_seconds_remaining"] > 0
+
+
+def test_low_dps_target_freeze_blocks_dps_probe_when_target_retargets():
+    locked = {"vid": 123, "name": "Sapo de Pedra"}
+
+    assert low_dps_target_freeze_reason({"target": {"vid": 123, "name": "Sapo de Pedra", "alive": True}}, locked) is None
+    reason = low_dps_target_freeze_reason({"target": {"vid": 999, "name": "Demonio", "alive": True}}, locked)
+
+    assert reason == "target_changed"
 
 
 def test_sapo_probe_prefers_nearby_selected_target_over_far_probe_row():

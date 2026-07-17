@@ -362,16 +362,24 @@ class LowDpsNudgeController:
     immediately cancelled the movement.  That creates constant motion but never
     learns whether the new position improved DPS.  This controller probes one
     small step, waits for the next DPS estimate, keeps the step if DPS improves,
-    and undoes it if DPS gets worse or stays flat.
+    and undoes it if DPS gets worse or stays flat.  Kept steps are bounded by a
+    small cumulative drift radius so the live loop cannot wander away from the
+    fixed spawn.
     """
 
-    def __init__(self, *, cooldown_seconds: float = 6.0, improvement_margin: float = 0.15) -> None:
+    def __init__(self, *, cooldown_seconds: float = 6.0, improvement_margin: float = 0.15, max_cumulative_steps: int = 3) -> None:
         self.cooldown_seconds = max(0.0, float(cooldown_seconds))
         self.improvement_margin = max(0.0, float(improvement_margin))
+        self.max_cumulative_steps = max(0, int(max_cumulative_steps))
         self.pending_key: str | None = None
         self.pending_baseline: float | None = None
         self.last_action_at = 0.0
         self._next_direction = 0
+        self.cumulative_steps: dict[str, int] = {}
+        self.best_dps = 0.0
+
+    def _drift_total(self) -> int:
+        return sum(abs(int(v)) for v in self.cumulative_steps.values())
 
     def choose_key(self, preferred_key: str | None) -> str | None:
         candidates = [k for k in (preferred_key, "a", "d", "w", "s") if k in OPPOSITE_NUDGE_KEY]
@@ -385,6 +393,7 @@ class LowDpsNudgeController:
         return key
 
     def update(self, *, dps: float, threshold: float, now: float, preferred_key: str | None) -> dict[str, Any] | None:
+        self.best_dps = max(self.best_dps, float(dps))
         if self.pending_key:
             baseline = self.pending_baseline if self.pending_baseline is not None else dps
             improvement = dps - baseline
@@ -393,20 +402,44 @@ class LowDpsNudgeController:
             self.pending_baseline = None
             self.last_action_at = now
             if improvement >= self.improvement_margin or dps >= threshold:
-                return {"kind": "keep", "key": key, "dps_before": baseline, "dps_after": dps, "dps_improvement": improvement}
-            return {"kind": "undo", "key": OPPOSITE_NUDGE_KEY[key], "undo_for": key, "dps_before": baseline, "dps_after": dps, "dps_improvement": improvement}
+                self.cumulative_steps[key] = int(self.cumulative_steps.get(key, 0)) + 1
+                return {"kind": "keep", "key": key, "dps_before": baseline, "dps_after": dps, "dps_improvement": improvement, "best_dps": self.best_dps, "cumulative_steps": dict(self.cumulative_steps)}
+            return {"kind": "undo", "key": OPPOSITE_NUDGE_KEY[key], "undo_for": key, "dps_before": baseline, "dps_after": dps, "dps_improvement": improvement, "best_dps": self.best_dps, "cumulative_steps": dict(self.cumulative_steps)}
 
         if dps >= threshold:
             return None
-        if (now - self.last_action_at) < self.cooldown_seconds:
+        cooldown_remaining = self.cooldown_seconds - (now - self.last_action_at)
+        if cooldown_remaining > 0:
+            if self.best_dps > 0:
+                return {"kind": "plateau", "dps_before": dps, "dps_after": dps, "dps_improvement": 0.0, "best_dps": self.best_dps, "plateau_seconds_remaining": round(cooldown_remaining, 3), "cumulative_steps": dict(self.cumulative_steps)}
             return None
+        if self.max_cumulative_steps and self._drift_total() >= self.max_cumulative_steps:
+            return {"kind": "drift_blocked", "dps_before": dps, "dps_after": dps, "dps_improvement": 0.0, "best_dps": self.best_dps, "cumulative_steps": dict(self.cumulative_steps), "max_cumulative_steps": self.max_cumulative_steps}
         key = self.choose_key(preferred_key)
         if not key:
             return None
         self.pending_key = key
         self.pending_baseline = dps
         self.last_action_at = now
-        return {"kind": "probe", "key": key, "dps_before": dps, "dps_after": dps, "dps_improvement": 0.0}
+        return {"kind": "probe", "key": key, "dps_before": dps, "dps_after": dps, "dps_improvement": 0.0, "best_dps": self.best_dps, "cumulative_steps": dict(self.cumulative_steps)}
+
+
+def low_dps_target_freeze_reason(state: dict[str, Any], locked_target: dict[str, Any] | None) -> str | None:
+    """Return why low-DPS movement should freeze after retargeting, if any."""
+    if not locked_target:
+        return None
+    target = state.get("target") if isinstance(state.get("target"), dict) else {}
+    if target.get("alive") is False:
+        return None
+    locked_vid = locked_target.get("vid")
+    target_vid = target.get("vid")
+    if locked_vid is not None and target_vid is not None and int(target_vid) != int(locked_vid):
+        return "target_changed"
+    locked_name = str(locked_target.get("name") or "").lower()
+    target_name = str(target.get("name") or "").lower()
+    if locked_name and target_name and target_name != locked_name:
+        return "target_changed"
+    return None
 
 
 def hold_space_until_destroyed(
@@ -425,6 +458,7 @@ def hold_space_until_destroyed(
     low_dps_noise_margin_pct: float = 3.0,
     low_dps_adjust_cooldown_seconds: float = 6.0,
     low_dps_improvement_margin: float = 0.15,
+    low_dps_max_cumulative_steps: int = 3,
     adjust_hold_seconds: float = 0.18,
     adjust_deadzone: float = 40.0,
     window_query: str = "MT2Portugalia",
@@ -442,7 +476,9 @@ def hold_space_until_destroyed(
     nudge_controller = LowDpsNudgeController(
         cooldown_seconds=low_dps_adjust_cooldown_seconds,
         improvement_margin=low_dps_improvement_margin,
+        max_cumulative_steps=low_dps_max_cumulative_steps,
     )
+    locked_low_dps_target: dict[str, Any] | None = None
     try:
         deadline = time.time() + max(0.1, duration)
         while time.time() < deadline and not should_stop(stop_file):
@@ -461,46 +497,72 @@ def hold_space_until_destroyed(
             probe_alive = probe.get("alive")
             target_alive = target.get("alive")
             target_is_sapo = str(target.get("name") or "").lower() == "sapo de pedra"
+            if low_dps_adjust and locked_low_dps_target is None and target_is_sapo and target.get("vid") is not None:
+                locked_low_dps_target = {"vid": target.get("vid"), "name": target.get("name")}
+                emit(out, {"state": "SWEEP_LOW_DPS_TARGET_LOCKED", "cycle": cycle, "t": ticks, "target": locked_low_dps_target, "run_id": run_id})
             target_hp_pct = None
             target_hp_source = None
             visual_meta = None
             if low_dps_adjust:
-                target_hp_pct, target_hp_source, visual_meta = target_hp_pct_from_state_or_screen(
-                    state,
-                    window_query=window_query,
-                    screenshot_backend=screenshot_backend,
-                    image_path=out.with_name(f"{run_id}_cycle{cycle:02d}_hp_{ticks:04d}.jpg"),
-                )
-                # The visual fallback measures the currently selected target bar.
-                # If a demon steals target, do not use its HP as Sapo DPS proof;
-                # clear history so we do not immediately nudge from stale/noisy
-                # Sapo samples when target returns.
-                if target.get("name") and not target_is_sapo and target_hp_source == "visual_target_bar_hp_pct":
+                freeze_reason = low_dps_target_freeze_reason(state, locked_low_dps_target)
+                if freeze_reason:
                     hp_samples = []
-                elif target_hp_pct is not None:
-                    now = time.time()
-                    hp_samples.append((now, target_hp_pct))
-                    hp_samples = [(t, v) for t, v in hp_samples if now - t <= max(1.0, low_dps_window_seconds)]
-                    dps = low_dps_drop_rate(
-                        hp_samples,
-                        min_span_seconds=low_dps_min_window_seconds,
-                        noise_margin_pct=low_dps_noise_margin_pct,
+                    emit(out, {"state": "SWEEP_LOW_DPS_TARGET_FREEZE", "cycle": cycle, "t": ticks, "reason": freeze_reason, "locked_target": locked_low_dps_target, "target": target, "run_id": run_id})
+                else:
+                    target_hp_pct, target_hp_source, visual_meta = target_hp_pct_from_state_or_screen(
+                        state,
+                        window_query=window_query,
+                        screenshot_backend=screenshot_backend,
+                        image_path=out.with_name(f"{run_id}_cycle{cycle:02d}_hp_{ticks:04d}.jpg"),
                     )
-                    if dps is not None:
-                        preferred_key = low_dps_adjustment_key(state, deadzone=adjust_deadzone)
-                        nudge = nudge_controller.update(
-                            dps=dps,
-                            threshold=low_dps_threshold,
-                            now=now,
-                            preferred_key=preferred_key,
+                    # The visual fallback measures the currently selected target bar.
+                    # If a demon steals target, do not use its HP as Sapo DPS proof;
+                    # clear history so we do not immediately nudge from stale/noisy
+                    # Sapo samples when target returns.
+                    if target.get("name") and not target_is_sapo and target_hp_source == "visual_target_bar_hp_pct":
+                        hp_samples = []
+                    elif target_hp_pct is not None:
+                        now = time.time()
+                        hp_samples.append((now, target_hp_pct))
+                        hp_samples = [(t, v) for t, v in hp_samples if now - t <= max(1.0, low_dps_window_seconds)]
+                        dps = low_dps_drop_rate(
+                            hp_samples,
+                            min_span_seconds=low_dps_min_window_seconds,
+                            noise_margin_pct=low_dps_noise_margin_pct,
                         )
-                        if nudge and nudge.get("kind") in {"probe", "undo"}:
-                            hold = max(0.03, min(0.5, adjust_hold_seconds))
-                            tap_key(str(nudge["key"]), hold=hold)
-                            adjustments += 1
-                            emit(out, {"state": "SWEEP_LOW_DPS_ADJUST", "cycle": cycle, "t": ticks, "action": nudge.get("kind"), "key": nudge.get("key"), "undo_for": nudge.get("undo_for"), "preferred_key": preferred_key, "dps_pct_per_sec": round(dps, 3), "dps_before": round(float(nudge.get("dps_before", dps)), 3), "dps_after": round(float(nudge.get("dps_after", dps)), 3), "dps_improvement": round(float(nudge.get("dps_improvement", 0.0)), 3), "hp_pct": round(target_hp_pct, 3), "hp_source": target_hp_source, "samples": len(hp_samples), "sample_span_seconds": round(hp_samples[-1][0] - hp_samples[0][0], 3), "noise_margin_pct": low_dps_noise_margin_pct, "cooldown_seconds": low_dps_adjust_cooldown_seconds, "improvement_margin": low_dps_improvement_margin, "visual_hp": visual_meta, "run_id": run_id})
-                        elif nudge and nudge.get("kind") == "keep":
-                            emit(out, {"state": "SWEEP_LOW_DPS_KEEP", "cycle": cycle, "t": ticks, "key": nudge.get("key"), "preferred_key": preferred_key, "dps_pct_per_sec": round(dps, 3), "dps_before": round(float(nudge.get("dps_before", dps)), 3), "dps_after": round(float(nudge.get("dps_after", dps)), 3), "dps_improvement": round(float(nudge.get("dps_improvement", 0.0)), 3), "hp_pct": round(target_hp_pct, 3), "hp_source": target_hp_source, "samples": len(hp_samples), "sample_span_seconds": round(hp_samples[-1][0] - hp_samples[0][0], 3), "run_id": run_id})
+                        if dps is not None:
+                            preferred_key = low_dps_adjustment_key(state, deadzone=adjust_deadzone)
+                            nudge = nudge_controller.update(
+                                dps=dps,
+                                threshold=low_dps_threshold,
+                                now=now,
+                                preferred_key=preferred_key,
+                            )
+                            common = {
+                                "cycle": cycle,
+                                "t": ticks,
+                                "preferred_key": preferred_key,
+                                "dps_pct_per_sec": round(dps, 3),
+                                "dps_before": round(float(nudge.get("dps_before", dps)), 3) if nudge else round(dps, 3),
+                                "dps_after": round(float(nudge.get("dps_after", dps)), 3) if nudge else round(dps, 3),
+                                "dps_improvement": round(float(nudge.get("dps_improvement", 0.0)), 3) if nudge else 0.0,
+                                "best_dps": round(float(nudge.get("best_dps", dps)), 3) if nudge else round(dps, 3),
+                                "cumulative_steps": nudge.get("cumulative_steps") if nudge else dict(nudge_controller.cumulative_steps),
+                                "hp_pct": round(target_hp_pct, 3),
+                                "hp_source": target_hp_source,
+                                "samples": len(hp_samples),
+                                "sample_span_seconds": round(hp_samples[-1][0] - hp_samples[0][0], 3),
+                                "run_id": run_id,
+                            }
+                            if nudge and nudge.get("kind") in {"probe", "undo"}:
+                                hold = max(0.03, min(0.5, adjust_hold_seconds))
+                                tap_key(str(nudge["key"]), hold=hold)
+                                adjustments += 1
+                                emit(out, {"state": "SWEEP_LOW_DPS_ADJUST", "action": nudge.get("kind"), "key": nudge.get("key"), "undo_for": nudge.get("undo_for"), "noise_margin_pct": low_dps_noise_margin_pct, "cooldown_seconds": low_dps_adjust_cooldown_seconds, "improvement_margin": low_dps_improvement_margin, "max_cumulative_steps": low_dps_max_cumulative_steps, "visual_hp": visual_meta, **common})
+                            elif nudge and nudge.get("kind") == "keep":
+                                emit(out, {"state": "SWEEP_LOW_DPS_KEEP", "key": nudge.get("key"), **common})
+                            elif nudge and nudge.get("kind") in {"plateau", "drift_blocked"}:
+                                emit(out, {"state": "SWEEP_LOW_DPS_PLATEAU", "action": nudge.get("kind"), "plateau_seconds_remaining": nudge.get("plateau_seconds_remaining"), "max_cumulative_steps": nudge.get("max_cumulative_steps"), **common})
             if ticks == 1 or ticks % 5 == 0 or probe_alive is False or target_is_sapo or (hp is not None and hp <= hp_stop_threshold):
                 emit(out, {"state": "SWEEP_SPACE_TICK", "cycle": cycle, "t": ticks, "hp": hp, "target_name": target.get("name"), "target_alive": target_alive, "probe_alive": probe_alive, "target_hp_pct": target_hp_pct, "target_hp_source": target_hp_source, "adjustments": adjustments, "run_id": run_id})
             if (target_is_sapo and target_alive is False) or probe_alive is False:
@@ -556,6 +618,7 @@ def main() -> int:
     ap.add_argument("--low-dps-noise-margin", type=float, default=3.0, help="ignore target HP drops smaller than this many percentage points as visual noise")
     ap.add_argument("--low-dps-adjust-cooldown", type=float, default=6.0, help="minimum seconds between low-DPS WASD nudges")
     ap.add_argument("--low-dps-improvement-margin", type=float, default=0.15, help="minimum DPS gain to keep a probe nudge position")
+    ap.add_argument("--low-dps-max-cumulative-steps", type=int, default=3, help="maximum kept WASD nudge steps from the original attack position before movement is frozen")
     ap.add_argument("--adjust-hold-seconds", type=float, default=0.18)
     ap.add_argument("--adjust-deadzone", type=float, default=40.0)
     args = ap.parse_args()
@@ -755,6 +818,7 @@ def main() -> int:
                 low_dps_noise_margin_pct=args.low_dps_noise_margin,
                 low_dps_adjust_cooldown_seconds=args.low_dps_adjust_cooldown,
                 low_dps_improvement_margin=args.low_dps_improvement_margin,
+                low_dps_max_cumulative_steps=args.low_dps_max_cumulative_steps,
                 adjust_hold_seconds=args.adjust_hold_seconds,
                 adjust_deadzone=args.adjust_deadzone,
                 window_query=args.window_query,

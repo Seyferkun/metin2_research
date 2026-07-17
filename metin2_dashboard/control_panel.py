@@ -348,6 +348,7 @@ def build_fixed_sapo_sweep_payload(
     low_dps_adjust: bool = False,
     low_dps_threshold: str = "0.2",
     low_dps_window_seconds: str = "8",
+    low_dps_max_cumulative_steps: str = "3",
     adjust_hold_seconds: str = "0.18",
     live: bool = False,
     state_json: str = MAIN_JSON_STATE,
@@ -359,6 +360,7 @@ def build_fixed_sapo_sweep_payload(
     min_dist = max(0.0, float(min_distance))
     low_dps = max(0.0, float(low_dps_threshold))
     low_dps_window = max(1.0, float(low_dps_window_seconds))
+    low_dps_max_steps = max(0, int(float(low_dps_max_cumulative_steps)))
     adjust_hold = max(0.03, min(0.5, float(adjust_hold_seconds)))
     pickup_count = pickup_count_from_seconds(pickup_seconds)
     options: dict[str, Any] = {
@@ -378,6 +380,7 @@ def build_fixed_sapo_sweep_payload(
         "low_dps_adjust": bool(low_dps_adjust),
         "low_dps_threshold": str(low_dps),
         "low_dps_window_seconds": str(low_dps_window),
+        "low_dps_max_cumulative_steps": str(low_dps_max_steps),
         "adjust_hold_seconds": str(adjust_hold),
         "out": "reports/dashboard_runs/fixed_sapo_channel_sweep.jsonl",
         "summary_out": "reports/dashboard_runs/fixed_sapo_channel_sweep_summary.json",
@@ -1396,6 +1399,7 @@ class ControlPanelApp:
         self.sapo_sweep_load_wait_var = tk.StringVar(value="8")
         self.sapo_sweep_low_dps_adjust_var = tk.BooleanVar(value=True)
         self.sapo_sweep_low_dps_threshold_var = tk.StringVar(value="0.2")
+        self.sapo_sweep_max_steps_var = tk.StringVar(value="3")
         self.sapo_sweep_adjust_hold_var = tk.StringVar(value="0.18")
         self.sapo_status_var = tk.StringVar(value="Fixed Sapo: refresh preflight, keep buffs active, then Space-only test")
         self.player_training_duration_var = tk.StringVar(value="300")
@@ -1675,8 +1679,10 @@ class ControlPanelApp:
         ttk.Checkbutton(sapo_frame, text="low DPS: nudge WASD", variable=self.sapo_sweep_low_dps_adjust_var).grid(row=7, column=0, columnspan=2, sticky="w", padx=3, pady=(4, 0))
         ttk.Label(sapo_frame, text="low DPS <").grid(row=7, column=2, sticky="e", padx=3, pady=(4, 0))
         ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_low_dps_threshold_var, width=5).grid(row=7, column=3, sticky="w", padx=3, pady=(4, 0))
-        ttk.Label(sapo_frame, text="WASD hold").grid(row=7, column=4, sticky="e", padx=3, pady=(4, 0))
-        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_adjust_hold_var, width=5).grid(row=7, column=5, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="max kept steps").grid(row=7, column=4, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_max_steps_var, width=4).grid(row=7, column=5, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="WASD hold").grid(row=7, column=6, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_adjust_hold_var, width=5).grid(row=7, column=7, sticky="w", padx=3, pady=(4, 0))
         ttk.Label(sapo_frame, text="Channel switch: raw rows are CH1=0 through CH8=7. With skip index 0 on, row CH1/current is filtered out, so first raw row 1 starts on CH2. Reset cycle before changing this.", foreground="#b7791f").grid(row=8, column=0, columnspan=7, sticky="w", pady=(6, 0))
         ttk.Label(sapo_frame, text="Locked defaults: no combat click, no potion 1; only the low-DPS toggle allows tiny WASD centering nudges during Space attack. Use the Buff tab for F1/F2=156/302 timing.", foreground="#b7791f").grid(row=9, column=0, columnspan=7, sticky="w", pady=(3, 0))
         ttk.Label(sapo_frame, textvariable=self.sapo_status_var, justify="left").grid(row=10, column=0, columnspan=6, sticky="w", pady=(6, 0))
@@ -2808,6 +2814,7 @@ class ControlPanelApp:
                 pickup_seconds=self.sapo_pickup_seconds_var.get(),
                 low_dps_adjust=self.sapo_sweep_low_dps_adjust_var.get(),
                 low_dps_threshold=self.sapo_sweep_low_dps_threshold_var.get(),
+                low_dps_max_cumulative_steps=self.sapo_sweep_max_steps_var.get(),
                 adjust_hold_seconds=self.sapo_sweep_adjust_hold_var.get(),
                 live=True,
                 state_json=self.json_state_path,
@@ -2868,6 +2875,7 @@ class ControlPanelApp:
                 repeat_while_running=True,
                 low_dps_adjust=self.sapo_sweep_low_dps_adjust_var.get(),
                 low_dps_threshold=self.sapo_sweep_low_dps_threshold_var.get(),
+                low_dps_max_cumulative_steps=self.sapo_sweep_max_steps_var.get(),
                 adjust_hold_seconds=self.sapo_sweep_adjust_hold_var.get(),
                 live=True,
                 state_json=self.json_state_path,

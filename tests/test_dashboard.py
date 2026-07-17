@@ -519,6 +519,8 @@ def test_registry_exposes_fixed_sapo_live_scripts_with_elevated_input_and_new_ch
     ]
     assert options["repeat_while_running"]["flag"] == "--repeat-while-running"
     assert options["low_dps_adjust"]["flag"] == "--low-dps-adjust"
+    assert options["low_dps_max_cumulative_steps"]["flag"] == "--low-dps-max-cumulative-steps"
+    assert options["low_dps_max_cumulative_steps"]["default"] == 3
     assert "potion" not in {name for name in options}
 
 

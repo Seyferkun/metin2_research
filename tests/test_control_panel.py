@@ -268,6 +268,7 @@ def test_fixed_sapo_sweep_payload_is_bounded_and_safe():
         low_dps_adjust=True,
         low_dps_threshold="0.20",
         low_dps_window_seconds="8",
+        low_dps_max_cumulative_steps="3",
         adjust_hold_seconds="0.18",
         live=True,
         state_json="state.json",
@@ -291,6 +292,7 @@ def test_fixed_sapo_sweep_payload_is_bounded_and_safe():
     assert opts["low_dps_adjust"] is True
     assert opts["low_dps_threshold"] == "0.2"
     assert opts["low_dps_window_seconds"] == "8.0"
+    assert opts["low_dps_max_cumulative_steps"] == "3"
     assert opts["adjust_hold_seconds"] == "0.18"
     assert opts["out"].endswith("fixed_sapo_channel_sweep.jsonl")
     assert "potion" not in opts
