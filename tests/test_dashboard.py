@@ -472,7 +472,7 @@ def test_registry_exposes_attack_nearby_mobs_option_default_off():
     assert combat_options["buff_keys"]["flag"] == "--buff-keys"
     assert combat_options["buff_keys"]["default"] == "f1,f2"
     assert combat_options["buff_durations"]["flag"] == "--buff-durations"
-    assert combat_options["buff_durations"]["default"] == "109,301"
+    assert combat_options["buff_durations"]["default"] == "156,302"
     assert combat_options["assume_mounted"]["flag"] == "--assume-mounted"
     assert combat_options["assume_mounted"]["type"] == "bool"
     assert combat_options["assume_mounted"]["default"] is False
@@ -497,6 +497,29 @@ def test_registry_exposes_attack_nearby_mobs_option_default_off():
     assert combat_options["channel_click_points"]["flag"] == "--channel-click-points"
     assert combat_options["pickup_spam_count"]["flag"] == "--pickup-spam-count"
     assert "attack nearby mobs" in HTML
+
+
+def test_registry_exposes_fixed_sapo_live_scripts_with_elevated_input_and_new_channel_points():
+    reg = ProcessRegistry(Path.cwd())
+    scripts = {s["name"]: s for s in reg.list_scripts()}
+
+    space = scripts["fixed_sapo_space_control"]
+    assert space["exclusive_live_group"] == "combat"
+    assert space["live_args"] == ["--live", "--elevate"]
+
+    sweep = scripts["fixed_sapo_channel_sweep"]
+    options = {o["name"]: o for o in sweep["options"]}
+    assert sweep["exclusive_live_group"] == "combat"
+    assert sweep["live_args"] == ["--live", "--elevate"]
+    assert options["channel_click_points"]["default"].split(";")[:4] == [
+        "0.4990,0.3986",
+        "0.4990,0.4326",
+        "0.4990,0.4665",
+        "0.4990,0.5005",
+    ]
+    assert options["repeat_while_running"]["flag"] == "--repeat-while-running"
+    assert options["low_dps_adjust"]["flag"] == "--low-dps-adjust"
+    assert "potion" not in {name for name in options}
 
 
 def test_registry_exposes_player_training_recorder_observation_only():

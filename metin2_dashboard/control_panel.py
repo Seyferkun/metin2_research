@@ -24,11 +24,99 @@ MAIN_JSON_STATE = "D:/Games/MT2Portugalia/app/hermes_state.json"
 MAIN_TSV_STATE = "D:/Games/MT2Portugalia/app/hermes_state.tsv"
 BUFFER_JSON_STATE = "D:/Games/MT2PortugaliaBuffer/app/hermes_state.json"
 BUFFER_TSV_STATE = "D:/Games/MT2PortugaliaBuffer/app/hermes_state.tsv"
+FARMER_JSON_STATE = "D:/Games/MT2PortugaliaFarmer/app/hermes_state.json"
+FARMER_TSV_STATE = "D:/Games/MT2PortugaliaFarmer/app/hermes_state.tsv"
 CLIENT_PROFILES = {
     "main": {"label": "main", "json_state": MAIN_JSON_STATE, "tsv_state": MAIN_TSV_STATE},
     "buffer": {"label": "buffer", "json_state": BUFFER_JSON_STATE, "tsv_state": BUFFER_TSV_STATE},
+    "farmer": {"label": "farmer", "json_state": FARMER_JSON_STATE, "tsv_state": FARMER_TSV_STATE},
 }
-LEARNED_CHANNEL_CLICK_POINTS = "0.4039,0.3191;0.4039,0.3463;0.4039,0.3734;0.4039,0.4006;0.4039,0.4287;0.4039,0.4559;0.4039,0.4830;0.4039,0.5102"
+LEARNED_CHANNEL_CLICK_POINTS = "0.4990,0.3986;0.4990,0.4326;0.4990,0.4665;0.4990,0.5005;0.4990,0.5344;0.4990,0.5684;0.4990,0.6023;0.4990,0.6363"
+FIXED_SAPO_CHANNEL_CYCLE_STATE = "reports/dashboard_runs/fixed_sapo_channel_cycle_state.json"
+
+
+def normalize_channel_click_points(points: str, *, skip_first: bool = False) -> str:
+    rows = [row.strip() for row in str(points or LEARNED_CHANNEL_CLICK_POINTS).split(";") if row.strip()]
+    if skip_first and len(rows) > 1:
+        rows = rows[1:]
+    return ";".join(rows)
+
+
+def effective_channel_index(index: str, *, skip_first: bool = False) -> str:
+    """Convert a user-facing raw visible-row index to the script's active list index.
+
+    The UI value is always the raw row in the channel menu: CH1=0, CH2=1, ...
+    If skip_first is enabled, row 0 is removed from the point list before it is
+    sent to the script, so raw row 1 becomes active-list index 0.
+    """
+    value = max(0, int(float(index or 0)))
+    if skip_first:
+        value = max(0, value - 1)
+    return str(value)
+
+
+def pickup_count_from_seconds(seconds: str, *, interval: float = 0.08) -> str:
+    duration = max(0.0, float(seconds or 0))
+    if duration <= 0:
+        return "0"
+    return str(max(1, int(round(duration / max(0.02, interval)))))
+
+
+def format_fixed_sapo_gate_details(state: dict[str, Any], runs: list[dict[str, Any]] | None = None, cycle_state: dict[str, Any] | None = None) -> str:
+    player = state.get("player") if isinstance(state.get("player"), dict) else {}
+    target = state.get("target") if isinstance(state.get("target"), dict) else {}
+    probe = state.get("named_metin_probe") or state.get("sapo_probe") or {}
+    if not isinstance(probe, dict):
+        nearby = state.get("nearby_entities") if isinstance(state.get("nearby_entities"), list) else []
+        probe = next((row for row in nearby if isinstance(row, dict) and str(row.get("name") or "").lower() == "sapo de pedra"), {})
+    age = state.get("age_seconds", state.get("_age_seconds"))
+    if age is None and state.get("_file_mtime"):
+        try:
+            age = max(0.0, time.time() - float(state.get("_file_mtime")))
+        except Exception:
+            age = None
+    buff_running = bool(find_running_buff_keeper_run(runs or []))
+    live_running = bool(has_active_live_combat_run(runs or []))
+    lines = ["Fixed Sapo gate details"]
+    lines.append(f"state age: {float(age):.2f}s" if age is not None else "state age: unknown")
+    lines.append(f"player: {player.get('name') or state.get('player_name') or '?'} hp={player.get('hp', state.get('hp'))}/{player.get('max_hp', state.get('max_hp'))} pos=({player.get('x', state.get('x'))}, {player.get('y', state.get('y'))})")
+    lines.append(f"target: {target.get('name') or state.get('target_name') or '-'} alive={target.get('alive')}")
+    lines.append(f"sapo probe: {probe.get('name') or '-'} alive={probe.get('alive')} vid={probe.get('vid')} pixel={probe.get('pixel_position')}")
+    lines.append(f"buff keeper running: {buff_running}")
+    lines.append(f"live combat/sweep already running: {live_running}")
+    if cycle_state:
+        lines.append(f"cycle state: last={cycle_state.get('last_channel_index')} next={cycle_state.get('next_channel_index')} points={cycle_state.get('points_count')}")
+    return "\n".join(lines)
+
+
+def format_fixed_sapo_sweep_summary(summary: dict[str, Any]) -> str:
+    if not summary:
+        return "No Fixed Sapo sweep summary found yet."
+    lines = ["Fixed Sapo last sweep summary"]
+    lines.append(f"run_id: {summary.get('run_id')}")
+    lines.append(f"outcome: {summary.get('outcome')} reason={summary.get('reason')}")
+    lines.append(f"completed cycles: {summary.get('completed_cycles', 0)}/{summary.get('requested_channels', len(summary.get('cycles', [])))}")
+    final = summary.get("final_state") if isinstance(summary.get("final_state"), dict) else {}
+    player = final.get("player") if isinstance(final.get("player"), dict) else {}
+    if player:
+        lines.append(f"final hp: {player.get('hp')}/{player.get('max_hp')} pos=({player.get('x')}, {player.get('y')})")
+    for row in summary.get("cycles", []) or []:
+        if not isinstance(row, dict):
+            continue
+        switch = row.get("channel_switch_result") if isinstance(row.get("channel_switch_result"), dict) else {}
+        attack = row.get("attack") if isinstance(row.get("attack"), dict) else {}
+        lines.append(
+            f"cycle {row.get('cycle')}: {row.get('outcome')} reason={row.get('reason')} "
+            f"destroyed={attack.get('destroyed')} hp_min={attack.get('hp_min')} "
+            f"pickup={row.get('pickup_sent')} channel_index={switch.get('channel_index')} point={switch.get('screen_point')}"
+        )
+    if summary.get("log"):
+        lines.append(f"log: {summary.get('log')}")
+    if summary.get("screenshot_dir"):
+        lines.append(f"screens: {summary.get('screenshot_dir')}")
+    return "\n".join(lines)
+
+
 def build_server_cmd(*, port: str = "8767", json_state: str = MAIN_JSON_STATE, tsv_state: str = MAIN_TSV_STATE) -> list[str]:
     return [
         sys.executable,
@@ -121,6 +209,8 @@ def build_quick_start_payload(
     buff_keys: str | None = None,
     buff_durations: str | None = None,
     buff_refresh_margin_seconds: str | None = None,
+    f1_active_attack_min_min: str | None = "200",
+    f2_active_attack_speed_min: str | None = "130",
     channel_rotate_after_destroy: bool = False,
     channel_click_points: str | None = None,
     pickup_spam_count: str | None = None,
@@ -138,7 +228,7 @@ def build_quick_start_payload(
     if action == "practice_dry_run":
         return {"script": "combat_metin_client_state", "live": False, "confirm_live": False, "options": {"max_cycles": "5"}}
     if action == "buff_only_dry_run":
-        return {"script": "combat_metin_client_state", "live": False, "confirm_live": False, "options": {"max_cycles": "4", "buff_only": True, "buff_keys": "f1,f2", "buff_durations": "109,301", "buff_damage_guard_keys": "f1"}}
+        return {"script": "combat_metin_client_state", "live": False, "confirm_live": False, "options": {"max_cycles": "4", "buff_only": True, "buff_keys": "f1,f2", "buff_durations": "156,302", "buff_damage_guard_keys": "f1", "assume_mounted": True}}
     if action == "buff_only_live":
         options: dict[str, Any] = {"max_cycles": "0", "buff_only": True, "assume_mounted": True if assume_mounted is None else bool(assume_mounted), "buff_damage_guard_keys": "f1"}
         if buff_keys:
@@ -147,6 +237,10 @@ def build_quick_start_payload(
             options["buff_durations"] = str(buff_durations)
         if buff_refresh_margin_seconds not in (None, ""):
             options["buff_refresh_margin_seconds"] = str(buff_refresh_margin_seconds)
+        if f1_active_attack_min_min not in (None, ""):
+            options["f1_active_attack_min_min"] = str(f1_active_attack_min_min)
+        if f2_active_attack_speed_min not in (None, ""):
+            options["f2_active_attack_speed_min"] = str(f2_active_attack_speed_min)
         return {"script": "combat_metin_client_state", "live": True, "confirm_live": True, "options": options}
     if action == "practice_live":
         return {"script": "combat_metin_client_state", "live": True, "confirm_live": True, "options": {"max_cycles": "0"}}
@@ -186,6 +280,109 @@ def build_key_macro_payload(*, key: str, interval_seconds: str = "35", presses: 
             "elevate": True,
         },
     }
+
+
+def build_fixed_sapo_payload(
+    *,
+    duration: str = "30",
+    until_destroyed: bool = False,
+    hp_stop_threshold: str = "2500",
+    pickup_after_destroy: bool = False,
+    channel_switch_after_pickup: bool = False,
+    channel_click_points: str = LEARNED_CHANNEL_CLICK_POINTS,
+    channel_index: str = "0",
+    channel_auto_cycle: bool = True,
+    channel_cycle_state: str = FIXED_SAPO_CHANNEL_CYCLE_STATE,
+    skip_first_channel: bool = False,
+    pickup_seconds: str = "1.6",
+    min_distance: str = "350",
+    live: bool = False,
+    state_json: str = MAIN_JSON_STATE,
+) -> dict[str, Any]:
+    """Build the fixed-spawn Sapo test-bench payload.
+
+    This path is intentionally no-click/no-move/no-potion. Live mode only holds
+    Space after the script's preflight gates pass.
+    """
+    duration_s = max(0.0, float(duration))
+    hp_stop = max(1, int(float(hp_stop_threshold)))
+    min_dist = max(0.0, float(min_distance))
+    pickup_count = pickup_count_from_seconds(pickup_seconds)
+    stem = "fixed_sapo_until_destroy" if until_destroyed else f"fixed_sapo_{int(duration_s)}s"
+    options: dict[str, Any] = {
+        "state_json": str(state_json),
+        "duration": str(duration_s),
+        "hp_stop_threshold": str(hp_stop),
+        "min_distance": str(min_dist),
+        "window_query": "MT2Portugalia",
+        "out": f"reports/dashboard_runs/{stem}.jsonl",
+        "summary_out": f"reports/dashboard_runs/{stem}_summary.json",
+    }
+    if until_destroyed:
+        options["until_destroyed"] = True
+    if pickup_after_destroy:
+        options["pickup_after_destroy"] = True
+        options["pickup_count"] = pickup_count
+    if channel_switch_after_pickup:
+        options["channel_switch_after_pickup"] = True
+        options["channel_click_points"] = normalize_channel_click_points(channel_click_points or LEARNED_CHANNEL_CLICK_POINTS, skip_first=skip_first_channel)
+        options["channel_index"] = effective_channel_index(channel_index, skip_first=skip_first_channel)
+        options["channel_auto_cycle"] = bool(channel_auto_cycle)
+        options["channel_cycle_state"] = str(channel_cycle_state or FIXED_SAPO_CHANNEL_CYCLE_STATE)
+    return {"script": "fixed_sapo_space_control", "live": bool(live), "confirm_live": bool(live), "options": options}
+
+
+def build_fixed_sapo_sweep_payload(
+    *,
+    channels: str = "8",
+    cycle_duration: str = "240",
+    load_wait_seconds: str = "8",
+    hp_stop_threshold: str = "2500",
+    min_distance: str = "350",
+    channel_click_points: str = LEARNED_CHANNEL_CLICK_POINTS,
+    channel_index: str = "1",
+    channel_auto_cycle: bool = True,
+    skip_first_channel: bool = False,
+    pickup_seconds: str = "1.6",
+    repeat_while_running: bool = False,
+    low_dps_adjust: bool = False,
+    low_dps_threshold: str = "0.2",
+    low_dps_window_seconds: str = "8",
+    adjust_hold_seconds: str = "0.18",
+    live: bool = False,
+    state_json: str = MAIN_JSON_STATE,
+) -> dict[str, Any]:
+    channel_count = max(1, int(float(channels)))
+    cycle_seconds = max(5.0, float(cycle_duration))
+    load_wait = max(0.0, float(load_wait_seconds))
+    hp_stop = max(1, int(float(hp_stop_threshold)))
+    min_dist = max(0.0, float(min_distance))
+    low_dps = max(0.0, float(low_dps_threshold))
+    low_dps_window = max(1.0, float(low_dps_window_seconds))
+    adjust_hold = max(0.03, min(0.5, float(adjust_hold_seconds)))
+    pickup_count = pickup_count_from_seconds(pickup_seconds)
+    options: dict[str, Any] = {
+        "state_json": str(state_json),
+        "channels": str(channel_count),
+        "cycle_duration": str(cycle_seconds),
+        "load_wait_seconds": str(load_wait),
+        "hp_stop_threshold": str(hp_stop),
+        "min_distance": str(min_dist),
+        "pickup_count": pickup_count,
+        "channel_click_points": normalize_channel_click_points(channel_click_points or LEARNED_CHANNEL_CLICK_POINTS, skip_first=skip_first_channel),
+        "channel_index": effective_channel_index(channel_index, skip_first=skip_first_channel),
+        "channel_auto_cycle": bool(channel_auto_cycle),
+        "channel_cycle_state": FIXED_SAPO_CHANNEL_CYCLE_STATE,
+        "window_query": "MT2Portugalia",
+        "repeat_while_running": bool(repeat_while_running),
+        "low_dps_adjust": bool(low_dps_adjust),
+        "low_dps_threshold": str(low_dps),
+        "low_dps_window_seconds": str(low_dps_window),
+        "adjust_hold_seconds": str(adjust_hold),
+        "out": "reports/dashboard_runs/fixed_sapo_channel_sweep.jsonl",
+        "summary_out": "reports/dashboard_runs/fixed_sapo_channel_sweep_summary.json",
+    }
+    return {"script": "fixed_sapo_channel_sweep", "live": bool(live), "confirm_live": bool(live), "options": options}
 
 
 def build_player_training_payload(*, duration: str = "180", interval: str = "0.25", capture_screenshots: bool = True, record_mouse: bool = True, window_query: str = "MT2Portugalia", state_json: str = MAIN_JSON_STATE) -> dict[str, Any]:
@@ -231,6 +428,75 @@ def build_boss_farm_tracker_payload(*, duration: str = "3600", interval: str = "
             "loot_vnum": str(int(float(str(loot_vnum or "50070").strip()))),
         },
     }
+
+
+def build_boss_live_control_payload(*, duration: str = "600", interval: str = "0.25", max_kills: str = "0", boss_name: str = "Chefe Orc", loot_name: str = "Cofre do Chefe Orc", loot_vnum: str = "50070", channel_rotate: bool = False, channel_click_points: str = LEARNED_CHANNEL_CLICK_POINTS, pickup_spam_count: str = "12", state_json: str = MAIN_JSON_STATE) -> dict[str, Any]:
+    """Build the explicitly gated live Chefe Orc control payload."""
+    options: dict[str, Any] = {
+        "duration": str(max(1.0, float(duration))),
+        "interval": str(max(0.05, float(interval))),
+        "max_kills": str(max(0, int(float(max_kills or 0)))),
+        "state_json": str(state_json),
+        "boss_name": str(boss_name or "Chefe Orc"),
+        "loot_name": str(loot_name or "Cofre do Chefe Orc"),
+        "loot_vnum": str(int(float(str(loot_vnum or "50070").strip()))),
+        "pickup_spam_count": str(max(1, int(float(pickup_spam_count or 12)))),
+        "channel_rotate": bool(channel_rotate),
+    }
+    if channel_rotate:
+        options["channel_click_points"] = str(channel_click_points or LEARNED_CHANNEL_CLICK_POINTS)
+    return {"script": "chefe_orc_live_control", "live": True, "confirm_live": True, "options": options}
+
+
+def build_farm_metrics_payload(*, duration: str = "300", interval: str = "0.5", history_window: str = "20", screenshot_hp_fallback: bool = False, state_json: str = MAIN_JSON_STATE) -> dict[str, Any]:
+    """Build a read-only DPS/item farm history tracker payload."""
+    return {
+        "script": "farm_metrics_tracker",
+        "live": False,
+        "confirm_live": False,
+        "options": {
+            "state_json": str(state_json),
+            "duration": str(max(0.0, float(duration))),
+            "interval": str(max(0.05, float(interval))),
+            "history_window": str(max(0.05, float(history_window))),
+            "screenshot_hp_fallback": bool(screenshot_hp_fallback),
+            "window_query": "MT2Portugalia",
+            "out": "reports/dashboard_runs/farm_metrics_tracker.jsonl",
+            "summary_out": "reports/dashboard_runs/farm_metrics_tracker_summary.json",
+        },
+    }
+
+
+def format_farm_metrics_summary(summary: dict[str, Any]) -> str:
+    if not summary:
+        return "No farm metrics summary found yet."
+    dps = summary.get("dps") if isinstance(summary.get("dps"), dict) else {}
+    items = summary.get("items") if isinstance(summary.get("items"), dict) else {}
+    lines = ["Farm metrics summary"]
+    lines.append(f"run_id: {summary.get('run_id')}")
+    lines.append(f"outcome: {summary.get('outcome')} samples={summary.get('samples')} duration={summary.get('duration_seconds')}s")
+    lines.append(f"DPS last={dps.get('last')} best={dps.get('best')} avg={dps.get('average')} total_damage={dps.get('total_damage')} kills≈{dps.get('kills_estimated')}")
+    lines.append(f"items farmed total: {items.get('farmed_total_count')} inventory_available={items.get('inventory_available')}")
+    farmed = items.get("farmed") if isinstance(items.get("farmed"), list) else []
+    if farmed:
+        lines.append("Top farmed items:")
+        for row in farmed[:12]:
+            if isinstance(row, dict):
+                lines.append(f"  {row.get('count')}x {row.get('name')} ({row.get('vnum') or row.get('key')})")
+    else:
+        lines.append("Top farmed items: none detected yet")
+    loot_events = items.get("loot_events") if isinstance(items.get("loot_events"), list) else []
+    if loot_events:
+        lines.append("Loot/event items:")
+        for row in loot_events[:12]:
+            if isinstance(row, dict):
+                lines.append(f"  {row.get('count')}x {row.get('name')} ({row.get('vnum') or row.get('key')})")
+    note = items.get("note")
+    if note:
+        lines.append(f"note: {note}")
+    if summary.get("log"):
+        lines.append(f"log: {summary.get('log')}")
+    return "\n".join(lines)
 
 
 def build_reroll_recorder_payload(*, duration: str = "180", interval: str = "0.10", target_slot: str = "", target_vnum: str = "", state_json: str = MAIN_JSON_STATE) -> dict[str, Any]:
@@ -638,6 +904,9 @@ def format_control_config_summary(combat: dict[str, Any] | None, buffs: dict[str
         f"attack nearby mobs: {'ON' if combat.get('attack_nearby_mobs') else 'OFF'}",
         f"use buff config: {'ON' if buffs.get('use_buff_config') else 'OFF'}",
     ]
+    thresholds = buffs.get("active_stat_thresholds") if isinstance(buffs.get("active_stat_thresholds"), dict) else {}
+    lines.append(f"F1 active threshold: attack_power >= {float(thresholds.get('f1_attack_min_min', 200)):g}")
+    lines.append(f"F2 active threshold: attack_speed >= {float(thresholds.get('f2_attack_speed_min', 130)):g}")
     for row in buffs.get("buffs") or []:
         if not isinstance(row, dict):
             continue
@@ -659,9 +928,19 @@ def build_control_config_payload(
     f2_enabled: bool,
     f2_interval: str,
     f2_pre_cast: str,
+    f1_active_attack_min_min: str = "200",
+    f2_active_attack_speed_min: str = "130",
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    f1_threshold = float(f1_active_attack_min_min)
+    f2_threshold = float(f2_active_attack_speed_min)
+    if f1_threshold <= 0 or f2_threshold <= 0:
+        raise ValueError("F1/F2 active stat thresholds must be > 0")
     return {"attack_nearby_mobs": bool(attack_nearby_mobs)}, {
         "use_buff_config": bool(use_buff_config),
+        "active_stat_thresholds": {
+            "f1_attack_min_min": f1_threshold,
+            "f2_attack_speed_min": f2_threshold,
+        },
         "buffs": [
             {"key": "f1", "enabled": bool(f1_enabled), "interval_seconds": float(f1_interval), "pre_cast_seconds": float(f1_pre_cast)},
             {"key": "f2", "enabled": bool(f2_enabled), "interval_seconds": float(f2_interval), "pre_cast_seconds": float(f2_pre_cast)},
@@ -1074,8 +1353,10 @@ class ControlPanelApp:
         self.client_profile_var = tk.StringVar(value=f"Client: {self.client_profile} | {self.json_state_path}")
         self.login_main_user_var = tk.StringVar(value="yoshy")
         self.login_main_password_var = tk.StringVar(value="")
-        self.login_buffer_user_var = tk.StringVar(value="buffer")
+        self.login_buffer_user_var = tk.StringVar(value="nienna")
         self.login_buffer_password_var = tk.StringVar(value="")
+        self.login_farmer_user_var = tk.StringVar(value="seyfer")
+        self.login_farmer_password_var = tk.StringVar(value="")
         self.login_config_status_var = tk.StringVar(value="Login config not loaded")
         self.action_status = tk.StringVar(value="Last action: none")
         self.safety_gate_var = tk.StringVar(value="Live attack locked: dry-run only until explicitly approved and proven safe")
@@ -1096,9 +1377,27 @@ class ControlPanelApp:
         self.f2_interval_var = tk.StringVar(value="35")
         self.f1_pre_cast_var = tk.StringVar(value="3")
         self.f2_pre_cast_var = tk.StringVar(value="3")
+        self.f1_active_attack_min_min_var = tk.StringVar(value="200")
+        self.f2_active_attack_speed_min_var = tk.StringVar(value="130")
         self.key_macro_interval_var = tk.StringVar(value="35")
         self.key_macro_presses_var = tk.StringVar(value="0")
         self.key_macro_hold_var = tk.StringVar(value="0.06")
+        self.sapo_duration_var = tk.StringVar(value="30")
+        self.sapo_until_destroy_duration_var = tk.StringVar(value="240")
+        self.sapo_hp_stop_var = tk.StringVar(value="2500")
+        self.sapo_min_distance_var = tk.StringVar(value="350")
+        self.sapo_pickup_after_destroy_var = tk.BooleanVar(value=True)
+        self.sapo_channel_switch_after_pickup_var = tk.BooleanVar(value=False)
+        self.sapo_channel_auto_cycle_var = tk.BooleanVar(value=True)
+        self.sapo_channel_index_var = tk.StringVar(value="1")
+        self.sapo_skip_first_channel_var = tk.BooleanVar(value=True)
+        self.sapo_pickup_seconds_var = tk.StringVar(value="1.6")
+        self.sapo_sweep_channels_var = tk.StringVar(value="8")
+        self.sapo_sweep_load_wait_var = tk.StringVar(value="8")
+        self.sapo_sweep_low_dps_adjust_var = tk.BooleanVar(value=True)
+        self.sapo_sweep_low_dps_threshold_var = tk.StringVar(value="0.2")
+        self.sapo_sweep_adjust_hold_var = tk.StringVar(value="0.18")
+        self.sapo_status_var = tk.StringVar(value="Fixed Sapo: refresh preflight, keep buffs active, then Space-only test")
         self.player_training_duration_var = tk.StringVar(value="300")
         self.player_training_interval_var = tk.StringVar(value="0.25")
         self.player_training_screenshots_var = tk.BooleanVar(value=True)
@@ -1111,7 +1410,14 @@ class ControlPanelApp:
         self.boss_farm_wait_menu_var = tk.StringVar(value="alterar personagem")
         self.boss_farm_loot_name_var = tk.StringVar(value="Cofre do Chefe Orc")
         self.boss_farm_loot_vnum_var = tk.StringVar(value="50070")
+        self.boss_live_max_kills_var = tk.StringVar(value="4")
+        self.boss_live_channel_rotate_var = tk.BooleanVar(value=True)
         self.boss_farm_status_var = tk.StringVar(value="Boss farm tracker idle; record the next spawn to teach the loop")
+        self.farm_metrics_duration_var = tk.StringVar(value="300")
+        self.farm_metrics_interval_var = tk.StringVar(value="0.5")
+        self.farm_metrics_window_var = tk.StringVar(value="20")
+        self.farm_metrics_visual_hp_var = tk.BooleanVar(value=True)
+        self.farm_metrics_status_var = tk.StringVar(value="Farm metrics idle; read-only DPS/item tracker")
         self.reroll_slot_var = tk.StringVar(value="weapon")
         self.reroll_desired_stat_vars = [tk.StringVar(value="") for _ in range(4)]
         self.reroll_desired_target_vars = [tk.StringVar(value="") for _ in range(4)]
@@ -1156,6 +1462,8 @@ class ControlPanelApp:
             self.f2_interval_var,
             self.f1_pre_cast_var,
             self.f2_pre_cast_var,
+            self.f1_active_attack_min_min_var,
+            self.f2_active_attack_speed_min_var,
         ):
             var.trace_add("write", self._mark_control_config_dirty)
 
@@ -1169,6 +1477,8 @@ class ControlPanelApp:
             self.login_main_password_var,
             self.login_buffer_user_var,
             self.login_buffer_password_var,
+            self.login_farmer_user_var,
+            self.login_farmer_password_var,
         ):
             var.trace_add("write", self._mark_login_config_dirty)
 
@@ -1226,15 +1536,19 @@ class ControlPanelApp:
 
         state_tab = ttk.Frame(notebook, padding=6)
         keys_tab = ttk.Frame(notebook, padding=6)
+        sapo_tab = ttk.Frame(notebook, padding=6)
         training_tab = ttk.Frame(notebook, padding=6)
         boss_farm_tab = ttk.Frame(notebook, padding=6)
+        farm_metrics_tab = ttk.Frame(notebook, padding=6)
         reroll_tab = ttk.Frame(notebook, padding=6)
         right = ttk.Frame(notebook, padding=6)
         scripts_tab = ttk.Frame(notebook, padding=6)
         notebook.add(state_tab, text="State")
         notebook.add(keys_tab, text="F1/F2 + buffs")
+        notebook.add(sapo_tab, text="Fixed Sapo")
         notebook.add(training_tab, text="Player training")
         notebook.add(boss_farm_tab, text="Boss farm")
+        notebook.add(farm_metrics_tab, text="Farm metrics")
         notebook.add(reroll_tab, text="Reroll Items")
         notebook.add(right, text="Targets + runs")
         notebook.add(scripts_tab, text="Scripts")
@@ -1274,9 +1588,13 @@ class ControlPanelApp:
         ttk.Entry(config_frame, textvariable=self.f2_interval_var, width=6).grid(row=3, column=2, sticky="w")
         ttk.Label(config_frame, text="pre-cast").grid(row=3, column=3, sticky="e")
         ttk.Entry(config_frame, textvariable=self.f2_pre_cast_var, width=6).grid(row=3, column=4, sticky="w")
-        ttk.Button(config_frame, text="Save buff/mob config", command=self.save_control_config).grid(row=4, column=0, sticky="w", pady=(6, 0), columnspan=2)
+        ttk.Label(config_frame, text="F1 active if attack_power ≥").grid(row=4, column=0, columnspan=2, sticky="e", pady=(4, 0))
+        ttk.Entry(config_frame, textvariable=self.f1_active_attack_min_min_var, width=7).grid(row=4, column=2, sticky="w", pady=(4, 0))
+        ttk.Label(config_frame, text="F2 active if attack_speed ≥").grid(row=4, column=3, columnspan=2, sticky="e", pady=(4, 0))
+        ttk.Entry(config_frame, textvariable=self.f2_active_attack_speed_min_var, width=7).grid(row=4, column=5, sticky="w", pady=(4, 0))
+        ttk.Button(config_frame, text="Save buff/mob config", command=self.save_control_config).grid(row=5, column=0, sticky="w", pady=(6, 0), columnspan=2)
         self.control_config_label = ttk.Label(config_frame, text="config not loaded", justify="left")
-        self.control_config_label.grid(row=4, column=2, columnspan=3, sticky="w", padx=8, pady=(6, 0))
+        self.control_config_label.grid(row=5, column=2, columnspan=4, sticky="w", padx=8, pady=(6, 0))
         login_frame = ttk.LabelFrame(keys_tab, text="Login accounts", padding=8)
         login_frame.pack(fill="x", pady=(0, 8))
         ttk.Label(login_frame, text="Main user").grid(row=0, column=0, sticky="e", padx=3)
@@ -1291,13 +1609,19 @@ class ControlPanelApp:
         ttk.Entry(login_frame, textvariable=self.login_buffer_password_var, width=18, show="*").grid(row=1, column=3, sticky="w", padx=3)
         ttk.Button(login_frame, text="Open BUFFER + login", command=lambda: self.open_login_profile("buffer")).grid(row=1, column=4, sticky="w", padx=6)
         ttk.Label(login_frame, text="D:/Games/MT2PortugaliaBuffer/app", foreground="#666").grid(row=1, column=5, sticky="w", padx=3)
-        ttk.Button(login_frame, text="Save login config", command=self.save_login_config).grid(row=2, column=0, sticky="w", pady=(6, 0), padx=3)
-        ttk.Label(login_frame, textvariable=self.login_config_status_var, justify="left").grid(row=2, column=1, columnspan=5, sticky="w", pady=(6, 0))
-        ttk.Checkbutton(config_frame, text="after destroy: spam Z, press X, click next channel", variable=self.channel_rotate_after_destroy_var).grid(row=5, column=0, columnspan=5, sticky="w", pady=(8, 0))
-        ttk.Label(config_frame, text="channel points x,y;x,y").grid(row=6, column=0, columnspan=2, sticky="e")
-        ttk.Entry(config_frame, textvariable=self.channel_click_points_var, width=28).grid(row=6, column=2, columnspan=2, sticky="w")
-        ttk.Label(config_frame, text="Z count").grid(row=6, column=4, sticky="e")
-        ttk.Entry(config_frame, textvariable=self.pickup_spam_count_var, width=5).grid(row=6, column=5, sticky="w")
+        ttk.Label(login_frame, text="Farmer user").grid(row=2, column=0, sticky="e", padx=3)
+        ttk.Entry(login_frame, textvariable=self.login_farmer_user_var, width=16).grid(row=2, column=1, sticky="w", padx=3)
+        ttk.Label(login_frame, text="new password").grid(row=2, column=2, sticky="e", padx=3)
+        ttk.Entry(login_frame, textvariable=self.login_farmer_password_var, width=18, show="*").grid(row=2, column=3, sticky="w", padx=3)
+        ttk.Button(login_frame, text="Open FARMER + login", command=lambda: self.open_login_profile("farmer")).grid(row=2, column=4, sticky="w", padx=6)
+        ttk.Label(login_frame, text="D:/Games/MT2PortugaliaFarmer/app", foreground="#666").grid(row=2, column=5, sticky="w", padx=3)
+        ttk.Button(login_frame, text="Save login config", command=self.save_login_config).grid(row=3, column=0, sticky="w", pady=(6, 0), padx=3)
+        ttk.Label(login_frame, textvariable=self.login_config_status_var, justify="left").grid(row=3, column=1, columnspan=5, sticky="w", pady=(6, 0))
+        ttk.Checkbutton(config_frame, text="after destroy: spam Z, press X, click next channel", variable=self.channel_rotate_after_destroy_var).grid(row=6, column=0, columnspan=5, sticky="w", pady=(8, 0))
+        ttk.Label(config_frame, text="channel points x,y;x,y").grid(row=7, column=0, columnspan=2, sticky="e")
+        ttk.Entry(config_frame, textvariable=self.channel_click_points_var, width=28).grid(row=7, column=2, columnspan=2, sticky="w")
+        ttk.Label(config_frame, text="Z count").grid(row=7, column=4, sticky="e")
+        ttk.Entry(config_frame, textvariable=self.pickup_spam_count_var, width=5).grid(row=7, column=5, sticky="w")
 
         key_frame = ttk.LabelFrame(keys_tab, text="Direct key test + timed macro", padding=8)
         key_frame.pack(fill="x", pady=(0, 8))
@@ -1312,6 +1636,52 @@ class ControlPanelApp:
         ttk.Button(key_frame, text="Start F1 timed macro LIVE", command=lambda: self.start_key_macro("f1")).grid(row=2, column=0, columnspan=2, sticky="w", padx=3, pady=2)
         ttk.Button(key_frame, text="Start F2 timed macro LIVE", command=lambda: self.start_key_macro("f2")).grid(row=2, column=2, columnspan=2, sticky="w", padx=3, pady=2)
         ttk.Label(key_frame, text="Uses managed runs; Stop selected/Emergency stop all stops repeating macros. Live key sender relaunches elevated; approve UAC if Windows asks.").grid(row=3, column=0, columnspan=6, sticky="w", padx=3)
+
+        sapo_frame = ttk.LabelFrame(sapo_tab, text="Fixed-spawn Sapo test bench (no click / no move / no potion 1)", padding=8)
+        sapo_frame.pack(fill="x", pady=(0, 8))
+        ttk.Label(sapo_frame, text="Workflow: Start/verify Keep Buffs Active LIVE, stand next to fixed Sapo spawn, then run Space-only tests. Channel rotation stays separate until current-channel proof passes.").grid(row=0, column=0, columnspan=7, sticky="w", pady=(0, 6))
+        ttk.Button(sapo_frame, text="Refresh gate details", command=self.refresh_sapo_gate_details).grid(row=1, column=0, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Start/Stop Keep Buffs LIVE", command=self.toggle_buff_only_live).grid(row=1, column=1, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Dry-run preflight", command=self.sapo_preflight_dry_run).grid(row=1, column=2, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Reset channel cycle", command=self.reset_sapo_channel_cycle).grid(row=1, column=3, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Last sweep summary", command=self.refresh_sapo_sweep_summary).grid(row=1, column=4, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Dry-run sweep preview", command=self.sapo_sweep_dry_run_preview).grid(row=1, column=5, columnspan=2, sticky="w", padx=3, pady=2)
+        ttk.Label(sapo_frame, text="30s test seconds").grid(row=2, column=0, sticky="e", padx=3)
+        ttk.Entry(sapo_frame, textvariable=self.sapo_duration_var, width=7).grid(row=2, column=1, sticky="w", padx=3)
+        ttk.Button(sapo_frame, text="Run 30s Space test LIVE", command=self.sapo_space_short_live).grid(row=2, column=2, sticky="w", padx=3, pady=2)
+        ttk.Label(sapo_frame, text="until-destroy max seconds").grid(row=3, column=0, sticky="e", padx=3)
+        ttk.Entry(sapo_frame, textvariable=self.sapo_until_destroy_duration_var, width=7).grid(row=3, column=1, sticky="w", padx=3)
+        ttk.Button(sapo_frame, text="Run until Sapo destroyed LIVE", command=self.sapo_space_until_destroy_live).grid(row=3, column=2, sticky="w", padx=3, pady=2)
+        ttk.Button(sapo_frame, text="Full: destroy + pickup + switch LIVE", command=self.sapo_full_destroy_pickup_switch_live).grid(row=3, column=3, columnspan=3, sticky="w", padx=3, pady=2)
+        ttk.Label(sapo_frame, text="HP stop ≤").grid(row=4, column=0, sticky="e", padx=3)
+        ttk.Entry(sapo_frame, textvariable=self.sapo_hp_stop_var, width=7).grid(row=4, column=1, sticky="w", padx=3)
+        ttk.Label(sapo_frame, text="max distance from spawn").grid(row=4, column=2, sticky="e", padx=3)
+        ttk.Entry(sapo_frame, textvariable=self.sapo_min_distance_var, width=7).grid(row=4, column=3, sticky="w", padx=3)
+        ttk.Checkbutton(sapo_frame, text="pickup Z after destroy", variable=self.sapo_pickup_after_destroy_var).grid(row=4, column=4, sticky="w", padx=3)
+        ttk.Label(sapo_frame, text="pickup seconds").grid(row=4, column=5, sticky="e", padx=3)
+        ttk.Entry(sapo_frame, textvariable=self.sapo_pickup_seconds_var, width=5).grid(row=4, column=6, sticky="w", padx=3)
+        ttk.Checkbutton(sapo_frame, text="then switch channel", variable=self.sapo_channel_switch_after_pickup_var).grid(row=5, column=0, columnspan=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Checkbutton(sapo_frame, text="auto next channel", variable=self.sapo_channel_auto_cycle_var).grid(row=5, column=1, columnspan=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Checkbutton(sapo_frame, text="skip index 0", variable=self.sapo_skip_first_channel_var).grid(row=5, column=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="first raw row").grid(row=5, column=3, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_channel_index_var, width=5).grid(row=5, column=4, sticky="w", padx=3, pady=(4, 0))
+        ttk.Button(sapo_frame, text="Test pickup + channel switch LIVE", command=self.sapo_pickup_channel_switch_live).grid(row=5, column=5, columnspan=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="sweep channels").grid(row=6, column=0, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_channels_var, width=5).grid(row=6, column=1, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="load wait s").grid(row=6, column=2, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_load_wait_var, width=5).grid(row=6, column=3, sticky="w", padx=3, pady=(4, 0))
+        ttk.Button(sapo_frame, text="Sweep all channels LIVE", command=self.sapo_sweep_all_channels_live).grid(row=6, column=4, sticky="w", padx=3, pady=(4, 0))
+        ttk.Button(sapo_frame, text="Keep sweep running LIVE", command=self.toggle_sapo_sweep_keep_running).grid(row=6, column=5, columnspan=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Checkbutton(sapo_frame, text="low DPS: nudge WASD", variable=self.sapo_sweep_low_dps_adjust_var).grid(row=7, column=0, columnspan=2, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="low DPS <").grid(row=7, column=2, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_low_dps_threshold_var, width=5).grid(row=7, column=3, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="WASD hold").grid(row=7, column=4, sticky="e", padx=3, pady=(4, 0))
+        ttk.Entry(sapo_frame, textvariable=self.sapo_sweep_adjust_hold_var, width=5).grid(row=7, column=5, sticky="w", padx=3, pady=(4, 0))
+        ttk.Label(sapo_frame, text="Channel switch: raw rows are CH1=0 through CH8=7. With skip index 0 on, row CH1/current is filtered out, so first raw row 1 starts on CH2. Reset cycle before changing this.", foreground="#b7791f").grid(row=8, column=0, columnspan=7, sticky="w", pady=(6, 0))
+        ttk.Label(sapo_frame, text="Locked defaults: no combat click, no potion 1; only the low-DPS toggle allows tiny WASD centering nudges during Space attack. Use the Buff tab for F1/F2=156/302 timing.", foreground="#b7791f").grid(row=9, column=0, columnspan=7, sticky="w", pady=(3, 0))
+        ttk.Label(sapo_frame, textvariable=self.sapo_status_var, justify="left").grid(row=10, column=0, columnspan=6, sticky="w", pady=(6, 0))
+        self.sapo_preflight_text = tk.Text(sapo_tab, height=14, wrap="none", font=("Consolas", 9))
+        self.sapo_preflight_text.pack(fill="both", expand=True)
 
         training_frame = ttk.LabelFrame(keys_tab, text="Player training recorder (observation only)", padding=8)
         training_frame.pack(fill="x", pady=(0, 8))
@@ -1363,11 +1733,32 @@ class ControlPanelApp:
         ttk.Entry(boss_controls, textvariable=self.boss_farm_loot_vnum_var, width=8).grid(row=2, column=3, sticky="w", padx=3)
         ttk.Button(boss_controls, text="Start boss farm tracker", command=self.start_boss_farm_tracker).grid(row=3, column=0, columnspan=2, sticky="w", padx=3, pady=(6, 0))
         ttk.Label(boss_controls, textvariable=self.boss_farm_status_var).grid(row=3, column=2, columnspan=4, sticky="w", padx=3, pady=(6, 0))
-        ttk.Label(boss_farm_tab, text="Observation-first scaffold: tracks 30-minute spawn windows, channels, state freshness, and farm totals. It does not press keys/click until you record and approve a learned boss loop.", foreground="#666").pack(anchor="w", pady=(0, 8))
+        ttk.Label(boss_controls, text="live max kills").grid(row=4, column=0, sticky="e", padx=3, pady=(6, 0))
+        ttk.Entry(boss_controls, textvariable=self.boss_live_max_kills_var, width=7).grid(row=4, column=1, sticky="w", padx=3, pady=(6, 0))
+        ttk.Checkbutton(boss_controls, text="after kill: Z pickup + X channel rotate", variable=self.boss_live_channel_rotate_var).grid(row=4, column=2, columnspan=3, sticky="w", padx=3, pady=(6, 0))
+        ttk.Button(boss_controls, text="Start gated Chefe Orc LIVE", command=self.start_boss_live_control).grid(row=5, column=0, columnspan=3, sticky="w", padx=3, pady=(6, 0))
+        ttk.Label(boss_farm_tab, text="Observation-first scaffold plus gated LIVE control: live only attacks selected Chefe Orc targets, confirms HP-zero/loot delta, then optionally picks up and rotates channel.", foreground="#666").pack(anchor="w", pady=(0, 8))
         self.boss_farm_text = tk.Text(boss_farm_tab, height=18, wrap="word", font=("Consolas", 9))
         self.boss_farm_text.pack(fill="both", expand=True)
         self.boss_farm_text.insert("1.0", "Boss farm plan:\n1. Start tracker before the next spawn.\n2. Record your manual boss kill/channel/menu-wait loop with Player training recorder.\n3. After learning, this panel will show boss_kills_confirmed, channels_cleared, loot_pickups_observed, and next spawn ETA.\n4. Waiting menu target: alterar personagem.\n")
         self.boss_farm_text.configure(state="disabled")
+
+        farm_metrics_controls = ttk.LabelFrame(farm_metrics_tab, text="DPS meter + item farm history (read-only)", padding=8)
+        farm_metrics_controls.pack(fill="x", pady=(0, 8))
+        ttk.Label(farm_metrics_controls, text="duration").grid(row=0, column=0, sticky="e", padx=3)
+        ttk.Entry(farm_metrics_controls, textvariable=self.farm_metrics_duration_var, width=8).grid(row=0, column=1, sticky="w", padx=3)
+        ttk.Label(farm_metrics_controls, text="interval").grid(row=0, column=2, sticky="e", padx=3)
+        ttk.Entry(farm_metrics_controls, textvariable=self.farm_metrics_interval_var, width=7).grid(row=0, column=3, sticky="w", padx=3)
+        ttk.Label(farm_metrics_controls, text="DPS window s").grid(row=0, column=4, sticky="e", padx=3)
+        ttk.Entry(farm_metrics_controls, textvariable=self.farm_metrics_window_var, width=7).grid(row=0, column=5, sticky="w", padx=3)
+        ttk.Checkbutton(farm_metrics_controls, text="visual HP fallback", variable=self.farm_metrics_visual_hp_var).grid(row=0, column=6, sticky="w", padx=6)
+        ttk.Button(farm_metrics_controls, text="Start DPS/item tracker", command=self.start_farm_metrics_tracker).grid(row=1, column=0, columnspan=2, sticky="w", padx=3, pady=(6, 0))
+        ttk.Button(farm_metrics_controls, text="Refresh metrics summary", command=self.refresh_farm_metrics_summary).grid(row=1, column=2, columnspan=2, sticky="w", padx=3, pady=(6, 0))
+        ttk.Label(farm_metrics_controls, textvariable=self.farm_metrics_status_var).grid(row=1, column=4, columnspan=3, sticky="w", padx=3, pady=(6, 0))
+        ttk.Label(farm_metrics_tab, text="DPS uses target HP/HP% deltas from hermes_state.json. Item history uses inventory/loot deltas when those fields are exported by the client logger.", foreground="#666").pack(anchor="w", pady=(0, 8))
+        self.farm_metrics_text = tk.Text(farm_metrics_tab, height=24, wrap="word", font=("Consolas", 9))
+        self.farm_metrics_text.pack(fill="both", expand=True)
+        self.refresh_farm_metrics_summary()
 
         reroll_controls = ttk.LabelFrame(reroll_tab, text="Reroll Items", padding=8)
         reroll_controls.pack(fill="x", pady=(0, 8))
@@ -1494,6 +1885,7 @@ class ControlPanelApp:
     def apply_refresh(self, state: dict[str, Any], scripts: list[dict[str, Any]], runs: list[dict[str, Any]], combat_config: dict[str, Any] | None = None, buff_config: dict[str, Any] | None = None, login_config: dict[str, Any] | None = None, reroll_config: dict[str, Any] | None = None) -> None:
         self.render_truth_dashboard(state, runs, combat_config or {}, buff_config or {})
         self.render_state_card(state)
+        self.render_sapo_preflight(state, runs, buff_config or {})
         self.render_state_bridge(state)
         self.render_nearby_metins()
         self.render_combat_status(state, runs)
@@ -1539,6 +1931,49 @@ class ControlPanelApp:
             self.hp_bar.configure(style="HpYellow.Horizontal.TProgressbar")
         else:
             self.hp_bar.configure(style="HpRed.Horizontal.TProgressbar")
+
+    def render_sapo_preflight(self, state: dict[str, Any], runs: list[dict[str, Any]], buff_config: dict[str, Any]) -> None:
+        widget = getattr(self, "sapo_preflight_text", None)
+        if widget is None:
+            return
+        player = state.get("player") if isinstance(state.get("player"), dict) else {}
+        probes = []
+        for key in ("named_metin_probe", "nearby_entities"):
+            value = state.get(key)
+            if isinstance(value, list):
+                probes.extend(row for row in value if isinstance(row, dict))
+        sapo = next((row for row in probes if str(row.get("name") or "").lower() == "sapo de pedra"), {})
+        age = None
+        try:
+            age = max(0.0, time.time() - float(state.get("_file_mtime"))) if state.get("_file_mtime") else None
+        except Exception:
+            age = None
+        dist = "unknown"
+        pos = sapo.get("pixel_position")
+        try:
+            if isinstance(pos, (list, tuple)) and len(pos) >= 2:
+                dx = float(player.get("x")) - float(pos[0])
+                dy = float(player.get("y")) - float(pos[1])
+                dist = f"{(dx * dx + dy * dy) ** 0.5:.1f}"
+        except Exception:
+            dist = "unknown"
+        buff_run = find_running_buff_keeper_run(runs)
+        by_key = {str(row.get("key") or "").lower(): row for row in buff_config.get("buffs", []) if isinstance(row, dict)} if isinstance(buff_config, dict) else {}
+        lines = [
+            "FIXED SAPO TEST BENCH PREFLIGHT",
+            "=================================",
+            f"State age: {'unknown' if age is None else f'{age:.2f}s'}  ({'PASS' if age is not None and age <= 2 else 'WARN/STALE'})",
+            f"Player: {player.get('name') or state.get('player_name') or '?'} HP {player.get('hp', '?')}/{player.get('max_hp', '?')} pos ({player.get('x', '?')}, {player.get('y', '?')})",
+            f"Sapo probe: alive={sapo.get('alive')} vid={sapo.get('vid')} pos={sapo.get('pixel_position')} distance={dist}",
+            f"Selected target: {(state.get('target') if isinstance(state.get('target'), dict) else {}).get('name') or 'none'}",
+            f"Buff keeper: {'RUNNING ' + str(buff_run.get('run_id')) if buff_run else 'not running'}",
+            f"F1 duration: {by_key.get('f1', {}).get('interval_seconds', 156)}s | F2 duration: {by_key.get('f2', {}).get('interval_seconds', 302)}s",
+            "Locked live behavior: no click, no movement, no potion 1; Space only after preflight gates pass.",
+            "Recommended order: Keep buffs LIVE -> Dry-run preflight -> 30s Space test -> Until-destroy proof -> pickup/channel later.",
+        ]
+        self.sapo_status_var.set(f"Sapo preflight: age={'unknown' if age is None else f'{age:.1f}s'} | buff keeper={'ON' if buff_run else 'OFF'} | sapo_alive={sapo.get('alive')}")
+        widget.delete("1.0", "end")
+        widget.insert("end", "\n".join(lines))
 
     def render_state_bridge(self, state: dict[str, Any]) -> None:
         if not hasattr(self, "bridge_trust_text"):
@@ -1599,6 +2034,9 @@ class ControlPanelApp:
             self.attack_nearby_mobs_var.set(bool(combat_config.get("attack_nearby_mobs")))
             self.use_buff_config_var.set(bool(buff_config.get("use_buff_config")))
             by_key = {str(row.get("key") or "").lower(): row for row in buff_config.get("buffs", []) if isinstance(row, dict)}
+            thresholds = buff_config.get("active_stat_thresholds") if isinstance(buff_config.get("active_stat_thresholds"), dict) else {}
+            self.f1_active_attack_min_min_var.set(str(float(thresholds.get("f1_attack_min_min", 200.0))).rstrip("0").rstrip("."))
+            self.f2_active_attack_speed_min_var.set(str(float(thresholds.get("f2_attack_speed_min", 130.0))).rstrip("0").rstrip("."))
             for key, enabled_var, interval_var, pre_cast_var in (
                 ("f1", self.f1_enabled_var, self.f1_interval_var, self.f1_pre_cast_var),
                 ("f2", self.f2_enabled_var, self.f2_interval_var, self.f2_pre_cast_var),
@@ -1617,15 +2055,18 @@ class ControlPanelApp:
         profiles = login_config.get("profiles") if isinstance(login_config.get("profiles"), dict) else {}
         main = profiles.get("main", {}) if isinstance(profiles.get("main"), dict) else {}
         buffer = profiles.get("buffer", {}) if isinstance(profiles.get("buffer"), dict) else {}
+        farmer = profiles.get("farmer", {}) if isinstance(profiles.get("farmer"), dict) else {}
         def pw_status(row: dict[str, Any]) -> str:
             if row.get("password_updated"):
                 return "password saved now"
             return "password saved" if row.get("has_password") else "no password saved"
-        saved_status = "Main: {main_user} ({main_pw}) | Buffer: {buffer_user} ({buffer_pw})".format(
+        saved_status = "Main: {main_user} ({main_pw}) | Buffer: {buffer_user} ({buffer_pw}) | Farmer: {farmer_user} ({farmer_pw})".format(
             main_user=main.get("username") or "?",
             main_pw=pw_status(main),
             buffer_user=buffer.get("username") or "?",
             buffer_pw=pw_status(buffer),
+            farmer_user=farmer.get("username") or "?",
+            farmer_pw=pw_status(farmer),
         )
 
         if getattr(self, "_login_config_dirty", False):
@@ -1634,10 +2075,12 @@ class ControlPanelApp:
         self._loading_login_config = True
         try:
             self.login_main_user_var.set(str(main.get("username") or "yoshy"))
-            self.login_buffer_user_var.set(str(buffer.get("username") or "buffer"))
+            self.login_buffer_user_var.set(str(buffer.get("username") or "nienna"))
+            self.login_farmer_user_var.set(str(farmer.get("username") or "seyfer"))
             # Never populate passwords from API/config. Leave password boxes empty unless the operator is typing.
             self.login_main_password_var.set("")
             self.login_buffer_password_var.set("")
+            self.login_farmer_password_var.set("")
         finally:
             self._loading_login_config = False
         self.login_config_status_var.set(saved_status)
@@ -1753,6 +2196,7 @@ class ControlPanelApp:
             "profiles": {
                 "main": {"username": self.login_main_user_var.get(), "app_dir": MAIN_JSON_STATE.rsplit("/", 1)[0], "password": self.login_main_password_var.get()},
                 "buffer": {"username": self.login_buffer_user_var.get(), "app_dir": BUFFER_JSON_STATE.rsplit("/", 1)[0], "password": self.login_buffer_password_var.get()},
+                "farmer": {"username": self.login_farmer_user_var.get(), "app_dir": FARMER_JSON_STATE.rsplit("/", 1)[0], "password": self.login_farmer_password_var.get()},
             },
         }
         def worker() -> None:
@@ -1763,6 +2207,7 @@ class ControlPanelApp:
                     try:
                         self.login_main_password_var.set("")
                         self.login_buffer_password_var.set("")
+                        self.login_farmer_password_var.set("")
                     finally:
                         self._loading_login_config = False
                     self._login_config_dirty = False
@@ -1851,6 +2296,8 @@ class ControlPanelApp:
                 f2_enabled=self.f2_enabled_var.get(),
                 f2_interval=self.f2_interval_var.get(),
                 f2_pre_cast=self.f2_pre_cast_var.get(),
+                f1_active_attack_min_min=self.f1_active_attack_min_min_var.get(),
+                f2_active_attack_speed_min=self.f2_active_attack_speed_min_var.get(),
             )
         except Exception as exc:
             messagebox.showerror("Save buff/mob config", f"Invalid config: {exc}")
@@ -1896,13 +2343,15 @@ class ControlPanelApp:
         self._post_async("/api/start", payload)
 
     def login_profile_values(self, profile: str) -> tuple[str, str]:
+        if profile == "farmer":
+            return self.login_farmer_user_var.get().strip(), FARMER_JSON_STATE.rsplit("/", 1)[0]
         if profile == "buffer":
             return self.login_buffer_user_var.get().strip(), BUFFER_JSON_STATE.rsplit("/", 1)[0]
         return self.login_main_user_var.get().strip(), MAIN_JSON_STATE.rsplit("/", 1)[0]
 
     def open_login_profile(self, profile: str) -> None:
         username, app_dir = self.login_profile_values(profile)
-        label = "BUFFER" if profile == "buffer" else "MAIN"
+        label = "FARMER" if profile == "farmer" else ("BUFFER" if profile == "buffer" else "MAIN")
         if not username:
             messagebox.showerror("Open game + login", f"{label} username is empty. Fill it in and save login config first.")
             return
@@ -1910,7 +2359,7 @@ class ControlPanelApp:
             self._post_after_api_ready(build_quick_start_payload("open_login_game", login_username=username, login_app_dir=app_dir))
 
     def open_login_game(self) -> None:
-        self.open_login_profile("buffer" if self.client_profile == "buffer" else "main")
+        self.open_login_profile(self.client_profile if self.client_profile in {"buffer", "farmer"} else "main")
 
     def integrate_client(self) -> None:
         if messagebox.askokcancel("Patch/integrate client", "Patch the local MT2Portugalia client state logger into loose game.py and pack/root? Close the game first if it is running."):
@@ -1972,6 +2421,64 @@ class ControlPanelApp:
         ):
             self._post_after_api_ready(payload)
             self.boss_farm_status_var.set("Tracker requested; watch Runs for boss_farm_tracker")
+
+    def start_boss_live_control(self) -> None:
+        try:
+            payload = build_boss_live_control_payload(
+                duration=self.boss_farm_duration_var.get(),
+                interval="0.25",
+                max_kills=self.boss_live_max_kills_var.get(),
+                boss_name="Chefe Orc",
+                loot_name=self.boss_farm_loot_name_var.get(),
+                loot_vnum=self.boss_farm_loot_vnum_var.get(),
+                channel_rotate=self.boss_live_channel_rotate_var.get(),
+                channel_click_points=LEARNED_CHANNEL_CLICK_POINTS,
+                pickup_spam_count="12",
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Gated Chefe Orc LIVE", f"Invalid live boss-control settings: {exc}")
+            return
+        if messagebox.askokcancel(
+            "Gated Chefe Orc LIVE",
+            "Start gated LIVE input control? It can press Tab/Space/Z/X and click the learned channel rows. It will only attack when the selected target name contains Chefe Orc, uses fresh JSON state, and can be stopped from Runs / Emergency stop all.",
+        ):
+            self._post_after_api_ready(payload)
+            self.boss_farm_status_var.set("Gated Chefe Orc LIVE requested; watch Runs for chefe_orc_live_control")
+
+    def start_farm_metrics_tracker(self) -> None:
+        try:
+            payload = build_farm_metrics_payload(
+                duration=self.farm_metrics_duration_var.get(),
+                interval=self.farm_metrics_interval_var.get(),
+                history_window=self.farm_metrics_window_var.get(),
+                screenshot_hp_fallback=self.farm_metrics_visual_hp_var.get(),
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Farm metrics tracker", f"Invalid farm metrics settings: {exc}")
+            return
+        self._post_after_api_ready(payload)
+        self.farm_metrics_status_var.set("DPS/item tracker requested; refresh summary after it samples")
+
+    def refresh_farm_metrics_summary(self) -> None:
+        path = self.project_root / "reports/dashboard_runs/farm_metrics_tracker_summary.json"
+        try:
+            summary = json.loads(path.read_text(encoding="utf-8", errors="replace")) if path.exists() else {}
+            text = format_farm_metrics_summary(summary)
+            if summary:
+                dps = summary.get("dps") if isinstance(summary.get("dps"), dict) else {}
+                items = summary.get("items") if isinstance(summary.get("items"), dict) else {}
+                self.farm_metrics_status_var.set(f"DPS last={dps.get('last')} best={dps.get('best')} | items={items.get('farmed_total_count')}")
+        except Exception as exc:
+            text = f"Could not read farm metrics summary: {exc}"
+            self.farm_metrics_status_var.set("Farm metrics: error")
+        widget = getattr(self, "farm_metrics_text", None)
+        if widget is not None:
+            widget.configure(state="normal")
+            widget.delete("1.0", "end")
+            widget.insert("1.0", text)
+            widget.configure(state="normal")
 
     def start_reroll_recorder(self) -> None:
         try:
@@ -2052,6 +2559,15 @@ class ControlPanelApp:
         if not enabled_buffs:
             messagebox.showerror("Keep buffs active LIVE", "Enable at least one buff key (F1 or F2) before starting the keeper.")
             return
+        try:
+            f1_threshold = float(self.f1_active_attack_min_min_var.get())
+            f2_threshold = float(self.f2_active_attack_speed_min_var.get())
+        except Exception as exc:
+            messagebox.showerror("Keep buffs active LIVE", f"Invalid active-stat threshold: {exc}")
+            return
+        if f1_threshold <= 0 or f2_threshold <= 0:
+            messagebox.showerror("Keep buffs active LIVE", "F1/F2 active-stat thresholds must be > 0")
+            return
         buff_keys = ",".join(row[0] for row in enabled_buffs)
         buff_durations = ",".join(row[1] for row in enabled_buffs)
         # The CLI has one refresh margin; use the smallest visible pre-cast value
@@ -2060,7 +2576,7 @@ class ControlPanelApp:
         effective = ", ".join(f"{key.upper()} every {duration}s (rebuff at ~{max(0.0, float(duration) - refresh_margin):g}s)" for key, duration, _pre in enabled_buffs)
         if messagebox.askokcancel(
             "Keep buffs active LIVE",
-            "Start LIVE F1/F2 keep-buffs-active toggle? It will keep running until you click the same button again. It focuses MT2Portugalia and presses only configured buff keys when due. It will not attack, move, or target.\n\nStarting mode: " + mode + f"\nBuff timing: {effective}\nPre-cast margin: {refresh_margin:g}s\n\nVerify the small top-left buff icons after it starts.",
+            "Start LIVE F1/F2 keep-buffs-active toggle? It will keep running until you click the same button again. It focuses MT2Portugalia and presses only configured buff keys when due. It will not attack, move, or target.\n\nStarting mode: " + mode + f"\nBuff timing: {effective}\nPre-cast margin: {refresh_margin:g}s\nAPI active thresholds: F1 attack_power ≥ {f1_threshold:g}; F2 attack_speed ≥ {f2_threshold:g}\n\nVerify the small top-left buff icons after it starts.",
         ):
             self._post_after_api_ready(
                 build_quick_start_payload(
@@ -2069,6 +2585,8 @@ class ControlPanelApp:
                     buff_keys=buff_keys,
                     buff_durations=buff_durations,
                     buff_refresh_margin_seconds=f"{refresh_margin:g}",
+                    f1_active_attack_min_min=f"{f1_threshold:g}",
+                    f2_active_attack_speed_min=f"{f2_threshold:g}",
                 )
             )
 
@@ -2136,6 +2654,276 @@ class ControlPanelApp:
 
     def start_key_macro(self, key: str) -> None:
         self._start_key_macro_payload(key, presses=self.key_macro_presses_var.get())
+
+    def _sapo_cycle_state_path(self) -> Path:
+        return self.project_root / FIXED_SAPO_CHANNEL_CYCLE_STATE
+
+    def reset_sapo_channel_cycle(self) -> None:
+        path = self._sapo_cycle_state_path()
+        try:
+            if path.exists():
+                path.unlink()
+                detail = f"Reset channel cycle: deleted {path}"
+            else:
+                detail = f"Channel cycle already reset: {path} does not exist"
+            self.sapo_status_var.set(detail)
+            self.sapo_preflight_text.delete("1.0", "end")
+            self.sapo_preflight_text.insert("end", detail)
+        except Exception as exc:
+            messagebox.showerror("Reset Fixed Sapo channel cycle", str(exc))
+
+    def refresh_sapo_gate_details(self) -> None:
+        try:
+            state = self.client.get("/api/state")
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo gate details", f"Cannot read state: {exc}")
+            return
+        try:
+            runs = self.client.get("/api/runs")
+        except Exception:
+            runs = []
+        cycle_state = None
+        path = self._sapo_cycle_state_path()
+        if path.exists():
+            try:
+                cycle_state = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+            except Exception:
+                cycle_state = {"error": "could not parse cycle state"}
+        text = format_fixed_sapo_gate_details(state, runs, cycle_state)
+        self.sapo_preflight_text.delete("1.0", "end")
+        self.sapo_preflight_text.insert("end", text)
+        self.sapo_status_var.set("Fixed Sapo gate details refreshed")
+
+    def refresh_sapo_sweep_summary(self) -> None:
+        path = self.project_root / "reports/dashboard_runs/fixed_sapo_channel_sweep_summary.json"
+        try:
+            summary = json.loads(path.read_text(encoding="utf-8", errors="replace")) if path.exists() else {}
+        except Exception as exc:
+            summary = {"outcome": "summary_read_failed", "reason": str(exc)}
+        text = format_fixed_sapo_sweep_summary(summary)
+        self.sapo_preflight_text.delete("1.0", "end")
+        self.sapo_preflight_text.insert("end", text)
+        self.sapo_status_var.set("Fixed Sapo latest sweep summary refreshed")
+
+    def sapo_sweep_dry_run_preview(self) -> None:
+        try:
+            payload = build_fixed_sapo_sweep_payload(
+                channels=self.sapo_sweep_channels_var.get(),
+                cycle_duration=self.sapo_until_destroy_duration_var.get(),
+                load_wait_seconds=self.sapo_sweep_load_wait_var.get(),
+                hp_stop_threshold=self.sapo_hp_stop_var.get(),
+                min_distance=self.sapo_min_distance_var.get(),
+                channel_click_points=self.channel_click_points_var.get(),
+                channel_index=self.sapo_channel_index_var.get(),
+                channel_auto_cycle=self.sapo_channel_auto_cycle_var.get(),
+                skip_first_channel=self.sapo_skip_first_channel_var.get(),
+                pickup_seconds=self.sapo_pickup_seconds_var.get(),
+                live=False,
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo sweep preview", f"Invalid sweep preview settings: {exc}")
+            return
+        self._post_after_api_ready(payload)
+        self.sapo_status_var.set("Fixed Sapo dry-run sweep preview requested; refresh Last sweep summary after it exits")
+
+    def _start_fixed_sapo_payload(self, *, duration: str, until_destroyed: bool, pickup_after_destroy: bool, live: bool) -> None:
+        try:
+            payload = build_fixed_sapo_payload(
+                duration=duration,
+                until_destroyed=until_destroyed,
+                hp_stop_threshold=self.sapo_hp_stop_var.get(),
+                pickup_after_destroy=pickup_after_destroy,
+                channel_switch_after_pickup=self.sapo_channel_switch_after_pickup_var.get() if until_destroyed else False,
+                channel_click_points=self.channel_click_points_var.get(),
+                channel_index=self.sapo_channel_index_var.get(),
+                channel_auto_cycle=self.sapo_channel_auto_cycle_var.get(),
+                channel_cycle_state=FIXED_SAPO_CHANNEL_CYCLE_STATE,
+                skip_first_channel=self.sapo_skip_first_channel_var.get(),
+                pickup_seconds=self.sapo_pickup_seconds_var.get(),
+                min_distance=self.sapo_min_distance_var.get(),
+                live=live,
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo", f"Invalid Fixed Sapo settings: {exc}")
+            return
+        if live:
+            try:
+                runs = self.client.get("/api/runs")
+            except Exception as exc:
+                messagebox.showerror("Fixed Sapo", f"Cannot read running scripts: {exc}")
+                return
+            if has_active_live_combat_run(runs):
+                messagebox.showinfo("Fixed Sapo", "A live combat/Space run is already running. Stop it before starting another.")
+                self.refresh_all()
+                return
+            buff_run = find_running_buff_keeper_run(runs)
+            warning = "Buff keeper is RUNNING." if buff_run else "WARNING: buff keeper is not running. Start Keep Buffs Active LIVE first unless this is an input-only probe."
+            action = "hold Space until Sapo destroyed" if until_destroyed else f"hold Space for {duration}s"
+            if not messagebox.askokcancel(
+                "Fixed Sapo Space-only LIVE",
+                f"Start Fixed Sapo Space-only LIVE?\n\nAction: {action}\n{warning}\n\nThe script will NOT click, move, target-search, or press potion 1. It blocks on stale state, dead/missing Sapo probe, player death, or too far from fixed spawn. Confirm?",
+            ):
+                return
+        self._post_after_api_ready(payload)
+        self.sapo_status_var.set("Fixed Sapo run requested; watch Runs and preflight/summary files")
+
+    def sapo_preflight_dry_run(self) -> None:
+        self._start_fixed_sapo_payload(duration="0", until_destroyed=False, pickup_after_destroy=False, live=False)
+
+    def sapo_space_short_live(self) -> None:
+        self._start_fixed_sapo_payload(duration=self.sapo_duration_var.get(), until_destroyed=False, pickup_after_destroy=False, live=True)
+
+    def sapo_space_until_destroy_live(self) -> None:
+        self._start_fixed_sapo_payload(
+            duration=self.sapo_until_destroy_duration_var.get(),
+            until_destroyed=True,
+            pickup_after_destroy=self.sapo_pickup_after_destroy_var.get(),
+            live=True,
+        )
+
+    def sapo_full_destroy_pickup_switch_live(self) -> None:
+        self.sapo_pickup_after_destroy_var.set(True)
+        self.sapo_channel_switch_after_pickup_var.set(True)
+        self._start_fixed_sapo_payload(
+            duration=self.sapo_until_destroy_duration_var.get(),
+            until_destroyed=True,
+            pickup_after_destroy=True,
+            live=True,
+        )
+
+    def sapo_sweep_all_channels_live(self) -> None:
+        try:
+            payload = build_fixed_sapo_sweep_payload(
+                channels=self.sapo_sweep_channels_var.get(),
+                cycle_duration=self.sapo_until_destroy_duration_var.get(),
+                load_wait_seconds=self.sapo_sweep_load_wait_var.get(),
+                hp_stop_threshold=self.sapo_hp_stop_var.get(),
+                min_distance=self.sapo_min_distance_var.get(),
+                channel_click_points=self.channel_click_points_var.get(),
+                channel_index=self.sapo_channel_index_var.get(),
+                channel_auto_cycle=self.sapo_channel_auto_cycle_var.get(),
+                skip_first_channel=self.sapo_skip_first_channel_var.get(),
+                pickup_seconds=self.sapo_pickup_seconds_var.get(),
+                low_dps_adjust=self.sapo_sweep_low_dps_adjust_var.get(),
+                low_dps_threshold=self.sapo_sweep_low_dps_threshold_var.get(),
+                adjust_hold_seconds=self.sapo_sweep_adjust_hold_var.get(),
+                live=True,
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo sweep", f"Invalid sweep settings: {exc}")
+            return
+        try:
+            runs = self.client.get("/api/runs")
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo sweep", f"Cannot read running scripts: {exc}")
+            return
+        if has_active_live_combat_run(runs):
+            messagebox.showinfo("Fixed Sapo sweep", "A live combat/Space/channel test is already running. Stop it before starting the sweep.")
+            self.refresh_all()
+            return
+        buff_run = find_running_buff_keeper_run(runs)
+        warning = "Buff keeper is RUNNING." if buff_run else "WARNING: buff keeper is not running. Start Keep Buffs Active LIVE first unless you are intentionally testing without it."
+        if not messagebox.askokcancel(
+            "Sweep all Sapo channels LIVE",
+            f"Start full Fixed Sapo sweep LIVE?\n\n"
+            f"Cycles: {payload['options']['channels']} channel attempts\n"
+            f"Per channel: hold Space up to {payload['options']['cycle_duration']}s, pickup Z, switch channel, wait {payload['options']['load_wait_seconds']}s.\n"
+            f"{warning}\n\n"
+            "The script will NOT combat-click, target-search, or press potion 1. If low-DPS adjustment is enabled, it may tap tiny WASD centering nudges while Space remains held. It stops on stale state, death/low HP, missing Sapo probe, too far from spawn, timeout, or channel-switch failure. Confirm?",
+        ):
+            return
+        self._post_after_api_ready(payload)
+        self.sapo_status_var.set("Fixed Sapo all-channel sweep requested; watch Runs and fixed_sapo_channel_sweep_summary.json")
+
+    def toggle_sapo_sweep_keep_running(self) -> None:
+        try:
+            runs = self.client.get("/api/runs")
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo keep sweep", f"Cannot read running scripts: {exc}")
+            return
+        for run in runs:
+            if run.get("script") == "fixed_sapo_channel_sweep" and run.get("mode") == "live" and run.get("running"):
+                self._post_async("/api/stop", {"run_id": run.get("run_id")})
+                self.sapo_status_var.set(f"Stopping Fixed Sapo keep-running sweep: {run.get('run_id')}")
+                return
+        if has_active_live_combat_run(runs):
+            messagebox.showinfo("Fixed Sapo keep sweep", "A live combat/Space/channel test is already running. Stop it before starting keep-running sweep.")
+            self.refresh_all()
+            return
+        try:
+            payload = build_fixed_sapo_sweep_payload(
+                channels=self.sapo_sweep_channels_var.get(),
+                cycle_duration=self.sapo_until_destroy_duration_var.get(),
+                load_wait_seconds=self.sapo_sweep_load_wait_var.get(),
+                hp_stop_threshold=self.sapo_hp_stop_var.get(),
+                min_distance=self.sapo_min_distance_var.get(),
+                channel_click_points=self.channel_click_points_var.get(),
+                channel_index=self.sapo_channel_index_var.get(),
+                channel_auto_cycle=self.sapo_channel_auto_cycle_var.get(),
+                skip_first_channel=self.sapo_skip_first_channel_var.get(),
+                pickup_seconds=self.sapo_pickup_seconds_var.get(),
+                repeat_while_running=True,
+                low_dps_adjust=self.sapo_sweep_low_dps_adjust_var.get(),
+                low_dps_threshold=self.sapo_sweep_low_dps_threshold_var.get(),
+                adjust_hold_seconds=self.sapo_sweep_adjust_hold_var.get(),
+                live=True,
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo keep sweep", f"Invalid keep-running settings: {exc}")
+            return
+        buff_run = find_running_buff_keeper_run(runs)
+        warning = "Buff keeper is RUNNING." if buff_run else "WARNING: buff keeper is not running. Start Keep Buffs Active LIVE first unless intentionally testing without it."
+        if not messagebox.askokcancel(
+            "Keep Fixed Sapo sweep running LIVE",
+            f"Start continuous Fixed Sapo channel sweep until you toggle this button again or Emergency Stop?\n\n"
+            f"Cycles repeat every {payload['options']['channels']} channel attempts. Low-DPS WASD nudges: {payload['options']['low_dps_adjust']}.\n"
+            f"{warning}\n\n"
+            "It holds Space to attack, picks up, switches channel, and may send tiny WASD centering taps only when low-DPS adjustment is enabled. Confirm?",
+        ):
+            return
+        self._post_after_api_ready(payload)
+        self.sapo_status_var.set("Fixed Sapo keep-running sweep requested; toggle again or Emergency Stop to stop it")
+
+    def sapo_pickup_channel_switch_live(self) -> None:
+        try:
+            payload = build_fixed_sapo_payload(
+                duration="0",
+                until_destroyed=False,
+                hp_stop_threshold=self.sapo_hp_stop_var.get(),
+                pickup_after_destroy=True,
+                channel_switch_after_pickup=True,
+                channel_click_points=self.channel_click_points_var.get(),
+                channel_index=self.sapo_channel_index_var.get(),
+                channel_auto_cycle=self.sapo_channel_auto_cycle_var.get(),
+                channel_cycle_state=FIXED_SAPO_CHANNEL_CYCLE_STATE,
+                skip_first_channel=self.sapo_skip_first_channel_var.get(),
+                pickup_seconds=self.sapo_pickup_seconds_var.get(),
+                min_distance=self.sapo_min_distance_var.get(),
+                live=True,
+                state_json=self.json_state_path,
+            )
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo channel switch", f"Invalid channel-switch settings: {exc}")
+            return
+        try:
+            runs = self.client.get("/api/runs")
+        except Exception as exc:
+            messagebox.showerror("Fixed Sapo channel switch", f"Cannot read running scripts: {exc}")
+            return
+        if has_active_live_combat_run(runs):
+            messagebox.showinfo("Fixed Sapo channel switch", "A live combat/Space/channel test is already running. Stop it before starting another.")
+            self.refresh_all()
+            return
+        if messagebox.askokcancel(
+            "Fixed Sapo pickup + channel switch LIVE",
+            "Test only the post-destroy step?\n\nGate: current Sapo probe must already be gone/alive=false.\nAction: press Z pickups, press X, then click configured channel row.\nIt will not attack, hold Space, move, or press potion 1. Confirm?",
+        ):
+            self._post_after_api_ready(payload)
+            self.sapo_status_var.set("Fixed Sapo channel-switch test requested; watch Runs and summary JSON")
 
     def find_nearby_metins(self) -> None:
         self._post_after_api_ready(build_quick_start_payload("find_nearby_metins"))

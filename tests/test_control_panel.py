@@ -33,9 +33,17 @@ from metin2_dashboard.control_panel import (
     option_payload_from_vars,
     format_control_config_summary,
     build_control_config_payload,
+    build_fixed_sapo_payload,
+    build_fixed_sapo_sweep_payload,
+    effective_channel_index,
+    format_fixed_sapo_gate_details,
+    format_fixed_sapo_sweep_summary,
     build_key_macro_payload,
     build_player_training_payload,
     build_boss_farm_tracker_payload,
+    build_boss_live_control_payload,
+    build_farm_metrics_payload,
+    format_farm_metrics_summary,
     build_reroll_recorder_payload,
     build_reroll_config_payload,
     format_reroll_config_summary,
@@ -51,6 +59,8 @@ from metin2_dashboard.control_panel import (
     allow_practice_live_without_metin,
     format_state_bridge_report,
     state_bridge_report,
+    normalize_channel_click_points,
+    pickup_count_from_seconds,
 )
 
 
@@ -120,7 +130,7 @@ def test_quick_start_payloads_include_safe_buff_presets():
         "script": "combat_metin_client_state",
         "live": False,
         "confirm_live": False,
-        "options": {"max_cycles": "4", "buff_only": True, "buff_keys": "f1,f2", "buff_durations": "109,301", "buff_damage_guard_keys": "f1"},
+        "options": {"max_cycles": "4", "buff_only": True, "buff_keys": "f1,f2", "buff_durations": "156,302", "buff_damage_guard_keys": "f1", "assume_mounted": True},
     }
     assert live["live"] is True
     assert live["confirm_live"] is True
@@ -129,6 +139,8 @@ def test_quick_start_payloads_include_safe_buff_presets():
     assert "buff_keys" not in live["options"]
     assert "buff_durations" not in live["options"]
     assert live["options"]["assume_mounted"] is True
+    assert live["options"]["f1_active_attack_min_min"] == "200"
+    assert live["options"]["f2_active_attack_speed_min"] == "130"
 
     configured = build_quick_start_payload("buff_only_live", buff_keys="f1,f2", buff_durations="124,304", buff_refresh_margin_seconds="3")
     assert configured["options"]["buff_keys"] == "f1,f2"
@@ -151,6 +163,140 @@ def test_key_macro_payloads_for_direct_f1_f2_buttons():
     assert macro["options"]["presses"] == "0"
 
 
+def test_fixed_sapo_payloads_are_space_only_and_gated():
+    dry = build_fixed_sapo_payload(duration="0", live=False, state_json="state.json")
+    live = build_fixed_sapo_payload(
+        duration="240",
+        until_destroyed=True,
+        pickup_after_destroy=True,
+        hp_stop_threshold="2500",
+        min_distance="350",
+        live=True,
+        state_json="state.json",
+    )
+
+    assert dry == {
+        "script": "fixed_sapo_space_control",
+        "live": False,
+        "confirm_live": False,
+        "options": {
+            "state_json": "state.json",
+            "duration": "0.0",
+            "hp_stop_threshold": "2500",
+            "min_distance": "350.0",
+            "window_query": "MT2Portugalia",
+            "out": "reports/dashboard_runs/fixed_sapo_0s.jsonl",
+            "summary_out": "reports/dashboard_runs/fixed_sapo_0s_summary.json",
+        },
+    }
+    assert live["script"] == "fixed_sapo_space_control"
+    assert live["live"] is True
+    assert live["confirm_live"] is True
+    assert live["options"]["until_destroyed"] is True
+    assert live["options"]["pickup_after_destroy"] is True
+    assert live["options"]["pickup_count"] == "20"
+    assert "click" not in live["options"]
+    assert "potion" not in live["options"]
+
+    channel = build_fixed_sapo_payload(
+        duration="0",
+        pickup_after_destroy=True,
+        channel_switch_after_pickup=True,
+        channel_click_points="0.4,0.3;0.4,0.34",
+        channel_index="1",
+        channel_auto_cycle=True,
+        skip_first_channel=True,
+        pickup_seconds="2.4",
+        live=True,
+        state_json="state.json",
+    )
+    assert channel["options"]["channel_switch_after_pickup"] is True
+    assert channel["options"]["pickup_after_destroy"] is True
+    assert channel["options"]["channel_click_points"] == "0.4,0.34"
+    assert channel["options"]["channel_index"] == "0"
+    assert channel["options"]["channel_auto_cycle"] is True
+    assert channel["options"]["channel_cycle_state"].endswith("fixed_sapo_channel_cycle_state.json")
+    assert channel["options"]["pickup_count"] == "30"
+
+
+def test_learned_channel_click_points_match_latest_live_menu_rows():
+    rows = [tuple(map(float, row.split(","))) for row in LEARNED_CHANNEL_CLICK_POINTS.split(";")]
+
+    assert len(rows) == 8
+    assert rows == pytest.approx([
+        (0.4990, 0.3986),
+        (0.4990, 0.4326),
+        (0.4990, 0.4665),
+        (0.4990, 0.5005),
+        (0.4990, 0.5344),
+        (0.4990, 0.5684),
+        (0.4990, 0.6023),
+        (0.4990, 0.6363),
+    ], abs=0.0002)
+    assert normalize_channel_click_points(LEARNED_CHANNEL_CLICK_POINTS, skip_first=True).split(";")[0] == "0.4990,0.4326"
+
+
+def test_fixed_sapo_channel_helpers_and_formatters():
+    assert normalize_channel_click_points("a;b;c", skip_first=True) == "b;c"
+    assert effective_channel_index("2", skip_first=True) == "1"
+    assert pickup_count_from_seconds("1.6") == "20"
+    gates = format_fixed_sapo_gate_details(
+        {"_file_mtime": 100.0, "player": {"name": "Yoshypt", "hp": 8296, "max_hp": 8296, "x": 1, "y": 2}, "target": {"name": "Sapo de Pedra", "alive": True}, "named_metin_probe": {"name": "Sapo de Pedra", "alive": True, "vid": 7}},
+        [{"run_id": "buff", "script": "combat_metin_client_state", "mode": "live", "running": True, "command": "--buff-only"}],
+        {"last_channel_index": 1, "next_channel_index": 2, "points_count": 6},
+    )
+    assert "buff keeper running: True" in gates
+    assert "cycle state: last=1 next=2 points=6" in gates
+    summary = format_fixed_sapo_sweep_summary({"run_id": "r1", "outcome": "completed", "reason": "done", "requested_channels": 1, "completed_cycles": 1, "cycles": [{"cycle": 1, "outcome": "destroyed_switched", "reason": "cycle_complete", "pickup_sent": 20, "attack": {"destroyed": True, "hp_min": 8000}, "channel_switch_result": {"channel_index": 2, "screen_point": [807, 410]}}]})
+    assert "completed cycles: 1/1" in summary
+    assert "channel_index=2" in summary
+
+
+def test_fixed_sapo_sweep_payload_is_bounded_and_safe():
+    sweep = build_fixed_sapo_sweep_payload(
+        channels="8",
+        cycle_duration="240",
+        load_wait_seconds="5",
+        hp_stop_threshold="2500",
+        min_distance="350",
+        channel_click_points="0.4,0.34;0.4,0.37",
+        channel_index="1",
+        channel_auto_cycle=True,
+        skip_first_channel=True,
+        pickup_seconds="2.0",
+        repeat_while_running=True,
+        low_dps_adjust=True,
+        low_dps_threshold="0.20",
+        low_dps_window_seconds="8",
+        adjust_hold_seconds="0.18",
+        live=True,
+        state_json="state.json",
+    )
+
+    assert sweep["script"] == "fixed_sapo_channel_sweep"
+    assert sweep["live"] is True
+    assert sweep["confirm_live"] is True
+    opts = sweep["options"]
+    assert opts["channels"] == "8"
+    assert opts["cycle_duration"] == "240.0"
+    assert opts["load_wait_seconds"] == "5.0"
+    assert opts["hp_stop_threshold"] == "2500"
+    assert opts["min_distance"] == "350.0"
+    assert opts["pickup_count"] == "25"
+    assert opts["channel_click_points"] == "0.4,0.37"
+    assert opts["channel_index"] == "0"
+    assert opts["channel_auto_cycle"] is True
+    assert opts["channel_cycle_state"].endswith("fixed_sapo_channel_cycle_state.json")
+    assert opts["repeat_while_running"] is True
+    assert opts["low_dps_adjust"] is True
+    assert opts["low_dps_threshold"] == "0.2"
+    assert opts["low_dps_window_seconds"] == "8.0"
+    assert opts["adjust_hold_seconds"] == "0.18"
+    assert opts["out"].endswith("fixed_sapo_channel_sweep.jsonl")
+    assert "potion" not in opts
+    assert "move" not in opts
+
+
 def test_control_panel_source_exposes_direct_key_test_buttons():
     source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
     assert "Direct key test + timed macro" in source
@@ -160,6 +306,36 @@ def test_control_panel_source_exposes_direct_key_test_buttons():
     assert "Start F2 timed macro LIVE" in source
     assert "def press_key_once" in source
     assert "def start_key_macro" in source
+
+
+def test_control_panel_source_exposes_fixed_sapo_test_bench():
+    source = Path("metin2_dashboard/control_panel.py").read_text(encoding="utf-8")
+    assert "Fixed Sapo" in source
+    assert "Run 30s Space test LIVE" in source
+    assert "Run until Sapo destroyed LIVE" in source
+    assert "Full: destroy + pickup + switch LIVE" in source
+    assert "Sweep all channels LIVE" in source
+    assert "Keep sweep running LIVE" in source
+    assert "low DPS: nudge WASD" in source
+    assert "Dry-run sweep preview" in source
+    assert "Last sweep summary" in source
+    assert "Reset channel cycle" in source
+    assert "skip index 0" in source
+    assert "pickup seconds" in source
+    assert "Test pickup + channel switch LIVE" in source
+    assert "auto next channel" in source
+    assert "no click / no move / no potion 1" in source
+    assert "def sapo_space_short_live" in source
+    assert "def sapo_space_until_destroy_live" in source
+    assert "def sapo_full_destroy_pickup_switch_live" in source
+    assert "def sapo_sweep_all_channels_live" in source
+    assert "def toggle_sapo_sweep_keep_running" in source
+    assert "def sapo_sweep_dry_run_preview" in source
+    assert "def reset_sapo_channel_cycle" in source
+    assert "def refresh_sapo_gate_details" in source
+    assert "def refresh_sapo_sweep_summary" in source
+    assert "def sapo_pickup_channel_switch_live" in source
+
 
 
 def test_option_default_values_preserve_editable_defaults():
@@ -208,6 +384,7 @@ def test_control_panel_formats_and_builds_buff_mob_config():
     combat = {"attack_nearby_mobs": True}
     buffs = {
         "use_buff_config": True,
+        "active_stat_thresholds": {"f1_attack_min_min": 349, "f2_attack_speed_min": 135},
         "buffs": [
             {"key": "f1", "enabled": True, "interval_seconds": 35, "pre_cast_seconds": 3},
             {"key": "f2", "enabled": False, "interval_seconds": 42, "pre_cast_seconds": 4},
@@ -217,6 +394,8 @@ def test_control_panel_formats_and_builds_buff_mob_config():
     summary = format_control_config_summary(combat, buffs)
     assert "attack nearby mobs: ON" in summary
     assert "use buff config: ON" in summary
+    assert "F1 active threshold: attack_power >= 349" in summary
+    assert "F2 active threshold: attack_speed >= 135" in summary
     assert "f1 enabled every 35s pre-cast 3s" in summary
     assert "f2 disabled" in summary
 
@@ -229,9 +408,12 @@ def test_control_panel_formats_and_builds_buff_mob_config():
         f2_enabled=True,
         f2_interval="44",
         f2_pre_cast="5",
+        f1_active_attack_min_min="210",
+        f2_active_attack_speed_min="140",
     )
     assert combat_payload == {"attack_nearby_mobs": False}
     assert buff_payload["use_buff_config"] is True
+    assert buff_payload["active_stat_thresholds"] == {"f1_attack_min_min": 210.0, "f2_attack_speed_min": 140.0}
     assert buff_payload["buffs"][0] == {"key": "f1", "enabled": True, "interval_seconds": 36.0, "pre_cast_seconds": 2.0}
     assert buff_payload["buffs"][1] == {"key": "f2", "enabled": True, "interval_seconds": 44.0, "pre_cast_seconds": 5.0}
 
@@ -358,7 +540,13 @@ def test_control_panel_uses_notebook_pages_to_organize_operator_surface():
     assert "Targets + runs" in source
     assert "Player training" in source
     assert "Boss farm" in source
+    assert "Farm metrics" in source
+    assert "Start DPS/item tracker" in source
+    assert "farm_metrics_tracker" in source
+    assert "DPS meter + item farm history" in source
     assert "Start boss farm tracker" in source
+    assert "Start gated Chefe Orc LIVE" in source
+    assert "chefe_orc_live_control" in source
     assert "boss_farm_tracker" in source
     assert "alterar personagem" in source
     assert "boss_kills_confirmed" in source
@@ -447,6 +635,54 @@ def test_build_boss_farm_tracker_payload_is_observation_only():
     }
 
 
+def test_build_boss_live_control_payload_is_gated_live_control():
+    payload = build_boss_live_control_payload(
+        duration="600",
+        max_kills="4",
+        channel_rotate=True,
+        channel_click_points="0.4039,0.4559;0.4039,0.4830",
+        pickup_spam_count="12",
+        state_json=BUFFER_JSON_STATE,
+    )
+
+    assert payload["script"] == "chefe_orc_live_control"
+    assert payload["live"] is True
+    assert payload["confirm_live"] is True
+    assert payload["options"]["state_json"] == BUFFER_JSON_STATE
+    assert payload["options"]["boss_name"] == "Chefe Orc"
+    assert payload["options"]["loot_vnum"] == "50070"
+    assert payload["options"]["channel_rotate"] is True
+    assert payload["options"]["channel_click_points"] == "0.4039,0.4559;0.4039,0.4830"
+    assert payload["options"]["pickup_spam_count"] == "12"
+
+
+def test_build_farm_metrics_payload_and_summary_are_read_only():
+    payload = build_farm_metrics_payload(duration="120", interval="0.25", history_window="15", state_json=BUFFER_JSON_STATE)
+
+    assert payload["script"] == "farm_metrics_tracker"
+    assert payload["live"] is False
+    assert payload["confirm_live"] is False
+    assert payload["options"]["duration"] == "120.0"
+    assert payload["options"]["interval"] == "0.25"
+    assert payload["options"]["history_window"] == "15.0"
+    assert payload["options"]["state_json"] == BUFFER_JSON_STATE
+    assert "potion" not in payload["options"]
+    assert "click" not in payload["options"]
+
+    text = format_farm_metrics_summary({
+        "run_id": "farm1",
+        "outcome": "completed",
+        "samples": 5,
+        "duration_seconds": 2.5,
+        "dps": {"last": 10, "best": 12, "average": 8, "total_damage": 20, "kills_estimated": 1},
+        "items": {"inventory_available": True, "farmed_total_count": 3, "farmed": [{"name": "Livro", "vnum": 1, "count": 2}], "loot_events": []},
+        "log": "reports/dashboard_runs/farm_metrics_tracker.jsonl",
+    })
+    assert "DPS last=10" in text
+    assert "2x Livro" in text
+    assert "items farmed total: 3" in text
+
+
 def test_build_reroll_recorder_payload_is_observation_only():
     payload = build_reroll_recorder_payload(duration="120", interval="0.2", target_slot="12", target_vnum="2849", state_json=BUFFER_JSON_STATE)
 
@@ -520,12 +756,16 @@ def test_control_panel_source_exposes_login_account_config_fields():
     assert "Save login config" in source
     assert "Open MAIN + login" in source
     assert "Open BUFFER + login" in source
+    assert "Open FARMER + login" in source
+    assert "D:/Games/MT2PortugaliaFarmer/app" in source
     assert "This keeps the other client open" in source
     assert "/api/login_config" in source
 
     assert "open_login_profile" in source
     assert "login_buffer_user_var" in source
     assert "login_buffer_password_var" in source
+    assert "login_farmer_user_var" in source
+    assert "login_farmer_password_var" in source
     assert "_login_config_dirty" in source
     assert "Login config editing; auto-refresh will not overwrite fields" in source
 
@@ -636,6 +876,8 @@ def test_toggle_buff_only_live_uses_starting_mount_toggle(monkeypatch):
     app.f2_interval_var = FakeVar("304")
     app.f1_pre_cast_var = FakeVar("3")
     app.f2_pre_cast_var = FakeVar("3")
+    app.f1_active_attack_min_min_var = FakeVar("215")
+    app.f2_active_attack_speed_min_var = FakeVar("145")
     app._toggle_existing_run_or_none = lambda **kwargs: False
     app._post_after_api_ready = lambda payload: calls.append(payload)
     monkeypatch.setattr("metin2_dashboard.control_panel.messagebox.askokcancel", lambda *args, **kwargs: True)
@@ -648,6 +890,8 @@ def test_toggle_buff_only_live_uses_starting_mount_toggle(monkeypatch):
     assert calls[0]["options"]["buff_keys"] == "f1,f2"
     assert calls[0]["options"]["buff_durations"] == "124,304"
     assert calls[0]["options"]["buff_refresh_margin_seconds"] == "3"
+    assert calls[0]["options"]["f1_active_attack_min_min"] == "215"
+    assert calls[0]["options"]["f2_active_attack_speed_min"] == "145"
 
 def test_quick_start_payloads_cover_login_and_practice_buttons():
     assert build_quick_start_payload("open_login_game") == {
@@ -684,7 +928,7 @@ def test_quick_start_payloads_cover_login_and_practice_buttons():
         "script": "combat_metin_client_state",
         "live": True,
         "confirm_live": True,
-        "options": {"max_cycles": "0", "buff_only": True, "assume_mounted": True, "buff_damage_guard_keys": "f1"},
+        "options": {"max_cycles": "0", "buff_only": True, "assume_mounted": True, "buff_damage_guard_keys": "f1", "f1_active_attack_min_min": "200", "f2_active_attack_speed_min": "130"},
     }
     assert build_quick_start_payload("find_nearby_metins") == {
         "script": "find_nearby_metins",
@@ -784,11 +1028,14 @@ def test_player_training_run_status_shows_latest_analysis_when_not_running(tmp_p
     assert "attack_start" in status["text"]
 
 
-def test_learned_channel_click_points_are_ch1_to_ch8_rows():
+def test_learned_channel_click_points_match_visible_ch1_to_ch8_rows():
     points = LEARNED_CHANNEL_CLICK_POINTS.split(";")
     assert len(points) == 8
-    assert points[4] == "0.4039,0.4287"  # learned CH5 current row
-    assert points[5] == "0.4039,0.4559"  # learned CH6 row, verified by controlled click
+    assert points[0] == "0.4990,0.3986"  # CH1 row, physical-pixel center
+    assert points[1] == "0.4990,0.4326"  # CH2
+    assert points[2] == "0.4990,0.4665"  # CH3
+    assert points[3] == "0.4990,0.5005"  # CH4
+    assert points[-1] == "0.4990,0.6363"  # CH8
 
 
 def test_attack_nearby_live_payload_can_enable_channel_rotation():
