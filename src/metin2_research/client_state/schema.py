@@ -86,6 +86,7 @@ class GameInfo:
     buffs: list[dict[str, Any]] = field(default_factory=list)
     skills: list[dict[str, Any]] = field(default_factory=list)
     quickslots: list[dict[str, Any]] = field(default_factory=list)
+    player_stats: dict[str, Any] = field(default_factory=dict)
     player_flags: dict[str, Any] = field(default_factory=dict)
     api_probe: dict[str, Any] = field(default_factory=dict)
     client_timestamp_ms: int | None = None
